@@ -5,8 +5,10 @@ Title: State Space Modelling in R
 Description: Functions that make estimating models in State Space form a breeze.
 Author: Dylan Beijers <dylanbeijers@gmail.com>
 Maintainer: Dylan Beijers <dylanbeijers@gmail.com>
+License: MIT + file LICENSE
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
 Imports: Rdpack
-License: MIT + file LICENSE
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
