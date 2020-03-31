@@ -9,4 +9,4 @@ RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
 Imports: Rdpack
-License: MIT + file LICENCE
+License: MIT + file LICENSE
