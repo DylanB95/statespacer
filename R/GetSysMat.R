@@ -27,10 +27,11 @@ GetSysMat <- function(p,
                       exclude_slope = NULL,
                       exclude_BSM_list = lapply(BSM_vec, FUN = function(x) {0}),
                       exclude_cycle_list = list(0),
+                      damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                       format_level = NULL,
                       format_slope = NULL,
                       format_BSM_list = lapply(BSM_vec, FUN = function(x) {NULL}),
-                      format_cycle_list = list(NULL),
+                      format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) {NULL}),
                       format_addvar = NULL,
                       format_level_addvar = NULL) {
 
@@ -80,7 +81,6 @@ GetSysMat <- function(p,
   Z_padded_list <- list()
   
   # Initialising lists to store lambda and rho parameters of the cycles
-  # Lists will be created only if cycle_ind = TRUE
   lambda_list <- NULL
   rho_list <- NULL
   
@@ -738,7 +738,9 @@ GetSysMat <- function(p,
     
     # Initialising lists to store lambda and rho parameters of the cycles
     lambda_list <- list()
-    rho_list <- list()
+    if (sum(damping_factor_ind) > 0) {
+      rho_list <- list()
+    }
     
     for (i in seq_along(format_cycle_list)) {
       
@@ -766,7 +768,7 @@ GetSysMat <- function(p,
         format_cycle_list[[i]] <- diag(1, n_cycle, n_cycle)
       }
       format_cycle_list[[i]][upper.tri(format_cycle_list[[i]])] <- 0 # Only entries in lower triangle of matrix count
-      param_num_list[[paste0('Cycle', i)]] <- 2 + sum(format_cycle_list[[i]] != 0 & lower.tri(format_cycle_list[[i]], diag = TRUE))
+      param_num_list[[paste0('Cycle', i)]] <- 1 + damping_factor_ind[i] + sum(format_cycle_list[[i]] != 0 & lower.tri(format_cycle_list[[i]], diag = TRUE))
       
       # Last index of parameter that should be used for the component
       index_par2 <- index_par + param_num_list[[paste0('Cycle', i)]] - 1
@@ -780,6 +782,7 @@ GetSysMat <- function(p,
       # Calling the proper function to obtain system matrices
       update <- Cycle(p = p,
                       exclude_cycle = exclude_cycle_list[[i]],
+                      damping_factor_ind = damping_factor_ind[i],
                       fixed_part = TRUE,
                       update_part = update_part,
                       param = param[param_indices[[paste0('Cycle', i)]]],
@@ -813,12 +816,14 @@ GetSysMat <- function(p,
       Pinf_list[[paste0('Cycle', i)]] <- update$P_inf
       P_inf <- BlockMatrix(P_inf, update$P_inf)
       Z_padded_list[[paste0('Cycle', i)]] <- cbind(zero_mat, update$Z)
-      if (param_num_list[[paste0('Cycle', i)]] == 2 | update_part) {
+      if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) | update_part) {
         Q_list[[paste0('Cycle', i)]] <- update$Q_cycle
         Q_list2[[paste0('Cycle', i)]] <- update$Q
         Q_kal <- BlockMatrix(Q_kal, update$Q)
         L_list[[paste0('Cycle', i)]] <- update$loading_matrix
         D_list[[paste0('Cycle', i)]] <- update$diagonal_matrix
+      }
+      if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) | !damping_factor_ind[i] | update_part) {
         Pstar_list[[paste0('Cycle', i)]] <- update$P_star
         P_star <- BlockMatrix(P_star, update$P_star)
       }
@@ -835,7 +840,9 @@ GetSysMat <- function(p,
           )
         }
         lambda_list[[paste0('Cycle', i)]] <- update$lambda
-        rho_list[[paste0('Cycle', i)]] <- update$rho
+        if (damping_factor_ind[i]) {
+          rho_list[[paste0('Cycle', i)]] <- update$rho
+        }
       }
     }
   }
@@ -909,6 +916,7 @@ GetSysMat <- function(p,
                         exclude_slope = exclude_slope,
                         exclude_BSM_list = exclude_BSM_list,
                         exclude_cycle_list = exclude_cycle_list,
+                        damping_factor_ind = damping_factor_ind,
                         format_level = format_level,
                         format_slope = format_slope,
                         format_BSM_list = format_BSM_list,

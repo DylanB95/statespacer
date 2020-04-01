@@ -40,10 +40,11 @@ StateSpaceEval <- function(param,
                            exclude_slope = NULL,
                            exclude_BSM_list = lapply(BSM_vec, FUN = function(x) {0}),
                            exclude_cycle_list = list(0),
+                           damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                            format_level = NULL,
                            format_slope = NULL,
                            format_BSM_list = lapply(BSM_vec, FUN = function(x) {NULL}),
-                           format_cycle_list = list(NULL),
+                           format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) {NULL}),
                            format_addvar = NULL,
                            format_level_addvar = NULL,
                            loglik_only = FALSE) {
@@ -77,6 +78,7 @@ StateSpaceEval <- function(param,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
                        exclude_cycle_list = exclude_cycle_list,
+                       damping_factor_ind = damping_factor_ind,
                        format_level = format_level,
                        format_slope = format_slope,
                        format_BSM_list = format_BSM_list,
@@ -98,6 +100,7 @@ StateSpaceEval <- function(param,
   exclude_slope <- sys_mat$function_call$exclude_slope
   exclude_BSM_list <- sys_mat$function_call$exclude_BSM_list
   exclude_cycle_list <- sys_mat$function_call$exclude_cycle_list
+  damping_factor_ind <- sys_mat$function_call$damping_factor_ind
   format_level <- sys_mat$function_call$format_level
   format_slope <- sys_mat$function_call$format_slope
   format_BSM_list <- sys_mat$function_call$format_BSM_list

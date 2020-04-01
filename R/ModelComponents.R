@@ -263,6 +263,7 @@ Slope <- function(p = 1,
 #' Constructs the system matrices of a Cycle component.
 #' 
 #' @param exclude_cycle The dependent variables that should not get a Cycle component.
+#' @param damping_factor_ind Boolean indicating whether a damping factor should be included.
 #' @param format_cycle `format` argument for the \code{\link{Cholesky}} function.
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
@@ -275,9 +276,10 @@ Slope <- function(p = 1,
 #' @noRd
 Cycle <- function(p = 1,
                   exclude_cycle = NULL,
+                  damping_factor_ind = TRUE,
                   fixed_part = TRUE, 
                   update_part = TRUE,
-                  param = rep(1, p + 2),
+                  param = rep(1, p + 1 + damping_factor_ind),
                   format_cycle = diag(1, p, p),
                   chol_return = TRUE) {
 
@@ -312,6 +314,10 @@ Cycle <- function(p = 1,
     if (diag_cycle == 0) {
       result$Q_cycle <- matrix(0, n_cycle, n_cycle)
       result$Q <- matrix(0, 2 * n_cycle, 2 * n_cycle)
+    }
+    
+    # Check when initial state of the cycle is diffuse
+    if (diag_cycle == 0 | !damping_factor_ind) {
       result$P_star <- matrix(0, 2 * n_cycle, 2 * n_cycle)
       result$P_inf <- matrix(1, 2 * n_cycle, 2 * n_cycle)
     } else {
@@ -321,12 +327,11 @@ Cycle <- function(p = 1,
   
   if (update_part) {
     
-    # Damping factor rho (between 0 and 1) and frequency lambda (> 0)
-    result$rho <- 1 / (1 + exp(param[1]))
-    result$lambda <- exp(param[2])
+    # Frequency lambda (> 0)
+    result$lambda <- exp(param[1])
     
     # T matrix = a 2 * n_cycle x 2 * n_cycle matrix
-    result$Tmat <- result$rho * rbind(
+    result$Tmat <- rbind(
       cbind(
         diag(cos(result$lambda), n_cycle, n_cycle), 
         diag(sin(result$lambda), n_cycle, n_cycle)
@@ -336,6 +341,15 @@ Cycle <- function(p = 1,
         diag(cos(result$lambda), n_cycle, n_cycle)
       )
     )
+    
+    # Damping factor rho (between 0 and 1)
+    if (damping_factor_ind) {
+      result$rho <- 1 / (1 + exp(param[2]))
+      result$Tmat <- result$rho * result$Tmat
+      paramQ <- param[-(1:2)]
+    } else {
+      paramQ <- param[-1]
+    }
     
     if (diag_cycle > 0) {
       
@@ -352,7 +366,7 @@ Cycle <- function(p = 1,
       
       # Using Cholesky function to get a valid Variance - Covariance matrix for the Q matrix
       Q_cycle <- Cholesky(
-        param = param[-(1:2)], 
+        param = paramQ, 
         format = format_cycle, 
         chol_return = chol_return
       )
@@ -368,7 +382,9 @@ Cycle <- function(p = 1,
       }
       
       # Initial uncertainty of the state vector
-      result$P_star <- result$Q / (1 - result$rho^2)
+      if (damping_factor_ind) {
+        result$P_star <- result$Q / (1 - result$rho^2)
+      }
     }
   }
   
