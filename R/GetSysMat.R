@@ -68,6 +68,10 @@ GetSysMat <- function(p,
   L_list <- list()
   D_list <- list()
   
+  # Initialising lists to store correlation and standard deviations of Q system matrices
+  corr_list <- list()
+  stdev_list <- list()
+  
   # List to store the number of parameters for each of the components
   param_num_list <- list(H = H_param_num)
   
@@ -147,7 +151,7 @@ GetSysMat <- function(p,
                          update_part = update_part,
                          param = param[param_indices$level],
                          format_level = format_level,
-                         chol_return = TRUE
+                         decompositions = TRUE
     )
     
     # Updating indices for the first parameter to use for the next component
@@ -172,6 +176,8 @@ GetSysMat <- function(p,
       Q_kal <- BlockMatrix(Q_kal, update$Q)
       L_list$level <- update$loading_matrix
       D_list$level <- update$diagonal_matrix
+      corr_list$level <- update$correlation_matrix
+      stdev_list$level <- update$stdev_matrix
     }
   }
   
@@ -238,7 +244,7 @@ GetSysMat <- function(p,
                     param = param[param_indices$slope],
                     format_level = format_level,
                     format_slope = format_slope,
-                    chol_return = TRUE
+                    decompositions = TRUE
     )
     
     # Updating indices for the first parameter to use for the next component
@@ -263,12 +269,16 @@ GetSysMat <- function(p,
       Q_kal <- BlockMatrix(Q_kal, update$Q_level)
       L_list$level <- update$loading_matrix_level
       D_list$level <- update$diagonal_matrix_level
+      corr_list$level <- update$correlation_matrix_level
+      stdev_list$level <- update$stdev_matrix_level
     }
     if (param_num_list$slope == 0 | update_part) {
       Q_list$slope <- update$Q_slope
       Q_kal <- BlockMatrix(Q_kal, update$Q_slope)
       L_list$slope <- update$loading_matrix_slope
       D_list$slope <- update$diagonal_matrix_slope
+      corr_list$slope <- update$correlation_matrix_slope
+      stdev_list$slope <- update$stdev_matrix_slope
     }
   }
   
@@ -322,7 +332,7 @@ GetSysMat <- function(p,
                     update_part = update_part,
                     param = param[param_indices[[paste0('BSM', s)]]],
                     format_BSM = format_BSM_list[[i]],
-                    chol_return = TRUE
+                    decompositions = TRUE
       )
       
       # Updating indices for the first parameter to use for the next component
@@ -348,6 +358,8 @@ GetSysMat <- function(p,
         Q_kal <- BlockMatrix(Q_kal, update$Q)
         L_list[[paste0('BSM', s)]] <- update$loading_matrix
         D_list[[paste0('BSM', s)]] <- update$diagonal_matrix
+        corr_list[[paste0('BSM', s)]] <- update$correlation_matrix
+        stdev_list[[paste0('BSM', s)]] <- update$stdev_matrix
       }
     }
   }
@@ -408,7 +420,7 @@ GetSysMat <- function(p,
                      update_part = update_part,
                      param = param[param_indices$addvar],
                      format_addvar = format_addvar,
-                     chol_return = TRUE
+                     decompositions = TRUE
     )
     
     # Updating indices for the first parameter to use for the next component
@@ -452,6 +464,8 @@ GetSysMat <- function(p,
       Q_kal <- BlockMatrix(Q_kal, update$Q)
       L_list$addvar <- update$loading_matrix
       D_list$addvar <- update$diagonal_matrix
+      corr_list$addvar <- update$correlation_matrix
+      stdev_list$addvar <- update$stdev_matrix
     }
   }
   
@@ -528,7 +542,7 @@ GetSysMat <- function(p,
                           param = param[param_indices$level_addvar],
                           format_level = format_level,
                           format_level_addvar = format_level_addvar,
-                          chol_return = TRUE
+                          decompositions = TRUE
     )
     
     # Updating indices for the first parameter to use for the next component
@@ -573,12 +587,16 @@ GetSysMat <- function(p,
       Q_kal <- BlockMatrix(Q_kal, update$Q_level)
       L_list$level <- update$loading_matrix_level
       D_list$level <- update$diagonal_matrix_level
+      corr_list$level <- update$correlation_matrix_level
+      stdev_list$level <- update$stdev_matrix_level
     }
     if (param_num_list$level_addvar == 0 | update_part) {
       Q_list$level_addvar <- update$Q_level_addvar
       Q_kal <- BlockMatrix(Q_kal, update$Q_level_addvar)
       L_list$level_addvar <- update$loading_matrix_level_addvar
       D_list$level_addvar <- update$diagonal_matrix_level_addvar
+      corr_list$level_addvar <- update$correlation_matrix_level_addvar
+      stdev_list$level_addvar <- update$stdev_matrix_level_addvar
     }
   }
   
@@ -673,7 +691,7 @@ GetSysMat <- function(p,
                           format_level = format_level,
                           format_slope = format_slope,
                           format_level_addvar = format_level_addvar,
-                          chol_return = TRUE
+                          decompositions = TRUE
     )
     
     # Updating indices for the first parameter to use for the next component
@@ -718,18 +736,24 @@ GetSysMat <- function(p,
       Q_kal <- BlockMatrix(Q_kal, update$Q_level)
       L_list$level <- update$loading_matrix_level
       D_list$level <- update$diagonal_matrix_level
+      corr_list$level <- update$correlation_matrix_level
+      stdev_list$level <- update$stdev_matrix_level
     }
     if (param_num_list$slope == 0 | update_part) {
       Q_list$slope <- update$Q_slope
       Q_kal <- BlockMatrix(Q_kal, update$Q_slope)
       L_list$slope <- update$loading_matrix_slope
       D_list$slope <- update$diagonal_matrix_slope
+      corr_list$slope <- update$correlation_matrix_slope
+      stdev_list$slope <- update$stdev_matrix_slope
     }
     if (param_num_list$level_addvar == 0 | update_part) {
       Q_list$level_addvar <- update$Q_level_addvar
       Q_kal <- BlockMatrix(Q_kal, update$Q_level_addvar)
       L_list$level_addvar <- update$loading_matrix_level_addvar
       D_list$level_addvar <- update$diagonal_matrix_level_addvar
+      corr_list$level_addvar <- update$correlation_matrix_level_addvar
+      stdev_list$level_addvar <- update$stdev_matrix_level_addvar
     }
   }
   
@@ -787,7 +811,7 @@ GetSysMat <- function(p,
                       update_part = update_part,
                       param = param[param_indices[[paste0('Cycle', i)]]],
                       format_cycle = format_cycle_list[[i]],
-                      chol_return = TRUE
+                      decompositions = TRUE
       )
       
       # Updating indices for the first parameter to use for the next component
@@ -822,6 +846,8 @@ GetSysMat <- function(p,
         Q_kal <- BlockMatrix(Q_kal, update$Q)
         L_list[[paste0('Cycle', i)]] <- update$loading_matrix
         D_list[[paste0('Cycle', i)]] <- update$diagonal_matrix
+        corr_list[[paste0('Cycle', i)]] <- update$correlation_matrix
+        stdev_list[[paste0('Cycle', i)]] <- update$stdev_matrix
       }
       if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) | !damping_factor_ind[i] | update_part) {
         Pstar_list[[paste0('Cycle', i)]] <- update$P_star
@@ -883,12 +909,14 @@ GetSysMat <- function(p,
       update <- Cholesky(
         param = param[1:H_param_num], 
         format = H_format,
-        chol_return = TRUE
+        decompositions = TRUE
       )
       H_list <- list(
         H = update$cov_mat, 
         loading_matrix = update$loading_matrix, 
-        diagonal_matrix = update$diagonal_matrix
+        diagonal_matrix = update$diagonal_matrix,
+        correlation_matrix <- update$correlation_matrix,
+        stdev_matrix <- update$stdev_matrix
       )
       H <- H_list$H
     } else {
@@ -935,6 +963,8 @@ GetSysMat <- function(p,
     Q2 = Q_list2,
     Q_loading_matrix = L_list,
     Q_diagonal_matrix = D_list,
+    Q_correlation_matrix = corr_list,
+    Q_stdev_matrix = stdev_list,
     a1 = a_list,
     P_inf = Pinf_list,
     P_star = Pstar_list,

@@ -2,13 +2,15 @@
 #' 
 #' Constructs a valid variance - covariance matrix by using the Cholesky LDL decomposition.
 #' 
-#' @param param Vector containing the parameters used to construct the variance - covariance matrix.
+#' @param param Vector containing the parameters used to construct the 
+#'   variance - covariance matrix.
 #' @param format Format for the Loading matrix L and Diagonal matrix D.
 #'   The lower triangle of the format is used as the format for the Loading matrix L.
 #'   The diagonal of the format is used as the format for the Diagonal matrix D.
 #'   Should be a matrix.
-#' @param chol_return Boolean indicating whether the loading and diagonal matrix 
-#'   of the Cholesky decomposition should be returned.   
+#' @param decompositions Boolean indicating whether the loading and diagonal matrix 
+#'   of the Cholesky decomposition, and the correlation matrix and standard deviations 
+#'   should be returned.
 #'   
 #' @details 
 #' `format` is used to specify which elements of the loading and diagonal matrix should be non-zero.
@@ -17,10 +19,12 @@
 #' 
 #' @return 
 #' A valid variance - covariance matrix.
-#' If `chol_return = TRUE` then it returns a list containing:
+#' If `decompositions = TRUE` then it returns a list containing:
 #' * cov_mat: The variance - covariance matrix.
 #' * loading_matrix: The loading matrix of the Cholesky decomposition.
 #' * diagonal_matrix: The diagonal matrix of the Cholesky decomposition.
+#' * correlation_matrix: Matrix containing the correlations.
+#' * stdev_matrix: Matrix containing the standard deviations on the diagonal.
 #'  
 #' @examples 
 #' format <- diag(1, 2, 2)
@@ -28,7 +32,7 @@
 #' Cholesky(param = c(2,4,1), format = format)
 #' 
 #' @noRd
-Cholesky <- function(param = NULL, format = NULL, chol_return = TRUE) {
+Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
 
   # Check if at least one of param and format is specified  
   if (is.null(param) & is.null(format)) {
@@ -139,11 +143,24 @@ Cholesky <- function(param = NULL, format = NULL, chol_return = TRUE) {
   cov_mat <- chol_L %*% chol_D %*% t(chol_L)
   
   # Returning the result
-  if (chol_return) {
+  if (decompositions) {
+    
+    # Diagonal matrix containing the standard deviations
+    stdev_matrix <- diag(sqrt(diag(cov_mat)), dim(cov_mat)[1], dim(cov_mat)[2])
+    
+    # Inverse of stdev_matrix
+    stdev_inv <- stdev_matrix
+    diag(stdev_inv)[which(diag(stdev_inv) > 0)] <- 1 / diag(stdev_inv)[which(diag(stdev_inv) > 0)]
+    
+    # Correlation matrix
+    correlation_matrix <- stdev_inv %*% cov_mat %*% stdev_inv
+    
     result <- list(
       cov_mat = cov_mat, 
       loading_matrix = chol_L, 
-      diagonal_matrix = chol_D
+      diagonal_matrix = chol_D,
+      correlation_matrix = correlation_matrix,
+      stdev_matrix = stdev_matrix
     )
     return(result)
   } else {
