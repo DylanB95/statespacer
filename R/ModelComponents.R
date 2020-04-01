@@ -18,7 +18,7 @@ LocalLevel <- function(p = 1,
                        update_part = TRUE, 
                        param = rep(1, p), 
                        format_level = diag(1, p, p), 
-                       chol_return = TRUE) {
+                       decompositions = TRUE) {
 
   # The number of dependent variables that should get a local level
   n_level <- p - length(exclude_level)
@@ -76,14 +76,16 @@ LocalLevel <- function(p = 1,
     Q <- Cholesky(
       param = param, 
       format = format_level, 
-      chol_return = chol_return
+      decompositions = decompositions
     )
     
     # Check what to return
-    if (chol_return) {
+    if (decompositions) {
       result$Q <- Q$cov_mat
       result$loading_matrix <- Q$loading_matrix
       result$diagonal_matrix <- Q$diagonal_matrix
+      result$correlation_matrix <- Q$correlation_matrix
+      result$stdev_matrix <- Q$stdev_matrix
     } else {
       result$Q <- Q
     }
@@ -114,7 +116,7 @@ Slope <- function(p = 1,
                   param = rep(1, 2 * p),
                   format_level = diag(1, p, p),
                   format_slope = diag(1, p, p),
-                  chol_return = TRUE) {
+                  decompositions = TRUE) {
 
   # The number of dependent variables that should get a local level
   n_level <- p - length(exclude_level)
@@ -206,14 +208,16 @@ Slope <- function(p = 1,
       Q_level <- Cholesky(
         param = param[1:split], 
         format = format_level, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_level <- Q_level$cov_mat
         result$loading_matrix_level <- Q_level$loading_matrix
         result$diagonal_matrix_level <- Q_level$diagonal_matrix
+        result$correlation_matrix_level <- Q_level$correlation_matrix
+        result$stdev_matrix_level <- Q_level$stdev_matrix
       } else {
         result$Q_level <- Q_level
       }
@@ -240,14 +244,16 @@ Slope <- function(p = 1,
       Q_slope <- Cholesky(
         param = param[(split + 1) : length(param)],
         format = format_slope, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_slope <- Q_slope$cov_mat
         result$loading_matrix_slope <- Q_slope$loading_matrix
         result$diagonal_matrix_slope <- Q_slope$diagonal_matrix
+        result$correlation_matrix_slope <- Q_slope$correlation_matrix
+        result$stdev_matrix_slope <- Q_slope$stdev_matrix
       } else {
         result$Q_slope <- Q_slope
       }
@@ -281,7 +287,7 @@ Cycle <- function(p = 1,
                   update_part = TRUE,
                   param = rep(1, p + 1 + damping_factor_ind),
                   format_cycle = diag(1, p, p),
-                  chol_return = TRUE) {
+                  decompositions = TRUE) {
 
   # The number of dependent variables that should get a cycle
   n_cycle <- p - length(exclude_cycle)
@@ -368,14 +374,16 @@ Cycle <- function(p = 1,
       Q_cycle <- Cholesky(
         param = paramQ, 
         format = format_cycle, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_cycle <- Q_cycle$cov_mat
         result$loading_matrix <- Q_cycle$loading_matrix
         result$diagonal_matrix <- Q_cycle$diagonal_matrix
+        result$correlation_matrix <- Q_cycle$correlation_matrix
+        result$stdev_matrix <- Q_cycle$stdev_matrix
         result$Q <- BlockMatrix(Q_cycle$cov_mat, Q_cycle$cov_mat)
       } else {
         result$Q <- BlockMatrix(Q_cycle, Q_cycle)
@@ -414,7 +422,7 @@ BSM <- function(p = 1,
                 update_part = TRUE,
                 param = rep(1, p),
                 format_BSM = diag(1, p, p),
-                chol_return = TRUE) {
+                decompositions = TRUE) {
 
   # The number of dependent variables that should get a bsm component
   n_BSM <- p - length(exclude_BSM)
@@ -511,14 +519,16 @@ BSM <- function(p = 1,
     Q_BSM <- Cholesky(
       param = param, 
       format = format_BSM, 
-      chol_return = chol_return
+      decompositions = decompositions
     )
     
     # Check what to return
-    if (chol_return) {
+    if (decompositions) {
       result$Q_BSM <- Q_BSM$cov_mat
       result$loading_matrix <- Q_BSM$loading_matrix
       result$diagonal_matrix <- Q_BSM$diagonal_matrix
+      result$correlation_matrix <- Q_BSM$correlation_matrix
+      result$stdev_matrix <- Q_BSM$stdev_matrix
       result$Q <- do.call(BlockMatrix, replicate(s - 1, Q_BSM$cov_mat, simplify = FALSE))
     } else {
       result$Q <- do.call(BlockMatrix, replicate(s - 1, Q_BSM, simplify = FALSE))
@@ -548,7 +558,7 @@ AddVar <- function(p = 1,
                    update_part = TRUE, 
                    param = NULL, 
                    format_addvar = diag(0, 1, 1), 
-                   chol_return = TRUE) {
+                   decompositions = TRUE) {
 
   # Check if the addvar list has p elements
   if (length(addvar_list) != p) {
@@ -629,14 +639,16 @@ AddVar <- function(p = 1,
     Q <- Cholesky(
       param = param, 
       format = format_addvar, 
-      chol_return = chol_return
+      decompositions = decompositions
     )
     
     # Check what to return
-    if (chol_return) {
+    if (decompositions) {
       result$Q <- Q$cov_mat
       result$loading_matrix <- Q$loading_matrix
       result$diagonal_matrix <- Q$diagonal_matrix
+      result$correlation_matrix <- Q$correlation_matrix
+      result$stdev_matrix <- Q$stdev_matrix
     } else {
       result$Q <- Q
     }
@@ -667,7 +679,7 @@ LevelAddVar <- function(p = 1,
                         param = rep(1, p),
                         format_level = diag(1, p, p),
                         format_level_addvar = diag(0, 1, 1),
-                        chol_return = TRUE) {
+                        decompositions = TRUE) {
 
   # Check if the level_addvar list has p elements
   if (length(level_addvar_list) != p) {
@@ -791,14 +803,16 @@ LevelAddVar <- function(p = 1,
       Q_level <- Cholesky(
         param = param[1:split], 
         format = format_level, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_level <- Q_level$cov_mat
         result$loading_matrix_level <- Q_level$loading_matrix
         result$diagonal_matrix_level <- Q_level$diagonal_matrix
+        result$correlation_matrix_level <- Q_level$correlation_matrix
+        result$stdev_matrix_level <- Q_level$stdev_matrix
       } else {
         result$Q_level <- Q_level
       }
@@ -825,14 +839,16 @@ LevelAddVar <- function(p = 1,
       Q_level_addvar <- Cholesky(
         param = param[(split + 1) : length(param)], 
         format = format_level_addvar, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_level_addvar <- Q_level_addvar$cov_mat
         result$loading_matrix_level_addvar <- Q_level_addvar$loading_matrix
         result$diagonal_matrix_level_addvar <- Q_level_addvar$diagonal_matrix
+        result$correlation_matrix_level_addvar <- Q_level_addvar$correlation_matrix
+        result$stdev_matrix_level_addvar <- Q_level_addvar$stdev_matrix
       } else {
         result$Q_level_addvar <- Q_level_addvar
       }
@@ -866,7 +882,7 @@ SlopeAddVar <- function(p = 1,
                         format_level = diag(1, p, p),
                         format_slope = diag(1, p, p),
                         format_level_addvar = diag(0, 1, 1),
-                        chol_return = TRUE) {
+                        decompositions = TRUE) {
 
   # Check if the slope_addvar list has p elements
   if (length(slope_addvar_list) != p) {
@@ -1027,14 +1043,16 @@ SlopeAddVar <- function(p = 1,
       Q_level <- Cholesky(
         param = param[1:split], 
         format = format_level, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_level <- Q_level$cov_mat
         result$loading_matrix_level <- Q_level$loading_matrix
         result$diagonal_matrix_level <- Q_level$diagonal_matrix
+        result$correlation_matrix_level <- Q_level$correlation_matrix
+        result$stdev_matrix_level <- Q_level$stdev_matrix
       } else {
         result$Q_level <- Q_level
       }
@@ -1065,14 +1083,16 @@ SlopeAddVar <- function(p = 1,
       Q_slope <- Cholesky(
         param = param[(split + 1):split2], 
         format = format_slope, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_slope <- Q_slope$cov_mat
         result$loading_matrix_slope <- Q_slope$loading_matrix
         result$diagonal_matrix_slope <- Q_slope$diagonal_matrix
+        result$correlation_matrix_slope <- Q_slope$correlation_matrix
+        result$stdev_matrix_slope <- Q_slope$stdev_matrix
       } else {
         result$Q_slope <- Q_slope
       }
@@ -1099,14 +1119,16 @@ SlopeAddVar <- function(p = 1,
       Q_level_addvar <- Cholesky(
         param = param[(split + split2 + 1) : length(param)], 
         format = format_level_addvar, 
-        chol_return = chol_return
+        decompositions = decompositions
       )
       
       # Check what to return
-      if (chol_return) {
+      if (decompositions) {
         result$Q_level_addvar <- Q_level_addvar$cov_mat
         result$loading_matrix_level_addvar <- Q_level_addvar$loading_matrix
         result$diagonal_matrix_level_addvar <- Q_level_addvar$diagonal_matrix
+        result$correlation_matrix_level_addvar <- Q_level_addvar$correlation_matrix
+        result$stdev_matrix_level_addvar <- Q_level_addvar$stdev_matrix
       } else {
         result$Q_level_addvar <- Q_level_addvar
       }

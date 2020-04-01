@@ -238,7 +238,7 @@ StateSpaceFit <- function(y,
       H <- Cholesky(
         param = param[param_indices$H], 
         format = H_format,
-        chol_return = FALSE
+        decompositions = FALSE
       )
     } else {
       H <- matrix(0, p, p)
@@ -255,7 +255,7 @@ StateSpaceFit <- function(y,
                              update_part = TRUE,
                              param = param[param_indices$level],
                              format_level = format_level,
-                             chol_return = FALSE
+                             decompositions = FALSE
         )
         Q_kal <- BlockMatrix(Q_kal, update$Q)
       } else {
@@ -274,7 +274,7 @@ StateSpaceFit <- function(y,
                         param = param[param_indices$slope],
                         format_level = format_level,
                         format_slope = format_slope,
-                        chol_return = FALSE
+                        decompositions = FALSE
         )
       }
       if (param_num_list$level > 0) {
@@ -301,7 +301,7 @@ StateSpaceFit <- function(y,
                         update_part = TRUE,
                         param = param[param_indices[[paste0('BSM', s)]]],
                         format_BSM = format_BSM_list[[i]],
-                        chol_return = FALSE
+                        decompositions = FALSE
           )
           Q_kal <- BlockMatrix(Q_kal, update$Q)
         } else {
@@ -319,7 +319,7 @@ StateSpaceFit <- function(y,
                          update_part = TRUE,
                          param = param[param_indices$addvar],
                          format_addvar = format_addvar,
-                         chol_return = FALSE
+                         decompositions = FALSE
         )
         Q_kal <- BlockMatrix(Q_kal, update$Q)
       } else {
@@ -338,7 +338,7 @@ StateSpaceFit <- function(y,
                               param = param[param_indices$level_addvar],
                               format_level = format_level,
                               format_level_addvar = format_level_addvar,
-                              chol_return = FALSE
+                              decompositions = FALSE
         )
       }
       if (param_num_list$level > 0) {
@@ -366,7 +366,7 @@ StateSpaceFit <- function(y,
                               format_level = format_level,
                               format_slope = format_slope,
                               format_level_addvar = format_level_addvar,
-                              chol_return = FALSE
+                              decompositions = FALSE
         )
       }
       if (param_num_list$level > 0) {
@@ -396,7 +396,7 @@ StateSpaceFit <- function(y,
                         update_part = TRUE,
                         param = param[param_indices[[paste0('Cycle', i)]]],
                         format_cycle = format_cycle_list[[i]],
-                        chol_return = FALSE
+                        decompositions = FALSE
         )
         if (param_num_list[[paste0('Cycle', i)]] > (1 + damping_factor_ind[i])) {
           Q_kal <- BlockMatrix(Q_kal, update$Q)

@@ -777,6 +777,8 @@ StateSpaceEval <- function(param,
   system_matrices$Q <- sys_mat$Q
   system_matrices$Q_loading_matrix <- sys_mat$Q_loading_matrix
   system_matrices$Q_diagonal_matrix <- sys_mat$Q_diagonal_matrix
+  system_matrices$Q_correlation_matrix <- sys_mat$Q_correlation_matrix
+  system_matrices$Q_stdev_matrix <- sys_mat$Q_stdev_matrix
   system_matrices$lambda <- sys_mat$lambda
   system_matrices$rho <- sys_mat$rho
   system_matrices$a1 <- sys_mat$a1
