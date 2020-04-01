@@ -262,6 +262,8 @@ Slope <- function(p = 1,
 #' 
 #' Constructs the system matrices of a Cycle component.
 #' 
+#' @param exclude_cycle The dependent variables that should not get a Cycle component.
+#' @param format_cycle `format` argument for the \code{\link{Cholesky}} function.
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
 #' @inheritParams LocalLevel
