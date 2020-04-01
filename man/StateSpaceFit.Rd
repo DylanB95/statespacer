@@ -18,10 +18,11 @@ StateSpaceFit(
   exclude_slope = NULL,
   exclude_BSM_list = lapply(BSM_vec, FUN = function(x) {     0 }),
   exclude_cycle_list = list(0),
+  damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
   format_level = NULL,
   format_slope = NULL,
   format_BSM_list = lapply(BSM_vec, FUN = function(x) {     NULL }),
-  format_cycle_list = list(NULL),
+  format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) {     NULL }),
   format_addvar = NULL,
   format_level_addvar = NULL,
   method = "BFGS",
@@ -80,6 +81,10 @@ that should not get the corresponding BSM component.}
 \item{exclude_cycle_list}{The dependent variables that should not get a cycle component.
 Should be a list to allow different dependent variables to be excluded for
 different cycles.}
+
+\item{damping_factor_ind}{Boolean indicating whether a damping factor should
+be included. Must be a vector if multiple cycles are included, to indicate which cycles
+should include a damping factor.}
 
 \item{format_level}{Format of the Q_level system matrix the variance - covariance matrix
 of the level state equation.}
