@@ -57,9 +57,12 @@
 #'   of the explanatory variables state equation.
 #' @param format_level_addvar Format of the Q_level_addvar system matrix, the 
 #'   variance - covariance matrix of the explanatory variables of the level state equation.
-#' @param method Method that should be used by the \code{\link[stats]{optim}} function to estimate the parameters.
-#' @param initial Initial values for the parameter search, allowed to be a vector or just one number.
-#' @param control A list of control parameters for the \code{\link[stats]{optim}} function.
+#' @param method Method that should be used by the \code{\link[stats]{optim}} or
+#'   \code{\link[optimx]{optimr}} function to estimate the parameters.
+#' @param initial Initial values for the parameter search, allowed to be a vector
+#'   or just one number.
+#' @param control A list of control parameters for the \code{\link[stats]{optim}} 
+#'   or \code{\link[optimx]{optimr}} function.
 #' 
 #' @details 
 #' To fit the specified State Space model, usually it is beneficial to scale the dependent variables.
@@ -76,7 +79,8 @@
 #' * filtered: A list containing the filtered components of the State Space model.
 #' * smoothed: A list containing the smoothed components of the State Space model.
 #' * diagnostics: A list containing items useful for diagnostical tests.
-#' * optim: A list containing the variables that are returned by the \code{\link{optim}} function.
+#' * optim: A list containing the variables that are returned by the 
+#'   \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
 #' * loglik_fun: Function that returns the loglikelihood of the specified State Space model, 
 #'   as a function of its parameters
 #'   
@@ -140,23 +144,23 @@ StateSpaceFit <- function(y,
 
   # Check whether optimr is available
   optimr_check <- tryCatch(
-    list(fun = optimr::optimr, available = TRUE),
+    list(fun = optimx::optimr, available = TRUE),
     error = function(e) { list(fun = stats::optim, available = FALSE)}
   )
   optim_fun <- optimr_check$fun
   
-  # Check if fnscale (maximize for optimr) and trace have been 
-  # specified for optimisation procedure
-  if (is.null(control$fnscale) & !optimr_check$available) {
-    control$fnscale <- -1
+  # Negative likelihood will be minimised, equivalent to maximising likelihood
+  # This is due to a bug in optimr, that makes optimr ignore control$maximize
+  if (!optimr_check$available) {
+    control$fnscale <- 1
   }
-  if (is.null(control$maximize) & optimr_check$available) {
-    control$maximize <- TRUE
+  if (optimr_check$available) {
+    control$maximize <- FALSE
   }
   if (is.null(control$trace)) {
     control$trace <- TRUE
   }
-
+  
   # N = Number of observations
   N <- dim(y)[1]
   
@@ -541,7 +545,7 @@ StateSpaceFit <- function(y,
     }
     
     # Return the average loglikelihood. Note: The average is computed as sum / N, using mean would divide by N*p
-    return(sum(loglik, na.rm = TRUE) / N)
+    return(-sum(loglik, na.rm = TRUE) / N)
   }
   
   # Checking the number of initial parameters specified
@@ -568,7 +572,7 @@ StateSpaceFit <- function(y,
   message(paste0("Starting the optimisation procedure at: ", t1))
   
   # Optimising parameters
-  fit <- optim_fun(initial, 
+  fit <- optim_fun(par = initial, 
                    fn = LogLikelihood, 
                    method = method, 
                    control = control
@@ -578,6 +582,14 @@ StateSpaceFit <- function(y,
   t2 <- Sys.time()
   message(paste("Finished the optimisation procedure at:", t2))
   message(paste0("Time difference of ", t2 - t1, " ", units(t2 - t1), "\n"))
+  
+  # Changing control$maximize or control$fnscale
+  if (!optimr_check$available) {
+    control$fnscale <- -1
+  }
+  if (optimr_check$available) {
+    control$maximize <- TRUE
+  }
   
   # (Adjusted) Input parameters that were passed on to StateSpaceFit
   function_call <- c(list(y = y), 
@@ -589,7 +601,7 @@ StateSpaceFit <- function(y,
   result <- do.call(StateSpaceEval, c(list(param = fit$par, y = y), sys_mat$function_call))
   result$function_call <- function_call
   result$optim <- fit
-  result$loglik_fun <- function(param) {N * LogLikelihood(param)}
+  result$loglik_fun <- function(param) {-N * LogLikelihood(param)}
   
   return(result)
 }

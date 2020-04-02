@@ -106,11 +106,14 @@ of the explanatory variables state equation.}
 \item{format_level_addvar}{Format of the Q_level_addvar system matrix, the
 variance - covariance matrix of the explanatory variables of the level state equation.}
 
-\item{method}{Method that should be used by the \code{\link[stats]{optim}} function to estimate the parameters.}
+\item{method}{Method that should be used by the \code{\link[stats]{optim}} or
+\code{\link[optimx]{optimr}} function to estimate the parameters.}
 
-\item{initial}{Initial values for the parameter search, allowed to be a vector or just one number.}
+\item{initial}{Initial values for the parameter search, allowed to be a vector
+or just one number.}
 
-\item{control}{A list of control parameters for the \code{\link[stats]{optim}} function.}
+\item{control}{A list of control parameters for the \code{\link[stats]{optim}}
+or \code{\link[optimx]{optimr}} function.}
 }
 \value{
 A list containing:
@@ -121,7 +124,8 @@ A list containing:
 \item filtered: A list containing the filtered components of the State Space model.
 \item smoothed: A list containing the smoothed components of the State Space model.
 \item diagnostics: A list containing items useful for diagnostical tests.
-\item optim: A list containing the variables that are returned by the \code{\link{optim}} function.
+\item optim: A list containing the variables that are returned by the
+\code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
 \item loglik_fun: Function that returns the loglikelihood of the specified State Space model,
 as a function of its parameters
 }

@@ -18,5 +18,5 @@ Suggests:
   devtools,
   roxygen2,
   datasets,
-  optimr
+  optimx
 VignetteBuilder: knitr
