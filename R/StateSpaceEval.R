@@ -20,7 +20,8 @@
 #' \insertRef{durbin2012time}{statespacer}
 #' 
 #' @examples
-#' # Evaluates a local level model for the Nile data
+#' # Evaluates a local level model for the Nile data at given parameters
+#' library(datasets)
 #' y <- matrix(Nile)
 #' StateSpaceEval(param = c(1, 1), y = y / 100, local_level_ind = TRUE)
 #' 

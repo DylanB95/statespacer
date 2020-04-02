@@ -34,6 +34,7 @@
 #' 
 #' @examples
 #' # Fits a local level model for the Nile data
+#' library(datasets)
 #' y <- matrix(Nile)
 #' fit <- StateSpaceFit(initial = 1, y = y / 100, local_level_ind = TRUE)
 #' 
