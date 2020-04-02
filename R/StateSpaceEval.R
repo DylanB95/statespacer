@@ -26,7 +26,6 @@
 #' StateSpaceEval(param = c(1, 1), y = y / 100, local_level_ind = TRUE)
 #' 
 #' @export
-#' @importFrom stats qchisq qf
 StateSpaceEval <- function(param,
                            y,
                            H_format = NULL,
@@ -633,15 +632,15 @@ StateSpaceEval <- function(param,
   diagnostics$Skewness <- Sstat
   diagnostics$Kurtosis <- Kstat
   diagnostics$Normality <- Nstat
-  diagnostics$Normality_criticalvalue <- qchisq(0.95, df = 2)
+  diagnostics$Normality_criticalvalue <- stats::qchisq(0.95, df = 2)
   if (obs > 0) {
     diagnostics$correlogram <- correlogram
     diagnostics$Box_Ljung <- Box_Ljung
-    diagnostics$Box_Ljung_criticalvalues <- matrix(qchisq(0.95, df = 1:floor(obs/2)))
+    diagnostics$Box_Ljung_criticalvalues <- matrix(stats::qchisq(0.95, df = 1:floor(obs/2)))
     diagnostics$Heteroscedasticity <- Heteroscedasticity
     diagnostics$Heteroscedasticity_criticalvalues <- cbind(
-      qf(0.025, df1 = 1:floor(obs/3), df2 = 1:floor(obs/3)), 
-      qf(0.975, df1 = 1:floor(obs/3), df2 = 1:floor(obs/3))
+      stats::qf(0.025, df1 = 1:floor(obs/3), df2 = 1:floor(obs/3)), 
+      stats::qf(0.975, df1 = 1:floor(obs/3), df2 = 1:floor(obs/3))
     )
   }
   ######################################################################################

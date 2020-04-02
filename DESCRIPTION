@@ -17,5 +17,6 @@ Suggests:
   rmarkdown,
   devtools,
   roxygen2,
-  datasets
+  datasets,
+  optimr
 VignetteBuilder: knitr

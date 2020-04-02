@@ -114,7 +114,6 @@
 #' 
 #' @export
 #' @importFrom Rdpack reprompt
-#' @importFrom stats optim
 StateSpaceFit <- function(y,
                           H_format = NULL,
                           local_level_ind = FALSE,
@@ -139,9 +138,20 @@ StateSpaceFit <- function(y,
                           initial = 0,
                           control = list()) {
 
-  # Check if fnscale and trace have been specified for optim
-  if (is.null(control$fnscale)) {
+  # Check whether optimr is available
+  optimr_check <- tryCatch(
+    list(fun = optimr::optimr, available = TRUE),
+    error = function(e) { list(fun = stats::optim, available = FALSE)}
+  )
+  optim_fun <- optimr_check$fun
+  
+  # Check if fnscale (maximize for optimr) and trace have been 
+  # specified for optimisation procedure
+  if (is.null(control$fnscale) & !optimr_check$available) {
     control$fnscale <- -1
+  }
+  if (is.null(control$maximize) & optimr_check$available) {
+    control$maximize <- TRUE
   }
   if (is.null(control$trace)) {
     control$trace <- TRUE
@@ -558,10 +568,10 @@ StateSpaceFit <- function(y,
   message(paste0("Starting the optimisation procedure at: ", t1))
   
   # Optimising parameters
-  fit <- optim(initial, 
-               fn = LogLikelihood, 
-               method = method, 
-               control = control
+  fit <- optim_fun(initial, 
+                   fn = LogLikelihood, 
+                   method = method, 
+                   control = control
   )
   
   # Elapsed time
