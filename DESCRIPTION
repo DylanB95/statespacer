@@ -9,6 +9,13 @@ License: MIT + file LICENSE
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
-Imports: Rdpack
-Suggests: knitr, rmarkdown
+Imports: 
+  Rdpack,
+  stats
+Suggests: 
+  knitr, 
+  rmarkdown,
+  devtools,
+  roxygen2,
+  datasets
 VignetteBuilder: knitr
