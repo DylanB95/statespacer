@@ -25,13 +25,13 @@ GetSysMat <- function(p,
                       slope_addvar_list = NULL,
                       exclude_level = NULL,
                       exclude_slope = NULL,
-                      exclude_BSM_list = lapply(BSM_vec, FUN = function(x) {0}),
+                      exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                       exclude_cycle_list = list(0),
                       damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                       format_level = NULL,
                       format_slope = NULL,
-                      format_BSM_list = lapply(BSM_vec, FUN = function(x) {NULL}),
-                      format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) {NULL}),
+                      format_BSM_list = lapply(BSM_vec, FUN = function(x) NULL),
+                      format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) NULL),
                       format_addvar = NULL,
                       format_level_addvar = NULL) {
 
@@ -40,17 +40,6 @@ GetSysMat <- function(p,
   
   # Keeping track of the number of parameters supplied to the loglikelihood function
   param_num <- 0
-  
-  # How many parameters are needed for H matrix?
-  if (is.null(H_format)) {
-    H_format <- diag(1, p, p)
-  }
-  H_format[upper.tri(H_format)] <- 0 # Only entries in lower triangle of matrix count
-  H_param_num <- sum(H_format != 0 & lower.tri(H_format, diag = TRUE))
-  param_num <- param_num + H_param_num
-  
-  # Keeping track of which parameters to use for the components
-  index_par <- H_param_num + 1
   
   #### Adding components to the state space model that are specified by the input parameters ####
   
@@ -73,10 +62,10 @@ GetSysMat <- function(p,
   stdev_list <- list()
   
   # List to store the number of parameters for each of the components
-  param_num_list <- list(H = H_param_num)
+  param_num_list <- list()
   
   # List to store the indices of the parameters for each of the components
-  param_indices <- list(H = 1:H_param_num)
+  param_indices <- list()
   
   # Initialising label of the state vector
   state_label <- c()
@@ -106,7 +95,57 @@ GetSysMat <- function(p,
   Rdim <- 2 
   Qdim <- 2 
   
-  # Local Level
+  #### Residuals ####
+  Z_kal <- cbind(Z_kal, diag(1, p, p))
+  T_kal <- BlockMatrix(T_kal, matrix(0, p, p))
+  R_kal <- BlockMatrix(R_kal, diag(1, p, p))
+  
+  # How many parameters are needed for H matrix?
+  if (is.null(H_format)) {
+    H_format <- diag(1, p, p)
+  }
+  H_format[upper.tri(H_format)] <- 0 # Only entries in lower triangle of matrix count
+  param_num_list$H <- sum(H_format != 0 & lower.tri(H_format, diag = TRUE))
+  param_indices$H <- 1:param_num_list$H
+  param_num <- param_num + param_num_list$H
+  
+  H_list <- list()
+  if (update_part) {
+    if (param_num_list$H > 0) {
+      update <- Cholesky(
+        param = param[param_indices$H], 
+        format = H_format,
+        decompositions = TRUE
+      )
+      H_list <- list(
+        H = update$cov_mat, 
+        loading_matrix = update$loading_matrix, 
+        diagonal_matrix = update$diagonal_matrix,
+        correlation_matrix <- update$correlation_matrix,
+        stdev_matrix <- update$stdev_matrix
+      )
+      H <- H_list$H
+      Q_kal <- BlockMatrix(Q_kal, H)
+      P_star <- BlockMatrix(P_star, H)
+    } 
+  }
+  if (param_num_list$H == 0) {
+    H <- matrix(0, p, p)
+    H_list <- list(H = H)
+    Q_kal <- BlockMatrix(Q_kal, H)
+    P_star <- BlockMatrix(P_star, H)
+  }
+  
+  a <- rbind(a, matrix(0, p, 1))
+  P_inf <- BlockMatrix(P_inf, matrix(0, p, p))
+  
+  # Indices of the residuals in the state vector
+  residuals_state <- 1:p
+  
+  # Keeping track of which parameters to use for the components
+  index_par <- param_num_list$H + 1
+  
+  #### Local Level ####
   if (local_level_ind & !slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
     
     # Constructing matrix with 0s using former m dimension
@@ -181,7 +220,7 @@ GetSysMat <- function(p,
     }
   }
   
-  # Local Level + Slope
+  #### Local Level + Slope ####
   if (slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
     
     # Constructing matrix with 0s using former m dimension
@@ -282,7 +321,7 @@ GetSysMat <- function(p,
     }
   }
   
-  # BSM
+  #### BSM ####
   if (length(BSM_vec) > 0) {
     for (i in seq_along(BSM_vec)) {
       
@@ -364,7 +403,7 @@ GetSysMat <- function(p,
     }
   }
   
-  # Explanatory Variables
+  #### Explanatory Variables ####
   if (!is.null(addvar_list)) {
     
     # Constructing matrix with 0s using former m dimension
@@ -469,7 +508,7 @@ GetSysMat <- function(p,
     }
   }
   
-  # Local Level + Explanatory Variables
+  #### Local Level + Explanatory Variables ####
   if (!is.null(level_addvar_list) & is.null(slope_addvar_list) & !slope_ind) {
     
     # Constructing matrix with 0s using former m dimension
@@ -569,7 +608,7 @@ GetSysMat <- function(p,
     T_kal <- array(
       apply(
         update$Tmat, 3, 
-        function(x) {BlockMatrix(T_kal, as.matrix(x))}
+        function(x) BlockMatrix(T_kal, as.matrix(x))
       ), 
       dim = c(sum(dim(T_kal)[1], k_level), sum(dim(T_kal)[2], k_level), N)
     )
@@ -600,7 +639,7 @@ GetSysMat <- function(p,
     }
   }
   
-  # Local Level + Explanatory Variables + Slope
+  #### Local Level + Explanatory Variables + Slope ####
   if (!is.null(slope_addvar_list) | (!is.null(level_addvar_list) & slope_ind)) {
     
     # Constructing matrix with 0s using former m dimension
@@ -718,7 +757,7 @@ GetSysMat <- function(p,
     T_kal <- array(
       apply(
         update$Tmat, 3, 
-        function(x) {BlockMatrix(T_kal, as.matrix(x))}
+        function(x) BlockMatrix(T_kal, as.matrix(x))
       ), 
       dim = c(sum(dim(T_kal)[1], k_level), sum(dim(T_kal)[2], k_level), N)
     )
@@ -757,7 +796,7 @@ GetSysMat <- function(p,
     }
   }
   
-  # Cycle
+  #### Cycle ####
   if (cycle_ind) {
     
     # Initialising lists to store lambda and rho parameters of the cycles
@@ -860,7 +899,7 @@ GetSysMat <- function(p,
         } else {
           T_kal <- array(
             apply(T_kal, 3, 
-                  function(x) {BlockMatrix(as.matrix(x), update$Tmat)}
+                  function(x) BlockMatrix(as.matrix(x), update$Tmat)
             ), 
             dim = c(sum(dim(T_kal)[1], 2 * n_cycle), sum(dim(T_kal)[2], 2 * n_cycle), N)
           )
@@ -872,64 +911,6 @@ GetSysMat <- function(p,
       }
     }
   }
-  
-  # Number of disturbances in the state equation, so far equal to the number of state parameters
-  r <- m
-  
-  # Residuals
-  if (Zdim < 3) {
-    Z_kal <- cbind(Z_kal, diag(1, p, p))
-  } else {
-    Z_kal <- array(
-      apply(
-        Z_kal, 3, 
-        function(x) {cbind(
-          matrix(x, p, dim(Z_kal)[2]), 
-          diag(p)
-        )}
-      ), dim = c(p, sum(dim(Z_kal)[2], p), N)
-    )
-  }
-  if (!cycle_ind | update_part) {
-    if (Tdim < 3) {
-      T_kal <- BlockMatrix(T_kal, matrix(0, p, p))
-    } else {
-      T_kal <- array(
-        apply(
-          T_kal, 3, 
-          function(x) {BlockMatrix(as.matrix(x), matrix(0, p, p))}
-        ), dim = c(sum(dim(T_kal)[1], p), sum(dim(T_kal)[2], p), N)
-      )
-    }
-  }
-  R_kal <- BlockMatrix(R_kal, diag(1, p, p))
-  H_list <- list()
-  if (update_part) {
-    if (H_param_num > 0) {
-      update <- Cholesky(
-        param = param[1:H_param_num], 
-        format = H_format,
-        decompositions = TRUE
-      )
-      H_list <- list(
-        H = update$cov_mat, 
-        loading_matrix = update$loading_matrix, 
-        diagonal_matrix = update$diagonal_matrix,
-        correlation_matrix <- update$correlation_matrix,
-        stdev_matrix <- update$stdev_matrix
-      )
-      H <- H_list$H
-    } else {
-      H <- matrix(0, p, p)
-      H_list <- list(H = H)
-    }
-    Q_kal <- BlockMatrix(Q_kal, H)
-    P_star <- BlockMatrix(P_star, H)
-  }
-  a <- rbind(a, matrix(0, p, 1))
-  P_inf <- BlockMatrix(P_inf, matrix(0, p, p))
-  residuals_state <- (m + 1) : (m + p) # Indices of the residuals in the state vector
-  r_residuals_state <- (r + 1) : (r + p) # Indices of the residuals in the disturbance vector
   
   # Input arguments that specify the state space model
   function_call <- list(H_format = H_format,
@@ -979,7 +960,6 @@ GetSysMat <- function(p,
     P_inf_kal = P_inf,
     P_star_kal = P_star,
     residuals_state = residuals_state,
-    r_residuals_state = r_residuals_state,
     param_num = param_num,
     param_num_list = param_num_list
   )

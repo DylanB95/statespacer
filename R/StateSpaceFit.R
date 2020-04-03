@@ -129,13 +129,13 @@ StateSpaceFit <- function(y,
                           slope_addvar_list = NULL,
                           exclude_level = NULL,
                           exclude_slope = NULL,
-                          exclude_BSM_list = lapply(BSM_vec, FUN = function(x) {0}),
+                          exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                           exclude_cycle_list = list(0),
                           damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                           format_level = NULL,
                           format_slope = NULL,
-                          format_BSM_list = lapply(BSM_vec, FUN = function(x) {NULL}),
-                          format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) {NULL}),
+                          format_BSM_list = lapply(BSM_vec, FUN = function(x) NULL),
+                          format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) NULL),
                           format_addvar = NULL,
                           format_level_addvar = NULL,
                           method = "BFGS",
@@ -145,7 +145,7 @@ StateSpaceFit <- function(y,
   # Check whether optimr is available
   optimr_check <- tryCatch(
     list(fun = optimx::optimr, available = TRUE),
-    error = function(e) { list(fun = stats::optim, available = FALSE)}
+    error = function(e) list(fun = stats::optim, available = FALSE)
   )
   optim_fun <- optimr_check$fun
   
@@ -236,6 +236,7 @@ StateSpaceFit <- function(y,
   Q_kal <- NULL
   Q_list <- sys_mat$Q
   Q_list2 <- sys_mat$Q2
+  H <- sys_mat$H$H
   Z_kal <- sys_mat$Z_kal
   T_kal <- sys_mat$T_kal
   R_kal <- sys_mat$R_kal
@@ -255,8 +256,15 @@ StateSpaceFit <- function(y,
         format = H_format,
         decompositions = FALSE
       )
+      
+      # Add H matrix to Q matrix
+      Q_kal <- BlockMatrix(Q_kal, H)
+      
+      # Add H matrix to P_star matrix
+      P_star <- BlockMatrix(P_star, H)
+      
     } else {
-      H <- matrix(0, p, p)
+      Q_kal <- BlockMatrix(Q_kal, H)
     }
     
     ## Constructing Q Matrix ##
@@ -427,30 +435,12 @@ StateSpaceFit <- function(y,
           T_kal <- array(
             apply(
               T_kal, 3, 
-              function(x) {BlockMatrix(as.matrix(x), update$Tmat)}
+              function(x) BlockMatrix(as.matrix(x), update$Tmat)
             ), dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]), sum(dim(T_kal)[2], dim(update$Tmat)[2]), N)
           )
         }
       }
-      
-      # Add block of zeroes for the residuals to T matrix as well
-      if (Tdim < 3) {
-        T_kal <- BlockMatrix(T_kal, matrix(0, p, p))
-      } else {
-        T_kal <- array(
-          apply(
-            T_kal, 3, 
-            function(x) {BlockMatrix(as.matrix(x), matrix(0, p, p))}
-          ), dim = c(sum(dim(T_kal)[1], p), sum(dim(T_kal)[2], p), N)
-        )
-      }
     }
-    
-    # Add H matrix to Q matrix
-    Q_kal <- BlockMatrix(Q_kal, H)
-    
-    # Add H matrix to P_star matrix
-    P_star <- BlockMatrix(P_star, H)
     
     # Initialise P_star
     P_star <- array(P_star, dim = c(m, m, N * p)) # m x m x N*p
@@ -601,7 +591,7 @@ StateSpaceFit <- function(y,
   result <- do.call(StateSpaceEval, c(list(param = fit$par, y = y), sys_mat$function_call))
   result$function_call <- function_call
   result$optim <- fit
-  result$loglik_fun <- function(param) {-N * LogLikelihood(param)}
+  result$loglik_fun <- function(param) -N * LogLikelihood(param)
   
   return(result)
 }

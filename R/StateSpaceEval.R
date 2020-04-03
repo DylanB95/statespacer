@@ -38,13 +38,13 @@ StateSpaceEval <- function(param,
                            slope_addvar_list = NULL,
                            exclude_level = NULL,
                            exclude_slope = NULL,
-                           exclude_BSM_list = lapply(BSM_vec, FUN = function(x) {0}),
+                           exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                            exclude_cycle_list = list(0),
                            damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                            format_level = NULL,
                            format_slope = NULL,
-                           format_BSM_list = lapply(BSM_vec, FUN = function(x) {NULL}),
-                           format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) {NULL}),
+                           format_BSM_list = lapply(BSM_vec, FUN = function(x) NULL),
+                           format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) NULL),
                            format_addvar = NULL,
                            format_level_addvar = NULL,
                            loglik_only = FALSE) {
@@ -381,7 +381,7 @@ StateSpaceEval <- function(param,
     Box_Ljung <- matrix(0, floor(obs/2), p)
     BL_running <- 0
     # Number of non NA values per column
-    N_p <- apply(v_norm_centered, MARGIN = 2, FUN = function(x) {sum(!is.na(x))})
+    N_p <- apply(v_norm_centered, MARGIN = 2, FUN = function(x) sum(!is.na(x)))
     for (i in 1:floor(obs/2)) {
       correlogram[i,] <- apply(
         as.matrix(v_norm_centered[(i+1):N,]) * as.matrix(v_norm_centered[1:(N-i),]), 
@@ -596,8 +596,8 @@ StateSpaceEval <- function(param,
   Nmat <- array(Nmat[-sys_mat$residuals_state, -sys_mat$residuals_state, -1], dim = c(m - p, m - p, N))
   a_smooth <- matrix(a_smooth[, -sys_mat$residuals_state], N, m - p)
   V <- array(V[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(m - p, m - p, N))
-  eta <- matrix(eta[, -sys_mat$r_residuals_state], N, r - p)
-  eta_var <- array(eta_var[-sys_mat$r_residuals_state, -sys_mat$r_residuals_state,], dim = c(r - p, r - p, N))
+  eta <- matrix(eta[, -sys_mat$residuals_state], N, r - p)
+  eta_var <- array(eta_var[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(r - p, r - p, N))
   Tstat_state <- matrix(Tstat_state[-1, -sys_mat$residuals_state], N, m - p)
   
   # Storing components
@@ -708,9 +708,9 @@ StateSpaceEval <- function(param,
     }
     Z_padded$addvar <- tempZ
     filtered$addvar_coeff <- a_fil[,sys_mat$addvar_state]
-    filtered$addvar_coeff_se <- t(apply(P_fil, 3, function(x) {sqrt(diag(as.matrix(x))[sys_mat$addvar_state])}))
+    filtered$addvar_coeff_se <- t(apply(P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$addvar_state])))
     smoothed$addvar_coeff <- a_smooth[,sys_mat$addvar_state]
-    smoothed$addvar_coeff_se <- t(apply(V, 3, function(x) {sqrt(diag(as.matrix(x))[sys_mat$addvar_state])}))
+    smoothed$addvar_coeff_se <- t(apply(V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$addvar_state])))
   }
   
   # level_addvar
@@ -727,9 +727,9 @@ StateSpaceEval <- function(param,
     }
     Z_padded$level <- tempZ
     filtered$level_addvar_coeff <- a_fil[,sys_mat$level_addvar_state]
-    filtered$level_addvar_coeff_se <- t(apply(P_fil, 3, function(x) {sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])}))
+    filtered$level_addvar_coeff_se <- t(apply(P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])))
     smoothed$level_addvar_coeff <- a_smooth[,sys_mat$level_addvar_state]
-    smoothed$level_addvar_coeff_se <- t(apply(V, 3, function(x) {sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])}))
+    smoothed$level_addvar_coeff_se <- t(apply(V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])))
   }
   
   # slope_addvar
@@ -746,9 +746,9 @@ StateSpaceEval <- function(param,
     }
     Z_padded$level <- tempZ
     filtered$level_addvar_coeff <- a_fil[,sys_mat$slope_addvar_state]
-    filtered$level_addvar_coeff_se <- t(apply(P_fil, 3, function(x) {sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])}))
+    filtered$level_addvar_coeff_se <- t(apply(P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])))
     smoothed$level_addvar_coeff <- a_smooth[,sys_mat$slope_addvar_state]
-    smoothed$level_addvar_coeff_se <- t(apply(V, 3, function(x) {sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])}))
+    smoothed$level_addvar_coeff_se <- t(apply(V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])))
   }
   
   # Cycle
