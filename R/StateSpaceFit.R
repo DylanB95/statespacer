@@ -261,8 +261,8 @@ StateSpaceFit <- function(y,
       Q_kal <- BlockMatrix(Q_kal, H)
       
       # Add H matrix to P_star matrix
-      P_star <- BlockMatrix(P_star, H)
-      
+      P_star <- BlockMatrix(H, P_star)
+     
     } else {
       Q_kal <- BlockMatrix(Q_kal, H)
     }
