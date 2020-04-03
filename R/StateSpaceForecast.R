@@ -172,8 +172,8 @@ StateSpaceForecast <- function(fit,
   } else {
     T_full <- array(T_full[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(m, m, forecast_period))
   }
-  R_fc <- matrix(R_fc[-sys_mat$residuals_state, -sys_mat$r_residuals_state], m, r)
-  Q_fc <- as.matrix(Q_fc[-sys_mat$r_residuals_state, -sys_mat$r_residuals_state])
+  R_fc <- matrix(R_fc[-sys_mat$residuals_state, -sys_mat$residuals_state], m, r)
+  Q_fc <- as.matrix(Q_fc[-sys_mat$residuals_state, -sys_mat$residuals_state])
   
   # Forecasting for t = 1 to forecast_period
   for (i in 1:forecast_period) {
