@@ -411,6 +411,13 @@ StateSpaceEval <- function(param,
   eta <- matrix(0, N, r) # N x r
   eta_var <- array(0, dim = c(r, r, N)) # r x r x N
   
+  # Initialising smoothing error e and corresponding variance D
+  # Plus T-statistics for both the observation and state equation
+  e <- matrix(0, N, p)
+  D <- array(0, dim = c(p, p, N))
+  Tstat_observation <- matrix(0, N, p)
+  Tstat_state <- matrix(0, N + 1, m)
+  
   # Initialise r and N
   r_UT <- matrix(0, N*p + 1, m)
   N_UT <- array(0, dim = c(m, m , N*p + 1))
@@ -456,9 +463,9 @@ StateSpaceEval <- function(param,
     }
     
     if (Zdim < 3) {
-      Z_input <- matrix(Z_kal[row,], 1, dim(Z_kal)[2])
+      Z_input <- matrix(Z_kal[row,], 1, m)
     } else {
-      Z_input <- matrix(Z_kal[row,,t], 1, dim(Z_kal)[2])
+      Z_input <- matrix(Z_kal[row,,t], 1, m)
     }
     
     # For the initialisation steps, other computations are required
@@ -487,6 +494,22 @@ StateSpaceEval <- function(param,
         Nmat[,,t] <- N_UT[,,i]
         a_smooth[t,] <- a_pred[t,] + P_pred[,,t] %*% r_vec[t,]
         V[,,t] <- P_pred[,,t] - P_pred[,,t] %*% Nmat[,,t] %*% P_pred[,,t]
+        
+        # T-statistic for the state equation
+        Tstat_state[t + 1,] <- r_vec[t + 1,] / sqrt(diag(as.matrix(Nmat[,,t + 1])))
+        
+        # Smoothing error e and corresponding variance D 
+        # Plus T-statistic for the observation equation
+        if (Zdim < 3) {
+          Z_full <- Z_kal
+        } else {
+          Z_full <- matrix(Z_kal[,,t], p, m)
+        }
+        Finv <- solve(Fmat[,,t]) # Inverse of Fmat
+        K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
+        e[t,] <- Finv %*% matrix(v[t,]) - t(K) %*% r_vec[t + 1,]
+        D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
+        Tstat_observation[t,] <- e[t,] / sqrt(diag(as.matrix(D[,,t])))
         
         # Compute smoothed state disturbance and corresponding variance
         eta[t,] <- Q_input %*% t(R_input) %*% r_vec[t + 1,]
@@ -546,6 +569,22 @@ StateSpaceEval <- function(param,
         a_smooth[t,] <- a_pred[t,] + P_star[,,i] %*% r_vec[t, ] + P_inf[,,i] %*% r_1
         V[,,t] <- P_star[,,i] - P_star[,,i] %*% Nmat[,,t] %*% P_star[,,i] - t(P_inf[,,i] %*% N_1 %*% P_star[,,i]) - P_inf[,,i] %*% N_1 %*% P_star[,,i] - P_inf[,,i] %*% N_2 %*% P_inf[,,i]
         
+        # T-statistic for the state equation
+        Tstat_state[t + 1,] <- r_vec[t + 1,] / sqrt(diag(as.matrix(Nmat[,,t + 1])))
+        
+        # Smoothing error e and corresponding variance D 
+        # Plus T-statistic for the observation equation
+        if (Zdim < 3) {
+          Z_full <- Z_kal
+        } else {
+          Z_full <- matrix(Z_kal[,,t], p, m)
+        }
+        Finv <- solve(Fmat[,,t]) # Inverse of Fmat
+        K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
+        e[t,] <- Finv %*% matrix(v[t,]) - t(K) %*% r_vec[t + 1,]
+        D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
+        Tstat_observation[t,] <- e[t,] / sqrt(diag(as.matrix(D[,,t])))
+        
         # Compute smoothed state disturbance and corresponding variance
         eta[t,] <- Q_input %*% t(R_input) %*% r_vec[t + 1,]
         eta_var[,,t] <- Q_input - Q_input %*% t(R_input) %*% Nmat[,,t + 1] %*% R_input %*% Q_input
@@ -565,20 +604,6 @@ StateSpaceEval <- function(param,
   # Smoothed observation disturbance and corresponding variance
   epsilon <- matrix(a_smooth[,sys_mat$residuals_state], N, p)
   epsilon_var <- array(V[sys_mat$residuals_state, sys_mat$residuals_state,], dim = c(p, p, N))
-  
-  # Calculating smoothing error e and corresponding variance D
-  # Plus T-statistics for both the observation and state equation
-  e <- matrix(0, N, p)
-  D <- array(0, dim = c(p, p, N))
-  Tstat_observation <- matrix(0, N, p)
-  Tstat_state <- matrix(0, N + 1, m)
-  Hinv <- solve(H)
-  for (i in 1:N) {
-    e[i,] <- Hinv %*% matrix(epsilon[i,])
-    D[,,i] <- Hinv %*% (-as.matrix(epsilon_var[,,i]) + H) %*% Hinv
-    Tstat_observation[i,] <- e[i,] / sqrt(diag(as.matrix(D[,,i])))
-    Tstat_state[i + 1,] <- r_vec[i + 1,] / sqrt(diag(as.matrix(Nmat[,,i + 1])))
-  }
   ######################################################################################
   
   ############## Removing residuals from components and storing components #############
