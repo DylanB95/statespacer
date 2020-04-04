@@ -339,7 +339,7 @@ StateSpaceEval <- function(param,
         
         # Storing Variance - Covariance matrix of fitted values
         Fmat[,,t] <- Z_full %*% as.matrix(P_pred[,,t]) %*% t(Z_full)
-        
+
         # Inverse of Fmat
         Finv <- solve(Fmat[,,t])
         
@@ -505,7 +505,7 @@ StateSpaceEval <- function(param,
         } else {
           Z_full <- matrix(Z_kal[,,t], p, m)
         }
-        Finv <- solve(Fmat[,,t]) # Inverse of Fmat
+        Finv <- solve(Fmat[,,t])
         K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
         e[t,] <- Finv %*% matrix(v[t,]) - t(K) %*% r_vec[t + 1,]
         D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
@@ -579,7 +579,7 @@ StateSpaceEval <- function(param,
         } else {
           Z_full <- matrix(Z_kal[,,t], p, m)
         }
-        Finv <- solve(Fmat[,,t]) # Inverse of Fmat
+        Finv <- solve(Fmat[,,t])
         K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
         e[t,] <- Finv %*% matrix(v[t,]) - t(K) %*% r_vec[t + 1,]
         D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
