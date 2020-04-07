@@ -335,6 +335,10 @@ Cycle <- function(p = 1,
     
     # Frequency lambda (> 0)
     result$lambda <- exp(param[1])
+    if (is.na(result$lambda)) {
+      stop("Not enough parameters supplied.")
+    }
+    
     
     # T matrix = a 2 * n_cycle x 2 * n_cycle matrix
     result$Tmat <- rbind(
@@ -351,6 +355,9 @@ Cycle <- function(p = 1,
     # Damping factor rho (between 0 and 1)
     if (damping_factor_ind) {
       result$rho <- 1 / (1 + exp(param[2]))
+      if (is.na(result$rho)) {
+        stop("Not enough parameters supplied.")
+      }
       result$Tmat <- result$rho * result$Tmat
       paramQ <- param[-(1:2)]
     } else {
