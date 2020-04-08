@@ -6,6 +6,7 @@
 #'   constructed that do not depend on the parameters.
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
+#' @inheritParams StateSpaceEval
 #' @inheritParams Cholesky
 #' 
 #' @return 
@@ -48,7 +49,7 @@ LocalLevel <- function(p = 1,
     result$R <- diag(1, n_level, n_level)
     
     # Initialisation of the State vector and corresponding uncertainty
-    result$a1 <- matrix(rep(0, n_level))
+    result$a1 <- matrix(0, n_level, 1)
     result$P_inf <- diag(1, n_level, n_level)
     result$P_star <- matrix(0, n_level, n_level)
     
@@ -71,7 +72,7 @@ LocalLevel <- function(p = 1,
       )
     }
     
-    # Using Cholesky function to get a valid Variance - Covariance matrix 
+    # Using Cholesky function to get a valid variance - covariance matrix 
     # for the Q matrix
     Q <- Cholesky(
       param = param, 
@@ -93,7 +94,6 @@ LocalLevel <- function(p = 1,
   
   return(result)
 }
-#####################################################################
 
 #' Construct the System Matrices of a Local Level + Slope Component
 #' 
@@ -101,6 +101,7 @@ LocalLevel <- function(p = 1,
 #' 
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
+#' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky
 #' 
@@ -170,7 +171,7 @@ Slope <- function(p = 1,
     result$R <- diag(1, (n_level + n_slope), (n_level + n_slope))
     
     # Initialisation of the State vector and corresponding uncertainty
-    result$a1 <- matrix(rep(0, n_level + n_slope))
+    result$a1 <- matrix(0, n_level + n_slope, 1)
     result$P_inf <- diag(1, n_level + n_slope, n_level + n_slope)
     result$P_star <- matrix(0, n_level + n_slope, n_level + n_slope)
     
@@ -203,7 +204,7 @@ Slope <- function(p = 1,
       # Which parameters should be used for the Q matrix corresponding to the level
       split <- sum(format_level != 0 & lower.tri(format_level, diag = TRUE))
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix 
+      # Using Cholesky function to get a valid variance - covariance matrix 
       # for the Q matrix for the level
       Q_level <- Cholesky(
         param = param[1:split], 
@@ -239,7 +240,7 @@ Slope <- function(p = 1,
         )
       }
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix 
+      # Using Cholesky function to get a valid variance - covariance matrix 
       # for the Q matrix for the slope
       Q_slope <- Cholesky(
         param = param[(split + 1) : length(param)],
@@ -262,7 +263,6 @@ Slope <- function(p = 1,
   
   return(result)
 }
-#####################################################################
 
 #' Construct the System Matrices of a Cycle Component
 #' 
@@ -272,7 +272,7 @@ Slope <- function(p = 1,
 #' @param damping_factor_ind Boolean indicating whether a damping factor should be included.
 #' @param format_cycle `format` argument for the \code{\link{Cholesky}} function.
 #' @inheritParams GetSysMat
-#' @inheritParams StateSpaceFit
+#' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky
 #' 
@@ -314,7 +314,7 @@ Cycle <- function(p = 1,
     result$R <- diag(1, 2 * n_cycle, 2 * n_cycle)
     
     # Initial guess for the State vector
-    result$a1 <- matrix(rep(0, 2 * n_cycle))
+    result$a1 <- matrix(0, 2 * n_cycle, 1)
     
     # Check if Q depends on parameters
     if (diag_cycle == 0) {
@@ -377,7 +377,7 @@ Cycle <- function(p = 1,
         )
       }
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix for the Q matrix
+      # Using Cholesky function to get a valid variance - covariance matrix for the Q matrix
       Q_cycle <- Cholesky(
         param = paramQ, 
         format = format_cycle, 
@@ -405,7 +405,6 @@ Cycle <- function(p = 1,
   
   return(result)
 }
-#####################################################################
 
 #' Construct the System Matrices of a BSM Seasonality Component
 #' 
@@ -416,6 +415,7 @@ Cycle <- function(p = 1,
 #' @param format_BSM `format` argument for the \code{\link{Cholesky}} function.
 #' @inheritParams GetSysMat
 #' @inheritParams LocalLevel
+#' @inheritParams StateSpaceEval
 #' @inheritParams Cholesky
 #'
 #' @return 
@@ -497,7 +497,7 @@ BSM <- function(p = 1,
     result$R <- diag(1, (s - 1) * n_BSM, (s - 1) * n_BSM)
     
     # Initialisation of the State vector and corresponding uncertainty
-    result$a1 <- matrix(rep(0, (s - 1) * n_BSM))
+    result$a1 <- matrix(0, (s - 1) * n_BSM, 1)
     result$P_inf <- diag(1, (s - 1) * n_BSM, (s - 1) * n_BSM)
     result$P_star <- matrix(0, (s - 1) * n_BSM, (s - 1) * n_BSM)
     
@@ -521,7 +521,7 @@ BSM <- function(p = 1,
       )
     }
     
-    # Using Cholesky function to get a valid Variance - Covariance matrix 
+    # Using Cholesky function to get a valid variance - covariance matrix 
     # for the Q matrix
     Q_BSM <- Cholesky(
       param = param, 
@@ -544,14 +544,14 @@ BSM <- function(p = 1,
   
   return(result)
 }
-#####################################################################
 
 #' Construct the System Matrices of a Explanatory Variables Component
 #' 
-#' Constructs the system matrices of a Explanatory Variables component.
+#' Constructs the system matrices of a explanatory variables component.
 #' 
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
+#' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky
 #' 
@@ -619,7 +619,7 @@ AddVar <- function(p = 1,
     result$R <- diag(1, k, k)
     
     # Initialisation of the State vector and corresponding uncertainty
-    result$a1 <- matrix(rep(0, k))
+    result$a1 <- matrix(0, k, 1)
     result$P_inf <- diag(1, k, k)
     result$P_star <- matrix(0, k, k)
     
@@ -641,7 +641,7 @@ AddVar <- function(p = 1,
       )
     }
     
-    # Using Cholesky function to get a valid Variance - Covariance matrix 
+    # Using Cholesky function to get a valid variance - covariance matrix 
     # for the Q matrix
     Q <- Cholesky(
       param = param, 
@@ -663,14 +663,14 @@ AddVar <- function(p = 1,
   
   return(result)
 }
-#####################################################################
 
 #' Construct the System Matrices of a Explanatory Variables in the Level Component
 #' 
-#' Constructs the system matrices of a Explanatory Variables in the Level component.
+#' Constructs the system matrices of a explanatory variables in the level component.
 #' 
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
+#' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky
 #' 
@@ -771,7 +771,7 @@ LevelAddVar <- function(p = 1,
     result$R <- diag(1, n_level + k, n_level + k)
     
     # Initialisation of the State vector and corresponding uncertainty
-    result$a1 <- matrix(rep(0, n_level + k))
+    result$a1 <- matrix(0, n_level + k, 1)
     result$P_inf <- diag(1, n_level + k, n_level + k)
     result$P_star <- matrix(0, n_level + k, n_level + k)
     
@@ -805,7 +805,7 @@ LevelAddVar <- function(p = 1,
       # Which parameters should be used for the Q matrix corresponding to the level
       split <- sum(format_level != 0 & lower.tri(format_level, diag = TRUE))
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix 
+      # Using Cholesky function to get a valid variance - covariance matrix 
       # for the Q matrix for the level
       Q_level <- Cholesky(
         param = param[1:split], 
@@ -841,7 +841,7 @@ LevelAddVar <- function(p = 1,
         )
       }
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix 
+      # Using Cholesky function to get a valid variance - covariance matrix 
       # for the Q matrix for the slope
       Q_level_addvar <- Cholesky(
         param = param[(split + 1) : length(param)], 
@@ -864,14 +864,14 @@ LevelAddVar <- function(p = 1,
   
   return(result)
 }
-#####################################################################
 
 #' Construct the System Matrices of a Explanatory Variables in the Level + Slope Component
 #' 
-#' Constructs the system matrices of a Explanatory Variables in the Level + Slope component.
+#' Constructs the system matrices of a explanatory variables in the level + slope component.
 #' 
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
+#' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky
 #' 
@@ -1006,7 +1006,7 @@ SlopeAddVar <- function(p = 1,
     result$R <- diag(1, n_level + n_slope + k, n_level + n_slope + k)
     
     # Initialisation of the State vector and corresponding uncertainty
-    result$a1 <- matrix(rep(0, n_level + n_slope + k))
+    result$a1 <- matrix(0, n_level + n_slope + k, 1)
     result$P_inf <- diag(1, n_level + n_slope + k, n_level + n_slope + k)
     result$P_star <- matrix(0, n_level + n_slope + k, n_level + n_slope + k)
     
@@ -1045,7 +1045,7 @@ SlopeAddVar <- function(p = 1,
       # Which parameters should be used for the Q matrix corresponding to the level
       split <- sum(format_level != 0 & lower.tri(format_level, diag = TRUE))
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix 
+      # Using Cholesky function to get a valid variance - covariance matrix 
       # for the Q matrix for the level
       Q_level <- Cholesky(
         param = param[1:split], 
@@ -1085,7 +1085,7 @@ SlopeAddVar <- function(p = 1,
       # Which parameters should be used for the Q matrix corresponding to the slope
       split2 <- split + sum(format_slope != 0 & lower.tri(format_slope, diag = TRUE))
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix 
+      # Using Cholesky function to get a valid variance - covariance matrix 
       # for the Q matrix for the level
       Q_slope <- Cholesky(
         param = param[(split + 1):split2], 
@@ -1121,7 +1121,7 @@ SlopeAddVar <- function(p = 1,
         )
       }
       
-      # Using Cholesky function to get a valid Variance - Covariance matrix 
+      # Using Cholesky function to get a valid variance - covariance matrix 
       # for the Q matrix for the slope
       Q_level_addvar <- Cholesky(
         param = param[(split + split2 + 1) : length(param)], 
@@ -1139,6 +1139,255 @@ SlopeAddVar <- function(p = 1,
       } else {
         result$Q_level_addvar <- Q_level_addvar
       }
+    }
+  }
+  
+  return(result)
+}
+
+#' Construct the System Matrices of an ARIMA Component
+#' 
+#' Constructs the system matrices of an ARIMA component.
+#' 
+#' @param arima_spec specification of the ARIMA part, should be a vector of 
+#'   length 3 with the following format: c(AR, I, MA).
+#' @param exclude_arima The dependent variables that should not get an ARIMA component.
+#' @param R_stationary The R system matrix that will be used for calculating 
+#'   the initialisation matrix P_star
+#' @inheritParams LocalLevel
+#' @inheritParams GetSysMat
+#' @inheritParams StateSpaceEval
+#' @inheritParams Cholesky
+#' 
+#' @return 
+#' A list containing the system matrices.
+#'  
+#' @noRd
+ARIMA <- function(p = 1, 
+                  arima_spec = c(1, 0, 0), 
+                  exclude_arima = NULL, 
+                  fixed_part = TRUE, 
+                  update_part = TRUE, 
+                  param = rep(1, p^2 + 0.5 * p * (p+1)), 
+                  decompositions = TRUE,
+                  R_stationary = NULL) {
+  
+  # Check for erroneous input 
+  if (length(arima_spec) != 3) {
+    stop("`arima_spec` must be a vector of length 3.")
+  }
+  if (arima_spec[2] < 0) {
+    stop("Number of differencing in arima_spec must be greater than or equal to 0.")
+  }
+  
+  # The number of dependent variables that should get an ARIMA component
+  n_arima <- p - length(exclude_arima)
+  
+  # Initialising the list to return
+  result <- list() 
+  
+  if (fixed_part) {
+    
+    # Z matrix
+    Z <- diag(1, p, p)
+    if (n_arima < p) {
+      Z <- matrix(Z[, -exclude_arima], p, n_arima)
+    }
+    if (arima_spec[2] > 0) {
+      Z <- do.call(cbind, replicate(1 + arima_spec[2], Z, simplify = FALSE))
+    }
+    if (arima_spec[1] > 1) {
+      Z <- cbind(Z, matrix(0, p, n_arima * (arima_spec[1] - 1)))
+    }
+    Z <- cbind(Z, matrix(0, p, n_arima))
+    if (arima_spec[3] > 1) {
+      Z <- cbind(Z, matrix(0, p, n_arima * (arima_spec[3] - 1)))
+    }
+    result$Z <- Z
+    
+    # R matrix
+    R <- diag(1, n_arima, n_arima)
+    if (arima_spec[1] > 1) {
+      R <- rbind(R, matrix(0, (arima_spec[1] - 1) * n_arima, n_arima))
+    }
+    R <- rbind(R, diag(1, n_arima, n_arima))
+    if (arima_spec[3] > 1) {
+      R <- rbind(R, matrix(0, (arima_spec[3] - 1) * n_arima, n_arima))
+    }
+    R_stationary <- R
+    result$R_stationary <- R_stationary
+    if (arima_spec[2] > 0) {
+      R <- rbind(matrix(0, arima_spec[2] * n_arima, n_arima), R)
+    }
+    result$R <- R
+    
+    # Initialisation of the State vector and corresponding uncertainty
+    result$a1 <- matrix(0, dim(R)[1], 1)
+    result$P_inf <- BlockMatrix(
+      diag(1, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
+      matrix(0, dim(R)[1] - arima_spec[2] * n_arima, dim(R)[1] - arima_spec[2] * n_arima)
+    )
+    
+    # T matrix is fixed if no coefficients are needed
+    if (arima_spec[1] == 0 & arima_spec[3] == 0) {
+      T1 <- matrix(0, 2 * n_arima, 2 * n_arima)
+      if (arima_spec[2] > 0) {
+        T1 <- cbind(
+          matrix(0, 2 * n_arima, arima_spec[2] * n_arima),
+          T1
+        )
+        T2 <- cbind(
+          diag(1, n_arima, n_arima),
+          matrix(0, n_arima, n_arima)
+        )
+        T3 <- matrix(0, 0, 2 * n_arima + arima_spec[2] * n_arima)
+        for (i in arima_spec[2]:1) {
+          T3 <- rbind(
+            T3,
+            cbind(
+              matrix(0, n_arima, (arima_spec[2] - i) * n_arima),
+              do.call(cbind, replicate(i, diag(1, n_arima, n_arima), simplify = FALSE)),
+              T2
+            )
+          )
+        }
+        T1 <- rbind(T3, T1)
+      }
+      result$Tmat <- T1
+    }
+  }
+  
+  if (update_part) {
+    
+    # Check for number of parameters
+    param <- param[which(!is.na(param))]
+    needed <- 0.5 * n_arima * (n_arima + 1) + 
+              (arima_spec[1] + arima_spec[3]) * n_arima^2
+    if (length(param) < needed) {
+      stop("Not enough parameters supplied.")
+    }
+    if (length(param) > needed) {
+      stop("Too many parameters supplied.")
+    }
+    
+    # Parameters for the variance - covariance matrix
+    Q_indices <- 1:(0.5 * n_arima * (n_arima + 1))
+    Qparam <- param[Q_indices]
+    
+    # Using Cholesky function to get a valid variance - covariance matrix 
+    # for the Q matrix
+    Q <- Cholesky(
+      param = Qparam,
+      decompositions = decompositions
+    )
+    
+    # Check what to return
+    if (decompositions) {
+      result$Q <- Q$cov_mat
+      result$loading_matrix <- Q$loading_matrix
+      result$diagonal_matrix <- Q$diagonal_matrix
+      result$correlation_matrix <- Q$correlation_matrix
+      result$stdev_matrix <- Q$stdev_matrix
+    } else {
+      result$Q <- Q
+    }
+    
+    # T matrix
+    if (arima_spec[1] > 0 | arima_spec[3] > 0) {
+      if (n_arima == 1) {
+        A <- param[-Q_indices]
+      } else {
+        A <- array(
+          param[-Q_indices], 
+          dim = c(n_arima, n_arima, arima_spec[1] + arima_spec[3])
+        )
+      }
+      coeff <- CoeffARMA(
+        A = A, variance = result$Q, 
+        ar = arima_spec[1], ma = arima_spec[3]
+      )
+      coeff_row <- matrix(0, n_arima, 0)
+      T1 <- matrix(0, 0, 0)
+      if (arima_spec[1] > 0) {
+        result$ar <- coeff$ar
+        coeff_row <- cbind(coeff_row, matrix(coeff$ar, n_arima, n_arima * arima_spec[1]))
+        T1 <- BlockMatrix(
+          do.call(
+            BlockMatrix, 
+            replicate(
+              arima_spec[1] - 1, 
+              diag(1, n_arima, n_arima), 
+              simplify = FALSE
+            )
+          ),
+          matrix(0, n_arima, n_arima)
+        )
+      } else {
+        coeff_row <- cbind(coeff_row, matrix(0, n_arima, n_arima))
+        T1 <- matrix(0, n_arima, n_arima)
+      }
+      if (arima_spec[3] > 0) {
+        result$ma <- coeff$ma
+        coeff_row <- cbind(coeff_row, matrix(coeff$ma, n_arima, n_arima * arima_spec[3]))
+        T1 <- BlockMatrix(
+          T1,
+          do.call(
+            BlockMatrix, 
+            replicate(
+              arima_spec[3] - 1, 
+              diag(1, n_arima, n_arima), 
+              simplify = FALSE
+            )
+          )
+        )
+        T1 <- cbind(T1, matrix(0, dim(T1)[1], n_arima))
+      } else {
+        coeff_row <- cbind(coeff_row, matrix(0, n_arima, n_arima))
+        T1 <- cbind(T1, matrix(0, dim(T1)[1], n_arima))
+      }
+      T1 <- rbind(coeff_row, T1)
+      T_stationary <- T1
+      if (arima_spec[2] > 0) {
+        T1 <- cbind(
+          matrix(0, dim(T1)[1], arima_spec[2] * n_arima),
+          T1
+        )
+        T2 <- cbind(
+          diag(1, n_arima, n_arima),
+          matrix(0, n_arima, dim(T_stationary)[2] - n_arima)
+        )
+        T3 <- matrix(0, 0, dim(T1)[2])
+        for (i in arima_spec[2]:1) {
+          T3 <- rbind(
+            T3,
+            cbind(
+              matrix(0, n_arima, (arima_spec[2] - i) * n_arima),
+              do.call(cbind, replicate(i, diag(1, n_arima, n_arima), simplify = FALSE)),
+              T2
+            )
+          )
+        }
+        T1 <- rbind(T3, T1)
+      }
+      result$Tmat <- T1
+    }
+    
+    # Initial uncertainty for the stationary part
+    if (arima_spec[1] == 0 & arima_spec[3] == 0) {
+      result$P_star <- BlockMatrix(
+        matrix(0, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
+        result$Q,
+        result$Q
+      )
+    } else {
+      T_kronecker <- kronecker(T_stationary, T_stationary)
+      Tinv <- solve(diag(1, dim(T_kronecker), dim(T_kronecker)) - T_kronecker)
+      vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
+      vecPstar <- Tinv %*% vecRQR
+      result$P_star <- BlockMatrix(
+        matrix(0, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
+        matrix(vecPstar, dim(T_stationary)[1], dim(T_stationary)[2])
+      )
     }
   }
   

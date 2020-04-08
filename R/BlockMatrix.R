@@ -37,6 +37,10 @@ BlockMatrix <- function(A = NULL, ...) {
     if (is.null(block)) {
       next
     }
+    # If current block has a 0 dimension, go to the next block 
+    if (any(dim(block) == 0)) {
+      next
+    }
     block <- as.matrix(block)
     
     # Store the matrix before adding a block to it
