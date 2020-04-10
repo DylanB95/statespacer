@@ -151,7 +151,7 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
     }
     if (ma > 0) {
       P_ma <- P[(ar + 1):(ar + ma)]
-      result$ma <- TransformPAC(P_ma)
+      result$ma <- -TransformPAC(P_ma) # Note the minus sign
     }
     return(result)
   }
@@ -178,7 +178,7 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
     ma_part <- TransformPAC(P_ma)
     L_ma <- t(chol(ma_part$variance))
     L_ma_inv <- solve(L_ma)
-    result$ma <- array(
+    result$ma <- -array( # Note the minus sign
       apply(ma_part$coeff, 3, function(x) L %*% L_ma_inv %*% x %*% L_ma %*% L_inv),
       dim = dim(ma_part$coeff)
     )

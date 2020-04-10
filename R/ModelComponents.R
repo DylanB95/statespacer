@@ -1152,8 +1152,6 @@ SlopeAddVar <- function(p = 1,
 #' @param arima_spec specification of the ARIMA part, should be a vector of 
 #'   length 3 with the following format: c(AR, I, MA).
 #' @param exclude_arima The dependent variables that should not get an ARIMA component.
-#' @param R_stationary The R system matrix that will be used for calculating 
-#'   the initialisation matrix P_star
 #' @inheritParams LocalLevel
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceEval
@@ -1169,8 +1167,7 @@ ARIMA <- function(p = 1,
                   fixed_part = TRUE, 
                   update_part = TRUE, 
                   param = rep(1, p^2 + 0.5 * p * (p+1)), 
-                  decompositions = TRUE,
-                  R_stationary = NULL) {
+                  decompositions = TRUE) {
   
   # Check for erroneous input 
   if (length(arima_spec) != 3) {
@@ -1186,6 +1183,9 @@ ARIMA <- function(p = 1,
   # Initialising the list to return
   result <- list() 
   
+  # Number of stationary elements in the state vector per included dependent
+  r <- max(arima_spec[1], arima_spec[3] + 1)
+  
   if (fixed_part) {
     
     # Z matrix
@@ -1196,51 +1196,26 @@ ARIMA <- function(p = 1,
     if (arima_spec[2] > 0) {
       Z <- do.call(cbind, replicate(1 + arima_spec[2], Z, simplify = FALSE))
     }
-    if (arima_spec[1] > 1) {
-      Z <- cbind(Z, matrix(0, p, n_arima * (arima_spec[1] - 1)))
-    }
-    Z <- cbind(Z, matrix(0, p, n_arima))
-    if (arima_spec[3] > 1) {
-      Z <- cbind(Z, matrix(0, p, n_arima * (arima_spec[3] - 1)))
-    }
+    Z <- cbind(Z, matrix(0, p, n_arima * (r - 1)))
     result$Z <- Z
     
-    # R matrix
-    R <- diag(1, n_arima, n_arima)
-    if (arima_spec[1] > 1) {
-      R <- rbind(R, matrix(0, (arima_spec[1] - 1) * n_arima, n_arima))
-    }
-    R <- rbind(R, diag(1, n_arima, n_arima))
-    if (arima_spec[3] > 1) {
-      R <- rbind(R, matrix(0, (arima_spec[3] - 1) * n_arima, n_arima))
-    }
-    R_stationary <- R
-    result$R_stationary <- R_stationary
-    if (arima_spec[2] > 0) {
-      R <- rbind(matrix(0, arima_spec[2] * n_arima, n_arima), R)
-    }
-    result$R <- R
-    
     # Initialisation of the State vector and corresponding uncertainty
-    result$a1 <- matrix(0, dim(R)[1], 1)
+    result$a1 <- matrix(0, (r + arima_spec[2]) * n_arima, 1)
     result$P_inf <- BlockMatrix(
       diag(1, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
-      matrix(0, dim(R)[1] - arima_spec[2] * n_arima, dim(R)[1] - arima_spec[2] * n_arima)
+      matrix(0, r * n_arima, r * n_arima)
     )
     
-    # T matrix is fixed if no coefficients are needed
+    # T and R matrices are fixed if no coefficients are needed
     if (arima_spec[1] == 0 & arima_spec[3] == 0) {
-      T1 <- matrix(0, 2 * n_arima, 2 * n_arima)
+      T1 <- matrix(0, n_arima, n_arima)
       if (arima_spec[2] > 0) {
         T1 <- cbind(
-          matrix(0, 2 * n_arima, arima_spec[2] * n_arima),
+          matrix(0, n_arima, arima_spec[2] * n_arima),
           T1
         )
-        T2 <- cbind(
-          diag(1, n_arima, n_arima),
-          matrix(0, n_arima, n_arima)
-        )
-        T3 <- matrix(0, 0, 2 * n_arima + arima_spec[2] * n_arima)
+        T2 <- diag(1, n_arima, n_arima)
+        T3 <- matrix(0, 0, n_arima + arima_spec[2] * n_arima)
         for (i in arima_spec[2]:1) {
           T3 <- rbind(
             T3,
@@ -1254,6 +1229,10 @@ ARIMA <- function(p = 1,
         T1 <- rbind(T3, T1)
       }
       result$Tmat <- T1
+      result$R <- rbind(
+        matrix(0, arima_spec[2] * n_arima, n_arima), 
+        diag(1, n_arima, n_arima)
+      )
     }
   }
   
@@ -1292,8 +1271,10 @@ ARIMA <- function(p = 1,
       result$Q <- Q
     }
     
-    # T matrix
+    # T matrix and coefficients in R matrix
     if (arima_spec[1] > 0 | arima_spec[3] > 0) {
+      
+      # Coefficients
       if (n_arima == 1) {
         A <- param[-Q_indices]
       } else {
@@ -1306,47 +1287,46 @@ ARIMA <- function(p = 1,
         A = A, variance = result$Q, 
         ar = arima_spec[1], ma = arima_spec[3]
       )
-      coeff_row <- matrix(0, n_arima, 0)
-      T1 <- matrix(0, 0, 0)
+      
+      # T matrix
+      T1 <- diag(1, (r - 1) * n_arima, (r - 1) * n_arima)
+      T1 <- rbind(T1, matrix(0, n_arima, (r - 1) * n_arima))
+      T1 <- cbind(matrix(0, r * n_arima, n_arima), T1)
       if (arima_spec[1] > 0) {
         result$ar <- coeff$ar
-        coeff_row <- cbind(coeff_row, matrix(coeff$ar, n_arima, n_arima * arima_spec[1]))
-        T1 <- BlockMatrix(
-          do.call(
-            BlockMatrix, 
-            replicate(
-              arima_spec[1] - 1, 
-              diag(1, n_arima, n_arima), 
-              simplify = FALSE
-            )
-          ),
-          matrix(0, n_arima, n_arima)
-        )
-      } else {
-        coeff_row <- cbind(coeff_row, matrix(0, n_arima, n_arima))
-        T1 <- matrix(0, n_arima, n_arima)
-      }
-      if (arima_spec[3] > 0) {
-        result$ma <- coeff$ma
-        coeff_row <- cbind(coeff_row, matrix(coeff$ma, n_arima, n_arima * arima_spec[3]))
-        T1 <- BlockMatrix(
-          T1,
-          do.call(
-            BlockMatrix, 
-            replicate(
-              arima_spec[3] - 1, 
-              diag(1, n_arima, n_arima), 
-              simplify = FALSE
-            )
+        if (n_arima > 1) {
+          coeff$ar <- aperm(coeff$ar, c(2, 1, 3))
+        }
+        T1[1:(n_arima * arima_spec[1]), 1:n_arima] <- t(
+          matrix(
+            coeff$ar, 
+            n_arima, 
+            n_arima * arima_spec[1]
           )
         )
-        T1 <- cbind(T1, matrix(0, dim(T1)[1], n_arima))
-      } else {
-        coeff_row <- cbind(coeff_row, matrix(0, n_arima, n_arima))
-        T1 <- cbind(T1, matrix(0, dim(T1)[1], n_arima))
       }
-      T1 <- rbind(coeff_row, T1)
       T_stationary <- T1
+      
+      # R matrix
+      R1 <- diag(1, n_arima, n_arima)
+      R2 <- matrix(0, (r - 1) * n_arima, n_arima)
+      if (arima_spec[3] > 0) {
+        result$ma <- coeff$ma
+        if (n_arima > 1) {
+          coeff$ma <- aperm(coeff$ma, c(2, 1, 3))
+        }
+        R2[1:(n_arima * arima_spec[3]), 1:n_arima] <- t(
+          matrix(
+            coeff$ma, 
+            n_arima, 
+            n_arima * arima_spec[3]
+          )
+        )
+      }
+      R1 <- rbind(R1, R2)
+      R_stationary <- R1
+      
+      # Non-stationary part
       if (arima_spec[2] > 0) {
         T1 <- cbind(
           matrix(0, dim(T1)[1], arima_spec[2] * n_arima),
@@ -1368,20 +1348,24 @@ ARIMA <- function(p = 1,
           )
         }
         T1 <- rbind(T3, T1)
+        R1 <- rbind(
+          matrix(0, arima_spec[2] * n_arima, n_arima),
+          R1
+        )
       }
       result$Tmat <- T1
+      result$R <- R1
     }
     
     # Initial uncertainty for the stationary part
     if (arima_spec[1] == 0 & arima_spec[3] == 0) {
       result$P_star <- BlockMatrix(
         matrix(0, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
-        result$Q,
         result$Q
       )
     } else {
       T_kronecker <- kronecker(T_stationary, T_stationary)
-      Tinv <- solve(diag(1, dim(T_kronecker), dim(T_kronecker)) - T_kronecker)
+      Tinv <- solve(diag(1, dim(T_kronecker)[1], dim(T_kronecker)[2]) - T_kronecker)
       vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
       vecPstar <- Tinv %*% vecRQR
       result$P_star <- BlockMatrix(
