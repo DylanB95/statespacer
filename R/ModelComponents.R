@@ -1152,6 +1152,11 @@ SlopeAddVar <- function(p = 1,
 #' @param arima_spec specification of the ARIMA part, should be a vector of 
 #'   length 3 with the following format: c(AR, I, MA).
 #' @param exclude_arima The dependent variables that should not get an ARIMA component.
+#' @param T1 Fixed part of Tmat, only used when fixed_part = FALSE
+#' @param T2 Fixed part of Tmat, only used when fixed_part = FALSE
+#' @param T3 Fixed part of Tmat, only used when fixed_part = FALSE
+#' @param R1 Fixed part of R, only used when fixed_part = FALSE
+#' @param R2 Fixed part of R, only used when fixed_part = FALSE
 #' @inheritParams LocalLevel
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceEval
@@ -1167,7 +1172,12 @@ ARIMA <- function(p = 1,
                   fixed_part = TRUE, 
                   update_part = TRUE, 
                   param = rep(1, p^2 + 0.5 * p * (p+1)), 
-                  decompositions = TRUE) {
+                  decompositions = TRUE,
+                  T1 = NULL,
+                  T2 = NULL,
+                  T3 = NULL,
+                  R1 = NULL,
+                  R2 = NULL) {
   
   # Check for erroneous input 
   if (length(arima_spec) != 3) {
@@ -1233,6 +1243,41 @@ ARIMA <- function(p = 1,
         matrix(0, arima_spec[2] * n_arima, n_arima), 
         diag(1, n_arima, n_arima)
       )
+    } else {
+      
+      # Fixed part of Tmat, T1
+      T1 <- diag(1, (r - 1) * n_arima, (r - 1) * n_arima)
+      T1 <- rbind(T1, matrix(0, n_arima, (r - 1) * n_arima))
+      T1 <- cbind(matrix(0, r * n_arima, n_arima), T1)
+      result$T1 <- T1
+      
+      # Fixed part of R, R1
+      R1 <- rbind(diag(1, n_arima, n_arima), matrix(0, (r - 1) * n_arima, n_arima))
+      result$R1 <- R1
+      
+      # Non-stationary part of Tmat and R
+      if (arima_spec[2] > 0) {
+        T2 <- matrix(0, dim(T1)[1], arima_spec[2] * n_arima)
+        Ttemp <- cbind(
+          diag(1, n_arima, n_arima),
+          matrix(0, n_arima, dim(T1)[2] - n_arima)
+        )
+        T3 <- matrix(0, 0, dim(T1)[2] + dim(T2)[2])
+        for (i in arima_spec[2]:1) {
+          T3 <- rbind(
+            T3,
+            cbind(
+              matrix(0, n_arima, (arima_spec[2] - i) * n_arima),
+              do.call(cbind, replicate(i, diag(1, n_arima, n_arima), simplify = FALSE)),
+              Ttemp
+            )
+          )
+        }
+        result$T2 <- T2
+        result$T3 <- T3
+        R2 <- matrix(0, arima_spec[2] * n_arima, n_arima)
+        result$R2 <- R2
+      }
     }
   }
   
@@ -1288,10 +1333,7 @@ ARIMA <- function(p = 1,
         ar = arima_spec[1], ma = arima_spec[3]
       )
       
-      # T matrix
-      T1 <- diag(1, (r - 1) * n_arima, (r - 1) * n_arima)
-      T1 <- rbind(T1, matrix(0, n_arima, (r - 1) * n_arima))
-      T1 <- cbind(matrix(0, r * n_arima, n_arima), T1)
+      # T matrix coefficients
       if (arima_spec[1] > 0) {
         result$ar <- coeff$ar
         if (n_arima > 1) {
@@ -1307,15 +1349,13 @@ ARIMA <- function(p = 1,
       }
       T_stationary <- T1
       
-      # R matrix
-      R1 <- diag(1, n_arima, n_arima)
-      R2 <- matrix(0, (r - 1) * n_arima, n_arima)
+      # R matrix coefficients
       if (arima_spec[3] > 0) {
         result$ma <- coeff$ma
         if (n_arima > 1) {
           coeff$ma <- aperm(coeff$ma, c(2, 1, 3))
         }
-        R2[1:(n_arima * arima_spec[3]), 1:n_arima] <- t(
+        R1[-(1:n_arima),] <- t(
           matrix(
             coeff$ma, 
             n_arima, 
@@ -1323,35 +1363,13 @@ ARIMA <- function(p = 1,
           )
         )
       }
-      R1 <- rbind(R1, R2)
       R_stationary <- R1
       
       # Non-stationary part
       if (arima_spec[2] > 0) {
-        T1 <- cbind(
-          matrix(0, dim(T1)[1], arima_spec[2] * n_arima),
-          T1
-        )
-        T2 <- cbind(
-          diag(1, n_arima, n_arima),
-          matrix(0, n_arima, dim(T_stationary)[2] - n_arima)
-        )
-        T3 <- matrix(0, 0, dim(T1)[2])
-        for (i in arima_spec[2]:1) {
-          T3 <- rbind(
-            T3,
-            cbind(
-              matrix(0, n_arima, (arima_spec[2] - i) * n_arima),
-              do.call(cbind, replicate(i, diag(1, n_arima, n_arima), simplify = FALSE)),
-              T2
-            )
-          )
-        }
+        T1 <- cbind(T2, T1)
         T1 <- rbind(T3, T1)
-        R1 <- rbind(
-          matrix(0, arima_spec[2] * n_arima, n_arima),
-          R1
-        )
+        R1 <- rbind(R2, R1)
       }
       result$Tmat <- T1
       result$R <- R1
