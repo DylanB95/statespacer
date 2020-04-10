@@ -131,10 +131,12 @@ StateSpaceForecast <- function(fit,
                        addvar_list = addvar_list_fc,
                        level_addvar_list = level_addvar_list_fc,
                        slope_addvar_list = slope_addvar_list_fc,
+                       arima_list = fit$function_call$arima_list,
                        exclude_level = fit$function_call$exclude_level,
                        exclude_slope = fit$function_call$exclude_slope,
                        exclude_BSM_list = fit$function_call$exclude_BSM_list,
                        exclude_cycle_list = fit$function_call$exclude_cycle_list,
+                       exclude_arima_list = fit$function_call$exclude_arima_list,
                        damping_factor_ind = fit$function_call$damping_factor_ind,
                        format_level = fit$function_call$format_level,
                        format_slope = fit$function_call$format_slope,
@@ -201,7 +203,8 @@ StateSpaceForecast <- function(fit,
     }
   }
   
-  #### Adjusting dimensions of Z matrices of components and adding predicted components of the model ####
+  #### Adjusting dimensions of Z matrices of components ####
+  ##-- and adding predicted components of the model ------##
   
   # Local Level
   if (fit$function_call$local_level_ind & !fit$function_call$slope_ind & is.null(level_addvar_list_fc) & is.null(slope_addvar_list_fc)) {
@@ -284,6 +287,22 @@ StateSpaceForecast <- function(fit,
     }
   }
   
-  result <- c(list(y_fc = y_fc, a_fc = a_fc, Fmat_fc = Fmat_fc, P_fc = P_fc), result, list(Z_padded = Z_padded))
+  # ARIMA
+  if (!is.null(fit$function_call$arima_list)) {
+    for (j in seq_along(fit$function_call$arima_list)) {
+      tempZ <- matrix(0, p, m)
+      result[[paste0('ARIMA', j)]] <- matrix(0, forecast_period, p)
+      for (i in 1:forecast_period) {
+        tempZ[1:length(Z_padded[[paste0('ARIMA', j)]])] <- Z_padded[[paste0('ARIMA', j)]]
+        result[[paste0('ARIMA', j)]][i,] <- tempZ %*% as.matrix(a_fc[i,])
+      }
+      Z_padded[[paste0('ARIMA', j)]] <- tempZ
+    }
+  }
+  
+  result <- c(
+    list(y_fc = y_fc, a_fc = a_fc, Fmat_fc = Fmat_fc, P_fc = P_fc), 
+    result, list(Z_padded = Z_padded)
+  )
   return(result)
 }

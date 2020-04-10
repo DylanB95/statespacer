@@ -23,10 +23,12 @@ GetSysMat <- function(p,
                       addvar_list = NULL,
                       level_addvar_list = NULL,
                       slope_addvar_list = NULL,
+                      arima_list = NULL,
                       exclude_level = NULL,
                       exclude_slope = NULL,
                       exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                       exclude_cycle_list = list(0),
+                      exclude_arima_list = lapply(arima_list, FUN = function(x) 0),
                       damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                       format_level = NULL,
                       format_slope = NULL,
@@ -48,10 +50,11 @@ GetSysMat <- function(p,
   T_list <- list()
   R_list <- list()
   Q_list <- list()
-  Q_list2 <- list()
+  Q_list2 <- list() # For full Q matrix, in case it differs from Q_list
   a_list <- list()
   Pinf_list <- list()
   Pstar_list <- list()
+  temp_list <- list() # For fixed components of the system matrices
   
   # Initialising lists to store Cholesky decomposition of Q system matrices
   L_list <- list()
@@ -76,6 +79,10 @@ GetSysMat <- function(p,
   # Initialising lists to store lambda and rho parameters of the cycles
   lambda_list <- NULL
   rho_list <- NULL
+  
+  # Initialising lists to store AR and MA coefficients of the ARIMA components
+  ar_list <- NULL
+  ma_list <- NULL
   
   # Initialising list to store state indices of coefficients
   coeff_list <- list()
@@ -912,6 +919,130 @@ GetSysMat <- function(p,
     }
   }
   
+  #### ARIMA ####
+  if (!is.null(arima_list)) {
+    
+    # Initialising lists to store AR and MA coefficients of the ARIMA components
+    ar_list <- list()
+    ma_list <- list()
+    
+    for (i in seq_along(arima_list)) {
+      
+      # Constructing matrix with 0s using former m dimension
+      zero_mat <- matrix(0, p, m)
+      
+      # Check which dependent variables will be excluded, removing doubles as well
+      exclude_arima_list[[i]] <- exclude_arima_list[[i]][which(exclude_arima_list[[i]] >= 1 & exclude_arima_list[[i]] <= p)]
+      exclude_arima_list[[i]] <- unique(exclude_arima_list[[i]])
+      
+      # The number of dependent variables that should get a cycle
+      n_arima <- p - length(exclude_arima_list[[i]])
+      
+      # The number of state parameters
+      state_num <- (max(arima_list[[i]][1], arima_list[[i]][3] + 1) + 
+                      arima_list[[i]][2]) * n_arima
+      
+      # Saving former m
+      m_old <- m
+      
+      # Updating m
+      m <- m + state_num
+      
+      # Label of the state parameters
+      state_label <- c(state_label, rep(paste0("ARIMA", i), state_num))
+      
+      # How many parameters in param vector are meant for the ARIMA component?
+      param_num_list[[paste0('ARIMA', i)]] <- 0.5 * n_arima * (n_arima + 1) +
+        n_arima^2 * (arima_list[[i]][1] + arima_list[[i]][3])
+      
+      # Last index of parameter that should be used for the component
+      index_par2 <- index_par + param_num_list[[paste0('ARIMA', i)]] - 1
+      
+      # Indices of parameters that should be used for the component
+      param_indices[[paste0('ARIMA', i)]] <- index_par:index_par2
+      
+      # Keeping track of how many parameters the State Space model needs
+      param_num <- param_num + param_num_list[[paste0('ARIMA', i)]]
+      
+      # Calling the proper function to obtain system matrices
+      update <- ARIMA(p = p,
+                      arima_spec = arima_list[[i]],
+                      exclude_arima = exclude_arima_list[[i]],
+                      fixed_part = TRUE,
+                      update_part = update_part,
+                      param = param[param_indices[[paste0('ARIMA', i)]]],
+                      decompositions = TRUE
+      )
+      
+      # Updating indices for the first parameter to use for the next component
+      index_par <- index_par2 + 1
+      
+      # Storing system matrices
+      Z_list[[paste0('ARIMA', i)]] <- update$Z
+      if (Zdim < 3) {
+        Z_kal <- cbind(Z_kal, update$Z)
+      } else {
+        Z_kal <- array(
+          apply(
+            Z_kal, 3, 
+            function(x) {cbind(
+              matrix(x, p, dim(Z_kal)[2]), 
+              update$Z
+            )}
+          ), 
+          dim = c(p, sum(dim(Z_kal)[2], state_num), N)
+        )
+      }
+      a_list[[paste0('ARIMA', i)]] <- update$a1
+      a <- rbind(a, update$a1)
+      Pinf_list[[paste0('ARIMA', i)]] <- update$P_inf
+      P_inf <- BlockMatrix(P_inf, update$P_inf)
+      Z_padded_list[[paste0('ARIMA', i)]] <- cbind(zero_mat, update$Z)
+      if (update_part) {
+        if (arima_list[[i]][1] > 0) {
+          ar_list[[paste0('ARIMA', i)]] <- update$ar
+        }
+        if (arima_list[[i]][3] > 0) {
+          ma_list[[paste0('ARIMA', i)]] <- update$ma
+        }
+        R_list[[paste0('ARIMA', i)]] <- update$R
+        R_kal <- BlockMatrix(R_kal, update$R)
+        T_list[[paste0('ARIMA', i)]] <- update$Tmat
+        if (Tdim < 3) {
+          T_kal <- BlockMatrix(T_kal, update$Tmat)
+        } else {
+          T_kal <- array(
+            apply(T_kal, 3, 
+                  function(x) BlockMatrix(as.matrix(x), update$Tmat)
+            ), 
+            dim = c(sum(dim(T_kal)[1], state_num), sum(dim(T_kal)[2], state_num), N)
+          )
+        }
+        Q_list[[paste0('ARIMA', i)]] <- update$Q
+        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        L_list[[paste0('ARIMA', i)]] <- update$loading_matrix
+        D_list[[paste0('ARIMA', i)]] <- update$diagonal_matrix
+        corr_list[[paste0('ARIMA', i)]] <- update$correlation_matrix
+        stdev_list[[paste0('ARIMA', i)]] <- update$stdev_matrix
+        Pstar_list[[paste0('ARIMA', i)]] <- update$P_star
+        P_star <- BlockMatrix(P_star, update$P_star)
+      }
+      if (!update_part & arima_list[[i]][1] == 0 & arima_list[[i]][3] == 0) {
+        R_list[[paste0('ARIMA', i)]] <- update$R
+        T_list[[paste0('ARIMA', i)]] <- update$Tmat
+      }
+      if (!update_part & (arima_list[[i]][1] > 0 | arima_list[[i]][3] > 0)) {
+        temp_list[[paste0('ARIMA', i)]] <- list(
+          T1 = update$T1,
+          T2 = update$T2,
+          T3 = update$T3,
+          R1 = update$R1,
+          R2 = update$R2
+        )
+      }
+    }
+  }
+  
   # Input arguments that specify the state space model
   function_call <- list(H_format = H_format,
                         local_level_ind = local_level_ind,
@@ -921,10 +1052,12 @@ GetSysMat <- function(p,
                         addvar_list = addvar_list,
                         level_addvar_list = level_addvar_list,
                         slope_addvar_list = slope_addvar_list,
+                        arima_list = arima_list,
                         exclude_level = exclude_level,
                         exclude_slope = exclude_slope,
                         exclude_BSM_list = exclude_BSM_list,
                         exclude_cycle_list = exclude_cycle_list,
+                        exclude_arima_list = exclude_arima_list,
                         damping_factor_ind = damping_factor_ind,
                         format_level = format_level,
                         format_slope = format_slope,
@@ -942,6 +1075,7 @@ GetSysMat <- function(p,
     R = R_list,
     Q = Q_list,
     Q2 = Q_list2,
+    temp_list = temp_list,
     Q_loading_matrix = L_list,
     Q_diagonal_matrix = D_list,
     Q_correlation_matrix = corr_list,
@@ -965,6 +1099,12 @@ GetSysMat <- function(p,
   )
   result$lambda <- lambda_list
   result$rho <- rho_list
+  if (length(ar_list) > 0) {
+    result$AR <- ar_list
+  }
+  if (length(ma_list) > 0) {
+    result$MA <- ma_list
+  }
   result$addvar_state <- coeff_list$addvar_state
   result$level_addvar_state <- coeff_list$level_addvar_state
   result$slope_addvar_state <- coeff_list$slope_addvar_state
