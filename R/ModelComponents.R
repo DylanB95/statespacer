@@ -431,6 +431,11 @@ BSM <- function(p = 1,
                 format_BSM = diag(1, p, p),
                 decompositions = TRUE) {
 
+  # Check for erroneous input
+  if (s < 3) {
+    stop("The period of the BSM component must be greater than or equal to 3.")
+  }
+  
   # The number of dependent variables that should get a bsm component
   n_BSM <- p - length(exclude_BSM)
   
