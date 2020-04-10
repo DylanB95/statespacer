@@ -36,10 +36,12 @@ StateSpaceEval <- function(param,
                            addvar_list = NULL,
                            level_addvar_list = NULL,
                            slope_addvar_list = NULL,
+                           arima_list = NULL,
                            exclude_level = NULL,
                            exclude_slope = NULL,
                            exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                            exclude_cycle_list = list(0),
+                           exclude_arima_list = lapply(arima_list, FUN = function(x) 0),
                            damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                            format_level = NULL,
                            format_slope = NULL,
@@ -74,10 +76,12 @@ StateSpaceEval <- function(param,
                        addvar_list = addvar_list,
                        level_addvar_list = level_addvar_list,
                        slope_addvar_list = slope_addvar_list,
+                       arima_list = arima_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
                        exclude_cycle_list = exclude_cycle_list,
+                       exclude_arima_list = exclude_arima_list,
                        damping_factor_ind = damping_factor_ind,
                        format_level = format_level,
                        format_slope = format_slope,
@@ -96,10 +100,12 @@ StateSpaceEval <- function(param,
   addvar_list <- sys_mat$function_call$addvar_list
   level_addvar_list <- sys_mat$function_call$level_addvar_list
   slope_addvar_list <- sys_mat$function_call$slope_addvar_list
+  arima_list <- sys_mat$function_call$arima_list
   exclude_level <- sys_mat$function_call$exclude_level
   exclude_slope <- sys_mat$function_call$exclude_slope
   exclude_BSM_list <- sys_mat$function_call$exclude_BSM_list
   exclude_cycle_list <- sys_mat$function_call$exclude_cycle_list
+  exclude_arima_list <- sys_mat$function_call$exclude_arima_list
   damping_factor_ind <- sys_mat$function_call$damping_factor_ind
   format_level <- sys_mat$function_call$format_level
   format_slope <- sys_mat$function_call$format_slope
@@ -374,8 +380,10 @@ StateSpaceEval <- function(param,
   Nstat <- N * (Sstat^2 / 6 + (Kstat - 3)^2 / 24)
   
   # Correlogram and Box-Ljung statistic
-  obs_init <- ceiling(Initialisation_Steps / p) # Number of observations used for initialisation
-  obs <- N - obs_init # Number of observations after initialisation
+  # Number of observations used for initialisation
+  obs_init <- ceiling(Initialisation_Steps / p) 
+  # Number of observations after initialisation
+  obs <- N - obs_init 
   if (obs > 0) {
     correlogram <- matrix(0, floor(obs/2), p)
     Box_Ljung <- matrix(0, floor(obs/2), p)
@@ -384,7 +392,7 @@ StateSpaceEval <- function(param,
     N_p <- apply(v_norm_centered, MARGIN = 2, FUN = function(x) sum(!is.na(x)))
     for (i in 1:floor(obs/2)) {
       correlogram[i,] <- apply(
-        as.matrix(v_norm_centered[(i+1):N,]) * as.matrix(v_norm_centered[1:(N-i),]), 
+        as.matrix(v_norm_centered[(i+1):N,]) * as.matrix(v_norm_centered[1:(N-i),]),
         MARGIN = 2, FUN = sum, na.rm = TRUE
       ) / (N_p * m2)
       BL_running <- BL_running + N_p * (N_p + 2) * correlogram[i,]^2 / (N_p - i)
@@ -448,7 +456,8 @@ StateSpaceEval <- function(param,
     if (row == 1) {
       timestep <- TRUE
       
-      # T, R, and Q matrices only needed when a transition to the next timepoint is made
+      # T, R, and Q matrices only needed when a transition to the 
+      # next timepoint is made
       if (Tdim < 3) {
         T_input <- T_kal
       } else {
@@ -483,10 +492,12 @@ StateSpaceEval <- function(param,
         K_UT <- as.matrix(P_star[,,i]) %*% t(Z_input) * Finv
         L_UT <- diag(length(Z_input)) - K_UT %*% Z_input
         r_UT[i,] <- t(Z_input) * Finv * v_UT + t(L_UT) %*% r_UT[i + 1,]
-        N_UT[,,i] <- t(Z_input) %*% Z_input * Finv + t(L_UT) %*% N_UT[,,i + 1] %*% L_UT
+        N_UT[,,i] <- t(Z_input) %*% Z_input * Finv + 
+                     t(L_UT) %*% N_UT[,,i + 1] %*% L_UT
       }
       
-      # If a transition to the previous timepoint is made, do some additional computations
+      # If a transition to the previous timepoint is made, 
+      # do some additional computations
       if (timestep) {
         
         # Save r and N for each timepoint and compute smoothed state and variance
@@ -513,7 +524,8 @@ StateSpaceEval <- function(param,
         
         # Compute smoothed state disturbance and corresponding variance
         eta[t,] <- Q_input %*% t(R_input) %*% r_vec[t + 1,]
-        eta_var[,,t] <- Q_input - Q_input %*% t(R_input) %*% Nmat[,,t + 1] %*% R_input %*% Q_input
+        eta_var[,,t] <- Q_input - 
+          Q_input %*% t(R_input) %*% Nmat[,,t + 1] %*% R_input %*% Q_input
         
         # r and N for the next step, not valid/needed for t = 1
         if (t > 1) {
@@ -543,7 +555,8 @@ StateSpaceEval <- function(param,
           K_0 <- M_star * F_1
           L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
           r_UT[i,] <- t(Z_input) * F_1 * v_UT + t(L_0) %*% r_UT[i + 1,]
-          N_UT[,,i] <- t(Z_input) %*% Z_input * F_1 + t(L_0) %*% N_UT[,,i + 1] %*% L_0
+          N_UT[,,i] <- t(Z_input) %*% Z_input * F_1 + 
+                       t(L_0) %*% N_UT[,,i + 1] %*% L_0
           N_1 <- N_1 %*% L_0
         } else {
           F_1 <- 1 / F_inf
@@ -553,21 +566,33 @@ StateSpaceEval <- function(param,
           L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
           L_1 <- -K_1 %*% Z_input
           r_UT[i,] <- t(L_0) %*% r_UT[i + 1,]
-          r_1 <- t(Z_input) * F_1 * v_UT + t(L_0) %*% r_1 + t(L_1) %*% r_UT[i + 1,]
+          r_1 <- t(Z_input) * F_1 * v_UT + 
+                 t(L_0) %*% r_1 + t(L_1) %*% r_UT[i + 1,]
           N_UT[,,i] <- t(L_0) %*% N_UT[,,i + 1] %*% L_0
-          N_1 <- t(Z_input) %*% Z_input * F_1 + t(L_0) %*% N_1 %*% L_0 + t(L_1) %*% N_UT[,,i + 1] %*% L_0 + t(L_0) %*% N_UT[,,i + 1] %*% L_1
-          N_2 <- t(Z_input) %*% Z_input * F_2 + t(L_0) %*% N_2 %*% L_0 + t(L_0) %*% N_1 %*% L_1 + t(L_1) %*% t(N_1) %*% L_0 + t(L_1) %*% N_UT[,,i + 1] %*% L_1
+          N_1 <- t(Z_input) %*% Z_input * F_1 + 
+                 t(L_0) %*% N_1 %*% L_0 + 
+                 t(L_1) %*% N_UT[,,i + 1] %*% L_0 + 
+                 t(L_0) %*% N_UT[,,i + 1] %*% L_1
+          N_2 <- t(Z_input) %*% Z_input * F_2 + 
+                 t(L_0) %*% N_2 %*% L_0 + 
+                 t(L_0) %*% N_1 %*% L_1 + 
+                 t(L_1) %*% t(N_1) %*% L_0 + 
+                 t(L_1) %*% N_UT[,,i + 1] %*% L_1
         }
       }
       
-      # If a transition to the previous timepoint is made, do some additional computations
+      # If a transition to the previous timepoint is made, 
+      # do some additional computations
       if (timestep) {
         
         # Save r and N for each timepoint and compute smoothed state and variance
         r_vec[t, ] <- r_UT[i,]
         Nmat[,,t] <- N_UT[,,i]
         a_smooth[t,] <- a_pred[t,] + P_star[,,i] %*% r_vec[t, ] + P_inf[,,i] %*% r_1
-        V[,,t] <- P_star[,,i] - P_star[,,i] %*% Nmat[,,t] %*% P_star[,,i] - t(P_inf[,,i] %*% N_1 %*% P_star[,,i]) - P_inf[,,i] %*% N_1 %*% P_star[,,i] - P_inf[,,i] %*% N_2 %*% P_inf[,,i]
+        V[,,t] <- P_star[,,i] - P_star[,,i] %*% Nmat[,,t] %*% P_star[,,i] - 
+                  t(P_inf[,,i] %*% N_1 %*% P_star[,,i]) - 
+                  P_inf[,,i] %*% N_1 %*% P_star[,,i] - 
+                  P_inf[,,i] %*% N_2 %*% P_inf[,,i]
         
         # T-statistic for the state equation
         Tstat_state[t + 1,] <- r_vec[t + 1,] / sqrt(diag(as.matrix(Nmat[,,t + 1])))
@@ -587,7 +612,8 @@ StateSpaceEval <- function(param,
         
         # Compute smoothed state disturbance and corresponding variance
         eta[t,] <- Q_input %*% t(R_input) %*% r_vec[t + 1,]
-        eta_var[,,t] <- Q_input - Q_input %*% t(R_input) %*% Nmat[,,t + 1] %*% R_input %*% Q_input
+        eta_var[,,t] <- Q_input - 
+          Q_input %*% t(R_input) %*% Nmat[,,t + 1] %*% R_input %*% Q_input
         
         # r and N for the next step, not valid/needed for t = 1
         if (t > 1) {
@@ -603,26 +629,50 @@ StateSpaceEval <- function(param,
   
   # Smoothed observation disturbance and corresponding variance
   epsilon <- matrix(a_smooth[,sys_mat$residuals_state], N, p)
-  epsilon_var <- array(V[sys_mat$residuals_state, sys_mat$residuals_state,], dim = c(p, p, N))
+  epsilon_var <- array(
+    V[sys_mat$residuals_state, sys_mat$residuals_state,], 
+    dim = c(p, p, N)
+  )
   ######################################################################################
   
   ############## Removing residuals from components and storing components #############
   
   # Removing residuals
   a_pred <- matrix(a_pred[, -sys_mat$residuals_state], N, m - p)
-  P_pred <- array(P_pred[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(m - p, m - p, N))
+  P_pred <- array(
+    P_pred[-sys_mat$residuals_state, -sys_mat$residuals_state,], 
+    dim = c(m - p, m - p, N)
+  )
   a_fil <- matrix(a_fil[, -sys_mat$residuals_state], N, m - p)
-  P_fil <- array(P_fil[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(m - p, m - p, N))
-  P_inf <- array(P_inf[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(m - p, m - p, N))
-  P_star <- array(P_star[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(m - p, m - p, N))
+  P_fil <- array(
+    P_fil[-sys_mat$residuals_state, -sys_mat$residuals_state,], 
+    dim = c(m - p, m - p, N)
+  )
+  P_inf <- array(
+    P_inf[-sys_mat$residuals_state, -sys_mat$residuals_state,], 
+    dim = c(m - p, m - p, N)
+  )
+  P_star <- array(
+    P_star[-sys_mat$residuals_state, -sys_mat$residuals_state,], 
+    dim = c(m - p, m - p, N)
+  )
   a_fc <- matrix(a_fc[-sys_mat$residuals_state])
   P_fc <- as.matrix(P_fc[-sys_mat$residuals_state, -sys_mat$residuals_state])
   r_vec <- matrix(r_vec[-1,-sys_mat$residuals_state], N, m - p)
-  Nmat <- array(Nmat[-sys_mat$residuals_state, -sys_mat$residuals_state, -1], dim = c(m - p, m - p, N))
+  Nmat <- array(
+    Nmat[-sys_mat$residuals_state, -sys_mat$residuals_state, -1], 
+    dim = c(m - p, m - p, N)
+  )
   a_smooth <- matrix(a_smooth[, -sys_mat$residuals_state], N, m - p)
-  V <- array(V[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(m - p, m - p, N))
+  V <- array(
+    V[-sys_mat$residuals_state, -sys_mat$residuals_state,], 
+    dim = c(m - p, m - p, N)
+  )
   eta <- matrix(eta[, -sys_mat$residuals_state], N, r - p)
-  eta_var <- array(eta_var[-sys_mat$residuals_state, -sys_mat$residuals_state,], dim = c(r - p, r - p, N))
+  eta_var <- array(
+    eta_var[-sys_mat$residuals_state, -sys_mat$residuals_state,], 
+    dim = c(r - p, r - p, N)
+  )
   Tstat_state <- matrix(Tstat_state[-1, -sys_mat$residuals_state], N, m - p)
   
   # Storing components
@@ -645,8 +695,10 @@ StateSpaceEval <- function(param,
   smoothed$epsilon_var <- epsilon_var
   diagnostics$Initialisation_Steps <- Initialisation_Steps
   diagnostics$loglik <- sum(loglik, na.rm = TRUE)
-  diagnostics$AIC <- 1/N * (-2 * diagnostics$loglik + 2 * (diffuse_num + length(param)))
-  diagnostics$BIC <- 1/N * (-2 * diagnostics$loglik + (diffuse_num + length(param)) * log(N))
+  diagnostics$AIC <- 1/N * 
+    (-2 * diagnostics$loglik + 2 * (diffuse_num + length(param)))
+  diagnostics$BIC <- 1/N * 
+    (-2 * diagnostics$loglik + (diffuse_num + length(param)) * log(N))
   diagnostics$r <- r_vec
   diagnostics$N <- Nmat
   diagnostics$e <- e
@@ -661,7 +713,9 @@ StateSpaceEval <- function(param,
   if (obs > 0) {
     diagnostics$correlogram <- correlogram
     diagnostics$Box_Ljung <- Box_Ljung
-    diagnostics$Box_Ljung_criticalvalues <- matrix(stats::qchisq(0.95, df = 1:floor(obs/2)))
+    diagnostics$Box_Ljung_criticalvalues <- matrix(
+      stats::qchisq(0.95, df = 1:floor(obs/2))
+    )
     diagnostics$Heteroscedasticity <- Heteroscedasticity
     diagnostics$Heteroscedasticity_criticalvalues <- cbind(
       stats::qf(0.025, df1 = 1:floor(obs/3), df2 = 1:floor(obs/3)), 
@@ -670,7 +724,8 @@ StateSpaceEval <- function(param,
   }
   ######################################################################################
   
-  #### Adjusting dimensions of Z matrices of components and adding fitted components of the model ####
+  #### Adjusting dimensions of Z matrices of components ####
+  ##-- and adding fitted components of the model ---------##
   
   # Local Level
   if (local_level_ind & !slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
@@ -733,9 +788,13 @@ StateSpaceEval <- function(param,
     }
     Z_padded$addvar <- tempZ
     filtered$addvar_coeff <- a_fil[,sys_mat$addvar_state]
-    filtered$addvar_coeff_se <- t(apply(P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$addvar_state])))
+    filtered$addvar_coeff_se <- t(apply(
+      P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$addvar_state])
+    ))
     smoothed$addvar_coeff <- a_smooth[,sys_mat$addvar_state]
-    smoothed$addvar_coeff_se <- t(apply(V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$addvar_state])))
+    smoothed$addvar_coeff_se <- t(
+      apply(V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$addvar_state])
+    ))
   }
   
   # level_addvar
@@ -752,9 +811,13 @@ StateSpaceEval <- function(param,
     }
     Z_padded$level <- tempZ
     filtered$level_addvar_coeff <- a_fil[,sys_mat$level_addvar_state]
-    filtered$level_addvar_coeff_se <- t(apply(P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])))
+    filtered$level_addvar_coeff_se <- t(apply(
+      P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])
+    ))
     smoothed$level_addvar_coeff <- a_smooth[,sys_mat$level_addvar_state]
-    smoothed$level_addvar_coeff_se <- t(apply(V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])))
+    smoothed$level_addvar_coeff_se <- t(apply(
+      V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])
+    ))
   }
   
   # slope_addvar
@@ -771,9 +834,13 @@ StateSpaceEval <- function(param,
     }
     Z_padded$level <- tempZ
     filtered$level_addvar_coeff <- a_fil[,sys_mat$slope_addvar_state]
-    filtered$level_addvar_coeff_se <- t(apply(P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])))
+    filtered$level_addvar_coeff_se <- t(apply(
+      P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])
+    ))
     smoothed$level_addvar_coeff <- a_smooth[,sys_mat$slope_addvar_state]
-    smoothed$level_addvar_coeff_se <- t(apply(V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])))
+    smoothed$level_addvar_coeff_se <- t(apply(
+      V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])
+    ))
   }
   
   # Cycle
@@ -792,6 +859,23 @@ StateSpaceEval <- function(param,
       Z_padded[[paste0('Cycle', j)]] <- tempZ
     }
   }
+  
+  # ARIMA
+  if (!is.null(arima_list)) {
+    for (j in seq_along(arima_list)) {
+      tempZ <- matrix(0, p, m - p)
+      predicted[[paste0('ARIMA', j)]] <- matrix(0, N, p)
+      filtered[[paste0('ARIMA', j)]] <- matrix(0, N, p)
+      smoothed[[paste0('ARIMA', j)]] <- matrix(0, N, p)
+      for (i in 1:N) {
+        tempZ[1:length(Z_padded[[paste0('ARIMA', j)]])] <- Z_padded[[paste0('ARIMA', j)]]
+        predicted[[paste0('ARIMA', j)]][i,] <- tempZ %*% as.matrix(a_pred[i,])
+        filtered[[paste0('ARIMA', j)]][i,] <- tempZ %*% as.matrix(a_fil[i,])
+        smoothed[[paste0('ARIMA', j)]][i,] <- tempZ %*% as.matrix(a_smooth[i,])
+      }
+      Z_padded[[paste0('ARIMA', j)]] <- tempZ
+    }
+  }
   ####################################################################################################
   
   # Filling system_matrices
@@ -806,6 +890,8 @@ StateSpaceEval <- function(param,
   system_matrices$Q_stdev_matrix <- sys_mat$Q_stdev_matrix
   system_matrices$lambda <- sys_mat$lambda
   system_matrices$rho <- sys_mat$rho
+  system_matrices$AR <- sys_mat$AR
+  system_matrices$MA <- sys_mat$MA
   system_matrices$a1 <- sys_mat$a1
   system_matrices$P_inf <- sys_mat$P_inf
   system_matrices$P_star <- sys_mat$P_star

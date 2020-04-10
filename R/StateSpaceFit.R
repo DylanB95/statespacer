@@ -31,32 +31,41 @@
 #'   with k_p being the number of explanatory variables for the pth dependent variable.
 #'   If no explanatory variables should be added for one of the dependent variables,
 #'   then set the corresponding element to `NULL`.
+#' @param arima_list Specifications of the ARIMA components, should be a list 
+#'   containing vectors of length 3 with the following format: c(AR, I, MA).
+#'   Should be a list to allow different ARIMA models for different sets of 
+#'   dependent variables.
 #' @param exclude_level Vector containing the dependent variables that should not 
 #'   get a local level.
 #' @param exclude_slope Vector containing the dependent variables that should not 
 #'   get a slope.
-#' @param exclude_BSM_list List of vectors, each vector containing the dependent variables
-#'   that should not get the corresponding BSM component.
-#' @param exclude_cycle_list The dependent variables that should not get a cycle component.
-#'   Should be a list to allow different dependent variables to be excluded for 
-#'   different cycles.
+#' @param exclude_BSM_list List of vectors, each vector containing the 
+#'   dependent variables that should not get the corresponding BSM component.
+#' @param exclude_cycle_list The dependent variables that should not get the 
+#'   corresponding cycle component. Should be a list of vectors to allow 
+#'   different dependent variables to be excluded for different cycles.
+#' @param exclude_arima_list The dependent variables that should not be 
+#'   involved in the corresponding ARIMA component. Should be a list of 
+#'   vectors to allow different dependent variables to be excluded for 
+#'   different ARIMA components.
 #' @param damping_factor_ind Boolean indicating whether a damping factor should 
-#'   be included. Must be a vector if multiple cycles are included, to indicate which cycles 
-#'   should include a damping factor.
-#' @param format_level Format of the Q_level system matrix the variance - covariance matrix 
-#'   of the level state equation.
-#' @param format_slope Format of the Q_slope system matrix, the variance - covariance matrix 
-#'   of the slope state equation.
-#' @param format_BSM_list Format of the Q_BSM system matrix, the variance - covariance matrix 
-#'   of the BSM state equation. Should be a list to allow different formats for different 
-#'   seasonality periods.
-#' @param format_cycle_list Format of the Q_cycle system matrix, the variance - covariance 
-#'   matrix of the cycle state equation. Should be a list to allow different formats 
-#'   for different cycles.
-#' @param format_addvar Format of the Q_addvar system matrix, the variance - covariance matrix 
-#'   of the explanatory variables state equation.
+#'   be included. Must be a vector if multiple cycles are included, 
+#'   to indicate which cycles should include a damping factor.
+#' @param format_level Format of the Q_level system matrix 
+#'   the variance - covariance matrix of the level state equation.
+#' @param format_slope Format of the Q_slope system matrix, 
+#'   the variance - covariance matrix of the slope state equation.
+#' @param format_BSM_list Format of the Q_BSM system matrix, 
+#'   the variance - covariance matrix of the BSM state equation. Should be a 
+#'   list to allow different formats for different seasonality periods.
+#' @param format_cycle_list Format of the Q_cycle system matrix, 
+#'   the variance - covariance matrix of the cycle state equation. Should be a 
+#'   list to allow different formats for different cycles.
+#' @param format_addvar Format of the Q_addvar system matrix, the 
+#'   variance - covariance matrix of the explanatory variables state equation.
 #' @param format_level_addvar Format of the Q_level_addvar system matrix, the 
-#'   variance - covariance matrix of the explanatory variables of the level state equation.
+#'   variance - covariance matrix of the explanatory variables of the level 
+#'   state equation.
 #' @param method Method that should be used by the \code{\link[stats]{optim}} or
 #'   \code{\link[optimx]{optimr}} function to estimate the parameters.
 #' @param initial Initial values for the parameter search, allowed to be a vector
@@ -65,11 +74,13 @@
 #'   or \code{\link[optimx]{optimr}} function.
 #' 
 #' @details 
-#' To fit the specified State Space model, usually it is beneficial to scale the dependent variables.
-#' This prevents the numbers from blowing up. A good rule of thumb is to scale the dependents such
-#' that their absolute values are no bigger than 10. If an error occurs, try to scale the dependents
-#' by a bigger number. Note: after fitting the model, remember to scale the estimates back! Variances
-#' should be multiplied by the square of the scaling number!
+#' To fit the specified State Space model, usually it is beneficial to scale
+#' the dependent variables. This prevents the numbers from blowing up. 
+#' If an error occurs, try to scale the dependents by a bigger number, or 
+#' try different initial values. Initial values should be not too big, as
+#' some parameters use the transformation exp(2x) to ensure non-negative values. 
+#' Note: after fitting the model, remember to scale the estimates back! 
+#' Variances should be multiplied by the square of the scaling number!
 #' 
 #' @return 
 #' A list containing:
@@ -127,10 +138,12 @@ StateSpaceFit <- function(y,
                           addvar_list = NULL,
                           level_addvar_list = NULL,
                           slope_addvar_list = NULL,
+                          arima_list = NULL,
                           exclude_level = NULL,
                           exclude_slope = NULL,
                           exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                           exclude_cycle_list = list(0),
+                          exclude_arima_list = lapply(arima_list, FUN = function(x) 0),
                           damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                           format_level = NULL,
                           format_slope = NULL,
@@ -179,10 +192,12 @@ StateSpaceFit <- function(y,
                        addvar_list = addvar_list,
                        level_addvar_list = level_addvar_list,
                        slope_addvar_list = slope_addvar_list,
+                       arima_list = arima_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
                        exclude_cycle_list = exclude_cycle_list,
+                       exclude_arima_list = exclude_arima_list,
                        damping_factor_ind = damping_factor_ind,
                        format_level = format_level,
                        format_slope = format_slope,
@@ -201,10 +216,12 @@ StateSpaceFit <- function(y,
   addvar_list <- sys_mat$function_call$addvar_list
   level_addvar_list <- sys_mat$function_call$level_addvar_list
   slope_addvar_list <- sys_mat$function_call$slope_addvar_list
+  arima_list <- sys_mat$function_call$arima_list
   exclude_level <- sys_mat$function_call$exclude_level
   exclude_slope <- sys_mat$function_call$exclude_slope
   exclude_BSM_list <- sys_mat$function_call$exclude_BSM_list
   exclude_cycle_list <- sys_mat$function_call$exclude_cycle_list
+  exclude_arima_list <- sys_mat$function_call$exclude_arima_list
   damping_factor_ind <- sys_mat$function_call$damping_factor_ind
   format_level <- sys_mat$function_call$format_level
   format_slope <- sys_mat$function_call$format_slope
@@ -234,8 +251,13 @@ StateSpaceFit <- function(y,
   
   # Initialising Q Matrix that depends on the parameters
   Q_kal <- NULL
+  
+  # System matrices of components
+  T_list <- sys_mat$Tmat
+  R_list <- sys_mat$R
   Q_list <- sys_mat$Q
   Q_list2 <- sys_mat$Q2
+  temp_list <- sys_mat$temp_list
   H <- sys_mat$H$H
   Z_kal <- sys_mat$Z_kal
   T_kal <- sys_mat$T_kal
@@ -438,6 +460,58 @@ StateSpaceFit <- function(y,
               function(x) BlockMatrix(as.matrix(x), update$Tmat)
             ), dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]), sum(dim(T_kal)[2], dim(update$Tmat)[2]), N)
           )
+        }
+      }
+    }
+    
+    # ARIMA
+    if (!is.null(arima_list)) {
+      for (i in seq_along(arima_list)) {
+        update <- ARIMA(p = p,
+                        arima_spec = arima_list[[i]],
+                        exclude_arima = exclude_arima_list[[i]],
+                        fixed_part = FALSE,
+                        update_part = TRUE,
+                        param = param[param_indices[[paste0('ARIMA', i)]]],
+                        decompositions = FALSE,
+                        T1 = temp_list[[paste0('ARIMA', i)]]$T1,
+                        T2 = temp_list[[paste0('ARIMA', i)]]$T2,
+                        T3 = temp_list[[paste0('ARIMA', i)]]$T3,
+                        R1 = temp_list[[paste0('ARIMA', i)]]$R1,
+                        R2 = temp_list[[paste0('ARIMA', i)]]$R2
+        )
+        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        P_star <- BlockMatrix(P_star, update$P_star)
+        if (arima_list[[i]][1] == 0 & arima_list[[i]][3] == 0) {
+          if (Tdim < 3) {
+            T_kal <- BlockMatrix(T_kal, T_list[[paste0('ARIMA', i)]])
+          } else {
+            T_kal <- array(
+              apply(
+                T_kal, 3, 
+                function(x) BlockMatrix(as.matrix(x), T_list[[paste0('ARIMA', i)]])
+              ), dim = c(sum(dim(T_kal)[1], dim(T_list[[paste0('ARIMA', i)]])[1]), 
+                         sum(dim(T_kal)[2], dim(T_list[[paste0('ARIMA', i)]])[2]), 
+                         N
+                       )
+            )
+          }
+          R_kal <- BlockMatrix(R_kal, R_list[[paste0('ARIMA', i)]])
+        } else {
+          if (Tdim < 3) {
+            T_kal <- BlockMatrix(T_kal, update$Tmat)
+          } else {
+            T_kal <- array(
+              apply(
+                T_kal, 3, 
+                function(x) BlockMatrix(as.matrix(x), update$Tmat)
+              ), dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]), 
+                         sum(dim(T_kal)[2], dim(update$Tmat)[2]), 
+                         N
+                       )
+            )
+          }
+          R_kal <- BlockMatrix(R_kal, update$R)
         }
       }
     }
