@@ -60,7 +60,7 @@ AddVar <- function(p = 1,
     result$Z <- array(
       sapply(
         seq(N), 
-        function(i) {matrix(Ztemp2[seq(i, p * N, N),], p, k)}, 
+        function(i) {Ztemp2[seq(i, p * N, N),, drop = FALSE]}, 
         simplify = "array"
       ), dim = c(p, k, N)
     )
@@ -176,7 +176,7 @@ LevelAddVar <- function(p = 1,
     #   Last k columns containing zeroes
     Z <- cbind(diag(1, p, p), matrix(0, p, k))
     if (n_level < p) {
-      Z <- matrix(Z[, -exclude_level], p, n_level + k)
+      Z <- Z[, -exclude_level, drop = FALSE]
     }
     result$Z <- Z
     
@@ -210,7 +210,7 @@ LevelAddVar <- function(p = 1,
       function(i) {rbind(
         cbind(
           diag(1, n_level, n_level), 
-          matrix(Ttemp2[seq(i, n_level * N, N),], n_level, k)
+          Ttemp2[seq(i, n_level * N, N),, drop = FALSE]
         ), 
         cbind(
           matrix(0, k, n_level), 
@@ -386,7 +386,7 @@ SlopeAddVar <- function(p = 1,
     #   Last k columns containing zeroes
     Z <- cbind(diag(1, p, p), matrix(0, p, n_slope), matrix(0, p, k))
     if (n_level < p) {
-      Z <- matrix(Z[, -exclude_level], p, n_level + n_slope + k)
+      Z <- Z[, -exclude_level, drop = FALSE]
     }
     result$Z <- Z
     
@@ -427,11 +427,7 @@ SlopeAddVar <- function(p = 1,
     )
     if ((n_level + n_slope) < (2 * p)) {
       exclude <- c(exclude_level, p + exclude_slope)
-      Ttemp3 <- matrix(
-        Ttemp3[-exclude, -exclude], 
-        n_level + n_slope, 
-        n_level + n_slope
-      )
+      Ttemp3 <- Ttemp3[-exclude, -exclude, drop = FALSE]
     }
     result$Tmat <- sapply(
       seq(N), 
@@ -439,10 +435,7 @@ SlopeAddVar <- function(p = 1,
         cbind(
           Ttemp3, 
           rbind(
-            matrix(
-              Ttemp2[seq(i, n_level * N, N),], 
-              n_level, k
-            ),
+            Ttemp2[seq(i, n_level * N, N),, drop = FALSE]
             matrix(0, n_slope, k)
           )
         ), 

@@ -36,7 +36,7 @@ LocalLevel <- function(p = 1,
     #            dimension = p x n_level
     Z <- diag(1, p, p)
     if (n_level < p) {
-      Z <- matrix(Z[, -exclude_level], p, n_level)
+      Z <- Z[, -exclude_level, drop = FALSE]
     }
     result$Z <- Z
     
@@ -141,7 +141,7 @@ Slope <- function(p = 1,
     #   Followed by n_slope columns containing 0s
     Z <- cbind(diag(1, p, p), matrix(0, p, n_slope))
     if (n_level < p) {
-      Z <- matrix(Z[, -exclude_level], p, n_level + n_slope)
+      Z <- Z[, -exclude_level, drop = FALSE]
     }
     result$Z <- Z
     
@@ -158,11 +158,7 @@ Slope <- function(p = 1,
     )
     if ((n_level + n_slope) < (2 * p)) {
       exclude <- c(exclude_level, p + exclude_slope)
-      Tmat <- matrix(
-        Tmat[-exclude, -exclude], 
-        n_level + n_slope, 
-        n_level + n_slope
-      )
+      Tmat <- Tmat[-exclude, -exclude, drop = FALSE]
     }
     result$Tmat <- Tmat
     
@@ -305,7 +301,7 @@ Cycle <- function(p = 1,
     #   Second n_cycle columns containing zeroes
     Z <- cbind(diag(1, p, p), matrix(0, p, n_cycle))
     if (n_cycle < p) {
-      Z <- matrix(Z[, -exclude_cycle], p, 2 * n_cycle)
+      Z <- Z[, -exclude_cycle, drop = FALSE]
     }
     result$Z <- Z
     
@@ -470,7 +466,7 @@ BSM <- function(p = 1,
     #                                           0s elsewhere)
     Ztemp <- diag(1, p, p)
     if (n_BSM < p) {
-      Ztemp <- matrix(Z[, -exclude_BSM], p, n_BSM)
+      Ztemp <- Z[, -exclude_BSM, drop = FALSE]
     }
     Z <- cbind(
       matrix(

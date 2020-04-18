@@ -162,7 +162,7 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
   
   # Obtain coefficient matrices for AR part
   if (ar > 0) {
-    P_ar <- array(P[,,1:ar], dim = c(dim(P)[1], dim(P)[2], ar))
+    P_ar <- P[,,1:ar, drop = FALSE]
     ar_part <- TransformPAC(P_ar)
     L_ar <- t(chol(ar_part$variance))
     L_ar_inv <- solve(L_ar)
@@ -174,7 +174,7 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
   
   # Obtain coefficient matrices for MA part
   if (ma > 0) {
-    P_ma <- array(P[,,(ar + 1):(ar + ma)], dim = c(dim(P)[1], dim(P)[2], ma))
+    P_ma <- P[,,(ar + 1):(ar + ma), drop = FALSE]
     ma_part <- TransformPAC(P_ma)
     L_ma <- t(chol(ma_part$variance))
     L_ma_inv <- solve(L_ma)

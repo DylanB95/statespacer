@@ -34,10 +34,10 @@ ARIMA <- function(p = 1,
   
   # Check for erroneous input 
   if (length(arima_spec) != 3) {
-    stop("`arima_spec` must be a vector of length 3.")
+    stop("The ARIMA specification must be a vector of length 3.")
   }
   if (arima_spec[2] < 0) {
-    stop("Number of differencing in arima_spec must be greater than or equal to 0.")
+    stop("Number of differencing of the ARIMA component must be greater than or equal to 0.")
   }
   
   # The number of dependent variables that should get an ARIMA component
@@ -54,7 +54,7 @@ ARIMA <- function(p = 1,
     # Z matrix
     Z <- diag(1, p, p)
     if (n_arima < p) {
-      Z <- matrix(Z[, -exclude_arima], p, n_arima)
+      Z <- Z[, -exclude_arima, drop = FALSE]
     }
     if (arima_spec[2] > 0) {
       Z <- do.call(cbind, replicate(1 + arima_spec[2], Z, simplify = FALSE))
@@ -216,10 +216,13 @@ ARIMA <- function(p = 1,
               n_arima, 
               n_arima * arima_spec[3]
             )
-          ),
-          matrix(0, (r - 1 - arima_spec[3]) * n_arima, n_arima)
+          )
         )
       }
+      R1 <- rbind(
+        R1,
+        matrix(0, (r - 1 - arima_spec[3]) * n_arima, n_arima)
+      )
       R_stationary <- R1
       
       # Non-stationary part
@@ -294,15 +297,15 @@ SARIMA <- function(p = 1,
   
   # Check for erroneous input 
   if (length(sarima_spec) != 4) {
-    stop("`sarima_spec` must be a list containing 4 vectors.")
+    stop("The SARIMA specification must be a list containing 4 vectors.")
   }
   if (length(sarima_spec$s) != length(sarima_spec$ar) |
       length(sarima_spec$s) != length(sarima_spec$i)  |
       length(sarima_spec$s) != length(sarima_spec$ma)) {
-    stop("The vectors in `sarima_spec` must be of equal length.")
+    stop("The vectors in the SARIMA specification must be of equal length.")
   }
   if (min(sarima_spec$i) < 0) {
-    stop("Number of differencing in sarima_spec must be greater than or equal to 0.")
+    stop("Number of differencing in the SARIMA specification must be greater than or equal to 0.")
   }
   
   # The number of dependent variables that should get a SARIMA component
@@ -325,7 +328,7 @@ SARIMA <- function(p = 1,
     # Z matrix
     Z <- diag(1, p, p)
     if (n_sarima < p) {
-      Z <- matrix(Z[, -exclude_sarima], p, n_sarima)
+      Z <- Z[, -exclude_sarima, drop = FALSE]
     }
     Z_list <- lapply(s_aux, function(x) cbind(matrix(0, p, n_sarima * (x - 1)), Z))
     Z_list <- c(Z_list, list(Z, matrix(0, p, (r - 1) * n_sarima)))
@@ -532,10 +535,10 @@ SARIMA <- function(p = 1,
               add_coeff <- c(add_coeff, mult_coeff)
             }
           } else {
-            AR_coeff[,,add_coeff] <- AR_coeff[,,add_coeff] + -coeff$ar
+            AR_coeff[,,add_coeff] <- AR_coeff[,,add_coeff, drop = FALSE] + -coeff$ar
             for (j in (1:sarima_spec$ar[i])) {
               mult_coeff <- sarima_spec$s[i] * j + ar_polynomial
-              AR_coeff[,,mult_coeff] <- AR_coeff[,,mult_coeff] + 
+              AR_coeff[,,mult_coeff] <- AR_coeff[,,mult_coeff, drop = FALSE] + 
                 array(
                   -coeff$ar[,,j] %*% 
                     matrix(AR_coeff_old[,,ar_polynomial], nrow = n_sarima), 
@@ -563,10 +566,10 @@ SARIMA <- function(p = 1,
               add_coeff <- c(add_coeff, mult_coeff)
             }
           } else {
-            MA_coeff[,,add_coeff] <- MA_coeff[,,add_coeff] + coeff$ma
+            MA_coeff[,,add_coeff] <- MA_coeff[,,add_coeff, drop = FALSE] + coeff$ma
             for (j in (1:sarima_spec$ma[i])) {
               mult_coeff <- sarima_spec$s[i] * j + ma_polynomial
-              MA_coeff[,,mult_coeff] <- MA_coeff[,,mult_coeff] + 
+              MA_coeff[,,mult_coeff] <- MA_coeff[,,mult_coeff, drop = FALSE] + 
                 array(
                   coeff$ma[,,j] %*% 
                     matrix(MA_coeff_old[,,ma_polynomial], nrow = n_sarima), 
@@ -610,10 +613,17 @@ SARIMA <- function(p = 1,
               n_sarima, 
               n_sarima * sum(sarima_spec$s * sarima_spec$ma)
             )
-          ),
-          matrix(0, (r - 1 - sum(sarima_spec$s * sarima_spec$ma)) * n_sarima, n_sarima)
+          )
         )
       }
+      R1 <- rbind(
+        R1, 
+        matrix(
+          0, 
+          (r - 1 - sum(sarima_spec$s * sarima_spec$ma)) * n_sarima, 
+          n_sarima
+        )
+      )
       R_stationary <- R1
       
       # Non-stationary part
@@ -624,6 +634,10 @@ SARIMA <- function(p = 1,
       }
       result$Tmat <- T1
       result$R <- R1
+      if (fixed_part) {
+        result$sar <- sar
+        result$sma <- sma
+      }
     }
     
     # Initial uncertainty for the stationary part
