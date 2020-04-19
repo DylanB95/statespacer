@@ -37,7 +37,12 @@ ARIMA <- function(p = 1,
     stop("The ARIMA specification must be a vector of length 3.")
   }
   if (arima_spec[2] < 0) {
-    stop("Number of differencing of the ARIMA component must be greater than or equal to 0.")
+    stop(
+      paste(
+        "Number of differencing of the ARIMA component must",
+        "be greater than or equal to 0."
+      )
+    )
   }
   
   # The number of dependent variables that should get an ARIMA component
@@ -305,7 +310,12 @@ SARIMA <- function(p = 1,
     stop("The vectors in the SARIMA specification must be of equal length.")
   }
   if (min(sarima_spec$i) < 0) {
-    stop("Number of differencing in the SARIMA specification must be greater than or equal to 0.")
+    stop(
+      paste(
+        "Number of differencing in the SARIMA specification must",
+        "be greater than or equal to 0."
+      )
+    )
   }
   
   # The number of dependent variables that should get a SARIMA component

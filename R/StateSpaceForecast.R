@@ -2,31 +2,35 @@
 #' 
 #' Produces forecasts using a fitted State Space Model.
 #' 
-#' @param fit A list containing the specifications of the State Space Model,
-#'   as returned by \code{\link{StateSpaceFit}} or \code{\link{StateSpaceEval}}.
-#' @param addvar_list_fc A list containing the explanatory variables for each of 
-#'   the dependent variables. The list should contain p (number of dependent variables)
-#'   elements. Each element of the list should be a forecast_period x k_p matrix, 
-#'   with k_p being the number of explanatory variables for the pth dependent variable.
-#'   If no explanatory variables should be added for one of the dependent variables,
-#'   then set the corresponding element to `NULL`.
-#' @param level_addvar_list_fc A list containing the explanatory variables for each 
-#'   of the dependent variables. The list should contain p (number of dependent variables) 
-#'   elements. Each element of the list should be a forecast_period x k_p matrix, 
-#'   with k_p being the number of explanatory variables for the pth dependent variable.
-#'   If no explanatory variables should be added for one of the dependent variables,
-#'   then set the corresponding element to `NULL`.
-#' @param slope_addvar_list_fc A list containing the explanatory variables for each 
-#'   of the dependent variables. The list should contain p (number of dependent variables) 
-#'   elements. Each element of the list should be a forecast_period x k_p matrix, 
-#'   with k_p being the number of explanatory variables for the pth dependent variable.
-#'   If no explanatory variables should be added for one of the dependent variables,
-#'   then set the corresponding element to `NULL`.
+#' @param fit A list containing the specifications of the State Space Model, as
+#'   returned by \code{\link{StateSpaceFit}} or \code{\link{StateSpaceEval}}.
+#' @param addvar_list_fc A list containing the explanatory variables for each
+#'   of the dependent variables. The list should contain p (number of dependent
+#'   variables) elements. Each element of the list should be a 
+#'   forecast_period x k_p matrix, with k_p being the number of explanatory 
+#'   variables for the pth dependent variable. If no explanatory variables 
+#'   should be added for one of the dependent variables, then set the 
+#'   corresponding element to `NULL`.
+#' @param level_addvar_list_fc A list containing the explanatory variables
+#'   for each of the dependent variables. The list should contain p
+#'   (number of dependent variables) elements. Each element of the list should
+#'   be a forecast_period x k_p matrix, with k_p being the number of
+#'   explanatory variables for the pth dependent variable. If no explanatory 
+#'   variables should be added for one of the dependent variables, then set
+#'   the corresponding element to `NULL`.
+#' @param slope_addvar_list_fc A list containing the explanatory variables
+#'   for each of the dependent variables. The list should contain p 
+#'   (number of dependent variables) elements. Each element of the list 
+#'   should be a forecast_period x k_p matrix, with k_p being the number 
+#'   of explanatory variables for the pth dependent variable. If no explanatory
+#'   variables should be added for one of the dependent variables, then set the 
+#'   corresponding element to `NULL`.
 #' @param forecast_period Number of time steps to forecast ahead.
 #' 
 #' @return 
-#' A list containing the forecasts and corresponding uncertainties. In addition,
-#' it returns the components of the forecasts, as specified by the State Space model.
+#' A list containing the forecasts and corresponding uncertainties.
+#' In addition, it returns the components of the forecasts, as specified
+#' by the State Space model.
 #' 
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
 #' @references 
@@ -65,27 +69,33 @@ StateSpaceForecast <- function(fit,
   }
   
   # Check if specification of level_addvar_list_fc is in line with the fit object
-  if (!is.null(fit$function_call$level_addvar_list) & is.null(level_addvar_list_fc)) {
+  if (!is.null(fit$function_call$level_addvar_list) & 
+      is.null(level_addvar_list_fc)) {
     stop("`level_addvar_list_fc` must be specified for the forecasting period.")
   }
-  if (is.null(fit$function_call$level_addvar_list) & !is.null(level_addvar_list_fc)) {
+  if (is.null(fit$function_call$level_addvar_list) & 
+      !is.null(level_addvar_list_fc)) {
     stop(
       paste(
         "`level_addvar_list_fc` was specified for the forecasting period,",
-        "while explanatory variables in the level were not incorporated in the model."
+        "while explanatory variables in the level were not",
+        "incorporated in the model."
       )
     )
   }
   
   # Check if specification of slope_addvar_list_fc is in line with the fit object
-  if (!is.null(fit$function_call$slope_addvar_list) & is.null(slope_addvar_list_fc)) {
+  if (!is.null(fit$function_call$slope_addvar_list) & 
+      is.null(slope_addvar_list_fc)) {
     stop("`slope_addvar_list_fc` must be specified for the forecasting period.")
   }
-  if (is.null(fit$function_call$slope_addvar_list) & !is.null(slope_addvar_list_fc)) {
+  if (is.null(fit$function_call$slope_addvar_list) & 
+      !is.null(slope_addvar_list_fc)) {
     stop(
       paste(
         "`slope_addvar_list_fc` was specified for the forecasting period,",
-        "while explanatory variables in the level (+ slope) were not incorporated in the model."
+        "while explanatory variables in the level (+ slope) were not",
+        "incorporated in the model."
       )
     )
   }
@@ -102,7 +112,8 @@ StateSpaceForecast <- function(fit,
   # Number of state parameters
   m <- length(fit$predicted$a_fc)
   
-  # Initialising matrices and arrays for storing forecasted values and corresponding variances
+  # Initialising matrices and arrays for storing forecasted values 
+  # and corresponding variances
   y_fc <- matrix(0, forecast_period, p) # N_fc x p
   a_fc <- matrix(0, forecast_period, m) # N_fc x m
   P_fc <- array(0, dim = c(m, m, forecast_period)) # m x m x N_fc
@@ -132,11 +143,13 @@ StateSpaceForecast <- function(fit,
                        level_addvar_list = level_addvar_list_fc,
                        slope_addvar_list = slope_addvar_list_fc,
                        arima_list = fit$function_call$arima_list,
+                       sarima_list = fit$function_call$sarima_list,
                        exclude_level = fit$function_call$exclude_level,
                        exclude_slope = fit$function_call$exclude_slope,
                        exclude_BSM_list = fit$function_call$exclude_BSM_list,
                        exclude_cycle_list = fit$function_call$exclude_cycle_list,
                        exclude_arima_list = fit$function_call$exclude_arima_list,
+                       exclude_sarima_list = fit$function_call$exclude_sarima_list,
                        damping_factor_ind = fit$function_call$damping_factor_ind,
                        format_level = fit$function_call$format_level,
                        format_slope = fit$function_call$format_slope,
@@ -170,12 +183,24 @@ StateSpaceForecast <- function(fit,
     Z_full <- Z_full[,-sys_mat$residuals_state,, drop = FALSE]
   }
   if (Tdim < 3) {
-    T_full <- T_full[-sys_mat$residuals_state, -sys_mat$residuals_state, drop = FALSE]
+    T_full <- T_full[-sys_mat$residuals_state, 
+                     -sys_mat$residuals_state, 
+                     drop = FALSE
+    ]
   } else {
-    T_full <- T_full[-sys_mat$residuals_state, -sys_mat$residuals_state,, drop = FALSE]
+    T_full <- T_full[-sys_mat$residuals_state, 
+                     -sys_mat$residuals_state,, 
+                     drop = FALSE
+    ]
   }
-  R_fc <- R_fc[-sys_mat$residuals_state, -sys_mat$residuals_state, drop = FALSE]
-  Q_fc <- Q_fc[-sys_mat$residuals_state, -sys_mat$residuals_state, drop = FALSE]
+  R_fc <- R_fc[-sys_mat$residuals_state, 
+               -sys_mat$residuals_state, 
+               drop = FALSE
+  ]
+  Q_fc <- Q_fc[-sys_mat$residuals_state, 
+               -sys_mat$residuals_state, 
+               drop = FALSE
+  ]
   
   # Forecasting for t = 1 to forecast_period
   for (i in 1:forecast_period) {
@@ -199,7 +224,8 @@ StateSpaceForecast <- function(fit,
     # Forecast of next state and corresponding uncertainty
     if (i < forecast_period) {
       a_fc[i + 1,] <- T_fc %*% a_fc[i,, drop = FALSE]
-      P_fc[,,i + 1] <- T_fc %*% P_fc[,,i, drop = FALSE] %*% t(T_fc) + R_fc %*% Q_fc %*% t(R_fc) 
+      P_fc[,,i + 1] <- T_fc %*% P_fc[,,i, drop = FALSE] %*% t(T_fc) + 
+        R_fc %*% Q_fc %*% t(R_fc) 
     }
   }
   
@@ -207,7 +233,8 @@ StateSpaceForecast <- function(fit,
   ##-- and adding predicted components of the model ------##
   
   # Local Level
-  if (fit$function_call$local_level_ind & !fit$function_call$slope_ind & is.null(level_addvar_list_fc) & is.null(slope_addvar_list_fc)) {
+  if (fit$function_call$local_level_ind & !fit$function_call$slope_ind & 
+      is.null(level_addvar_list_fc) & is.null(slope_addvar_list_fc)) {
     tempZ <- matrix(0, p, m)
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
@@ -218,7 +245,8 @@ StateSpaceForecast <- function(fit,
   }
   
   # Local Level + Slope
-  if (fit$function_call$slope_ind & is.null(level_addvar_list_fc) & is.null(slope_addvar_list_fc)) {
+  if (fit$function_call$slope_ind & is.null(level_addvar_list_fc) & 
+      is.null(slope_addvar_list_fc)) {
     tempZ <- matrix(0, p, m)
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
@@ -253,7 +281,8 @@ StateSpaceForecast <- function(fit,
   }
   
   # level_addvar
-  if (!is.null(level_addvar_list_fc) & is.null(slope_addvar_list_fc) & !fit$function_call$slope_ind) {
+  if (!is.null(level_addvar_list_fc) & is.null(slope_addvar_list_fc) & 
+      !fit$function_call$slope_ind) {
     tempZ <- matrix(0, p, m)
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
@@ -264,7 +293,8 @@ StateSpaceForecast <- function(fit,
   }
   
   # slope_addvar
-  if (!is.null(slope_addvar_list_fc) | (!is.null(level_addvar_list_fc) & fit$function_call$slope_ind)) {
+  if (!is.null(slope_addvar_list_fc) | 
+      (!is.null(level_addvar_list_fc) & fit$function_call$slope_ind)) {
     tempZ <- matrix(0, p, m)
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
@@ -297,6 +327,19 @@ StateSpaceForecast <- function(fit,
         result[[paste0('ARIMA', j)]][i,] <- tempZ %*% a_fc[i,, drop = FALSE]
       }
       Z_padded[[paste0('ARIMA', j)]] <- tempZ
+    }
+  }
+  
+  # SARIMA
+  if (!is.null(fit$function_call$sarima_list)) {
+    for (j in seq_along(fit$function_call$sarima_list)) {
+      tempZ <- matrix(0, p, m)
+      result[[paste0('SARIMA', j)]] <- matrix(0, forecast_period, p)
+      for (i in 1:forecast_period) {
+        tempZ[1:length(Z_padded[[paste0('SARIMA', j)]])] <- Z_padded[[paste0('SARIMA', j)]]
+        result[[paste0('SARIMA', j)]][i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+      }
+      Z_padded[[paste0('SARIMA', j)]] <- tempZ
     }
   }
   

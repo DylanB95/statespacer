@@ -2,43 +2,58 @@
 #' 
 #' Fits a State Space model as specified by the user.
 #' 
-#' @param y N x p matrix containing the N observations of the p dependent variables.
-#' @param H_format Format of the H system matrix, 
-#'   the variance - covariance matrix of the observation equation.
-#' @param local_level_ind Boolean indicating whether a local level should be added 
-#'   to the state space model.
-#' @param slope_ind Boolean indicating whether a local level + slope should be added
-#'   to the state space model.
-#' @param BSM_vec Vector containing the BSM seasonalities that have to be added 
-#'   to the state space model.
-#' @param cycle_ind Boolean indicating whether a cycle has to be added 
-#'   to the state space model.
-#' @param addvar_list A list containing the explanatory variables for each of the 
-#'   dependent variables. The list should contain p (number of dependent variables)
-#'   elements. Each element of the list should be a N x k_p matrix, 
-#'   with k_p being the number of explanatory variables for the pth dependent variable.
-#'   If no explanatory variables should be added for one of the dependent variables,
-#'   then set the corresponding element to `NULL`.
-#' @param level_addvar_list A list containing the explanatory variables for each of 
-#'   the dependent variables. The list should contain p (number of dependent variables)
-#'   elements. Each element of the list should be a N x k_p matrix, 
-#'   with k_p being the number of explanatory variables for the pth dependent variable.
-#'   If no explanatory variables should be added for one of the dependent variables,
-#'   then set the corresponding element to `NULL`.
-#' @param slope_addvar_list A list containing the explanatory variables for each of 
-#'   the dependent variables. The list should contain p (number of dependent variables)
-#'   elements. Each element of the list should be a N x k_p matrix, 
-#'   with k_p being the number of explanatory variables for the pth dependent variable.
-#'   If no explanatory variables should be added for one of the dependent variables,
-#'   then set the corresponding element to `NULL`.
-#' @param arima_list Specifications of the ARIMA components, should be a list 
-#'   containing vectors of length 3 with the following format: c(AR, I, MA).
-#'   Should be a list to allow different ARIMA models for different sets of 
+#' @param y N x p matrix containing the N observations of the p 
 #'   dependent variables.
-#' @param exclude_level Vector containing the dependent variables that should not 
-#'   get a local level.
-#' @param exclude_slope Vector containing the dependent variables that should not 
-#'   get a slope.
+#' @param H_format Format of the H system matrix,
+#'   the variance - covariance matrix of the observation equation.
+#' @param local_level_ind Boolean indicating whether a local level should
+#'   be added to the state space model.
+#' @param slope_ind Boolean indicating whether a local level + slope should
+#'   be added to the state space model.
+#' @param BSM_vec Vector containing the BSM seasonalities that have to be added
+#'   to the state space model.
+#' @param cycle_ind Boolean indicating whether a cycle has to be added
+#'   to the state space model.
+#' @param addvar_list A list containing the explanatory variables for each of
+#'   the dependent variables. The list should contain p (number of dependent
+#'   variables) elements. Each element of the list should be a N x k_p matrix,
+#'   with k_p being the number of explanatory variables for the pth
+#'   dependent variable. If no explanatory variables should be added for one
+#'   of the dependent variables, then set the corresponding element to `NULL`.
+#' @param level_addvar_list A list containing the explanatory variables for
+#'   each of the dependent variables. The list should contain p (number of
+#'   dependent variables) elements. Each element of the list should be a 
+#'   N x k_p matrix, with k_p being the number of explanatory variables
+#'   for the pth dependent variable. If no explanatory variables should be
+#'   added for one of the dependent variables, then set the corresponding
+#'   element to `NULL`.
+#' @param slope_addvar_list A list containing the explanatory variables for
+#'   each of the dependent variables. The list should contain p (number of
+#'   dependent variables) elements. Each element of the list should be
+#'   a N x k_p matrix, with k_p being the number of explanatory variables for
+#'   the pth dependent variable. If no explanatory variables should be added
+#'   for one of the dependent variables, then set the corresponding element 
+#'   to `NULL`.
+#' @param arima_list Specifications of the ARIMA components, should be a list
+#'   containing vectors of length 3 with the following format: c(AR, I, MA).
+#'   Should be a list to allow different ARIMA models for different sets of
+#'   dependent variables. Note: The AR and MA coefficients are
+#'   constrained such that the AR component is stationary, and the MA
+#'   component is invertible. 
+#'   See \insertCite{ansley1986note;textual}{statespacer} for details about
+#'   the transformation used.
+#' @param sarima_list Specifications of the SARIMA components, should be a list
+#'   containing lists that contain 4 named vectors. Vectors should be named:
+#'   "s", "ar", "i", "ma". Should be a list of lists to allow different SARIMA
+#'   models for different sets of dependent variables. Note: The AR and MA
+#'   coefficients are constrained such that the AR components are stationary,
+#'   and the MA components are invertible. 
+#'   See \insertCite{ansley1986note;textual}{statespacer} for details about
+#'   the transformation used.
+#' @param exclude_level Vector containing the dependent variables that should
+#'   not get a local level.
+#' @param exclude_slope Vector containing the dependent variables that should
+#'   not get a slope.
 #' @param exclude_BSM_list List of vectors, each vector containing the 
 #'   dependent variables that should not get the corresponding BSM component.
 #' @param exclude_cycle_list The dependent variables that should not get the 
@@ -48,7 +63,11 @@
 #'   involved in the corresponding ARIMA component. Should be a list of 
 #'   vectors to allow different dependent variables to be excluded for 
 #'   different ARIMA components.
-#' @param damping_factor_ind Boolean indicating whether a damping factor should 
+#' @param exclude_sarima_list The dependent variables that should not be 
+#'   involved in the corresponding SARIMA component. Should be a list of 
+#'   vectors to allow different dependent variables to be excluded for 
+#'   different SARIMA components.
+#' @param damping_factor_ind Boolean indicating whether a damping factor should
 #'   be included. Must be a vector if multiple cycles are included, 
 #'   to indicate which cycles should include a damping factor.
 #' @param format_level Format of the Q_level system matrix 
@@ -56,48 +75,54 @@
 #' @param format_slope Format of the Q_slope system matrix, 
 #'   the variance - covariance matrix of the slope state equation.
 #' @param format_BSM_list Format of the Q_BSM system matrix, 
-#'   the variance - covariance matrix of the BSM state equation. Should be a 
+#'   the variance - covariance matrix of the BSM state equation. Should be a
 #'   list to allow different formats for different seasonality periods.
 #' @param format_cycle_list Format of the Q_cycle system matrix, 
-#'   the variance - covariance matrix of the cycle state equation. Should be a 
+#'   the variance - covariance matrix of the cycle state equation. Should be a
 #'   list to allow different formats for different cycles.
 #' @param format_addvar Format of the Q_addvar system matrix, the 
 #'   variance - covariance matrix of the explanatory variables state equation.
-#' @param format_level_addvar Format of the Q_level_addvar system matrix, the 
+#' @param format_level_addvar Format of the Q_level_addvar system matrix, the
 #'   variance - covariance matrix of the explanatory variables of the level 
 #'   state equation.
-#' @param method Method that should be used by the \code{\link[stats]{optim}} or
-#'   \code{\link[optimx]{optimr}} function to estimate the parameters.
-#' @param initial Initial values for the parameter search, allowed to be a vector
-#'   or just one number.
-#' @param control A list of control parameters for the \code{\link[stats]{optim}} 
-#'   or \code{\link[optimx]{optimr}} function.
+#' @param method Method that should be used by the \code{\link[stats]{optim}}
+#'   or \code{\link[optimx]{optimr}} function to estimate the parameters.
+#' @param initial Initial values for the parameter search, allowed to be a
+#'   vector or just one number.
+#' @param control A list of control parameters for the
+#'   \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
 #' 
 #' @details 
 #' To fit the specified State Space model, usually it is beneficial to scale
 #' the dependent variables. This prevents the numbers from blowing up. 
 #' If an error occurs, try to scale the dependents by a bigger number, or 
-#' try different initial values. Initial values should be not too big, as
-#' some parameters use the transformation exp(2x) to ensure non-negative values. 
-#' Note: after fitting the model, remember to scale the estimates back! 
+#' try different initial values. Initial values should not be too big, as
+#' some parameters use the transformation exp(2x) to ensure non-negative
+#' values. 
+#' Note: after fitting the model, remember to scale the estimates back!
 #' Variances should be multiplied by the square of the scaling number!
 #' 
 #' @return 
 #' A list containing:
 #' * function_call: A list containing the input to the function.
-#' * system_matrices: A list containing the system matrices of the State Space model.
-#' * predicted: A list containing the predicted components of the State Space model.
-#' * filtered: A list containing the filtered components of the State Space model.
-#' * smoothed: A list containing the smoothed components of the State Space model.
+#' * system_matrices: A list containing the system matrices of 
+#'   the State Space model.
+#' * predicted: A list containing the predicted components of
+#'   the State Space model.
+#' * filtered: A list containing the filtered components of 
+#'   the State Space model.
+#' * smoothed: A list containing the smoothed components of 
+#'   the State Space model.
 #' * diagnostics: A list containing items useful for diagnostical tests.
-#' * optim: A list containing the variables that are returned by the 
+#' * optim: A list containing the variables that are returned by the
 #'   \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
-#' * loglik_fun: Function that returns the loglikelihood of the specified State Space model, 
-#'   as a function of its parameters
+#' * loglik_fun: Function that returns the loglikelihood of the
+#'   specified State Space model, as a function of its parameters.
 #'   
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
 #' @references 
 #' \insertRef{durbin2012time}{statespacer}
+#' \insertRef{ansley1986note}{statespacer}
 #'   
 #' @examples
 #' # Fits a local level model for the Nile data
@@ -139,11 +164,13 @@ StateSpaceFit <- function(y,
                           level_addvar_list = NULL,
                           slope_addvar_list = NULL,
                           arima_list = NULL,
+                          sarima_list = NULL,
                           exclude_level = NULL,
                           exclude_slope = NULL,
                           exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                           exclude_cycle_list = list(0),
                           exclude_arima_list = lapply(arima_list, FUN = function(x) 0),
+                          exclude_sarima_list = lapply(sarima_list, FUN = function(x) 0),
                           damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                           format_level = NULL,
                           format_slope = NULL,
@@ -193,11 +220,13 @@ StateSpaceFit <- function(y,
                        level_addvar_list = level_addvar_list,
                        slope_addvar_list = slope_addvar_list,
                        arima_list = arima_list,
+                       sarima_list = sarima_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
                        exclude_cycle_list = exclude_cycle_list,
                        exclude_arima_list = exclude_arima_list,
+                       exclude_sarima_list = exclude_sarima_list,
                        damping_factor_ind = damping_factor_ind,
                        format_level = format_level,
                        format_slope = format_slope,
@@ -217,11 +246,13 @@ StateSpaceFit <- function(y,
   level_addvar_list <- sys_mat$function_call$level_addvar_list
   slope_addvar_list <- sys_mat$function_call$slope_addvar_list
   arima_list <- sys_mat$function_call$arima_list
+  sarima_list <- sys_mat$function_call$sarima_list
   exclude_level <- sys_mat$function_call$exclude_level
   exclude_slope <- sys_mat$function_call$exclude_slope
   exclude_BSM_list <- sys_mat$function_call$exclude_BSM_list
   exclude_cycle_list <- sys_mat$function_call$exclude_cycle_list
   exclude_arima_list <- sys_mat$function_call$exclude_arima_list
+  exclude_sarima_list <- sys_mat$function_call$exclude_sarima_list
   damping_factor_ind <- sys_mat$function_call$damping_factor_ind
   format_level <- sys_mat$function_call$format_level
   format_slope <- sys_mat$function_call$format_slope
@@ -292,7 +323,8 @@ StateSpaceFit <- function(y,
     ## Constructing Q Matrix ##
     
     # Local Level
-    if (local_level_ind & !slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
+    if (local_level_ind & !slope_ind & 
+        is.null(level_addvar_list) & is.null(slope_addvar_list)) {
       if (param_num_list$level > 0) {
         update <- LocalLevel(p = p, 
                              exclude_level =  exclude_level,
@@ -400,7 +432,9 @@ StateSpaceFit <- function(y,
     
     # Local Level + Explanatory Variables + Slope
     if (!is.null(slope_addvar_list) | (!is.null(level_addvar_list) & slope_ind)) {
-      if ((param_num_list$level + param_num_list$slope + param_num_list$level_addvar) > 0) {
+      if ((param_num_list$level + 
+           param_num_list$slope + 
+           param_num_list$level_addvar) > 0) {
         update <- SlopeAddVar(p = p,
                               exclude_level = exclude_level,
                               exclude_slope = exclude_slope,
@@ -458,7 +492,11 @@ StateSpaceFit <- function(y,
             apply(
               T_kal, 3, 
               function(x) BlockMatrix(as.matrix(x), update$Tmat)
-            ), dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]), sum(dim(T_kal)[2], dim(update$Tmat)[2]), N)
+            ), 
+            dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]), 
+                    sum(dim(T_kal)[2], dim(update$Tmat)[2]), 
+                    N
+            )
           )
         }
       }
@@ -490,10 +528,11 @@ StateSpaceFit <- function(y,
               apply(
                 T_kal, 3, 
                 function(x) BlockMatrix(as.matrix(x), T_list[[paste0('ARIMA', i)]])
-              ), dim = c(sum(dim(T_kal)[1], dim(T_list[[paste0('ARIMA', i)]])[1]), 
-                         sum(dim(T_kal)[2], dim(T_list[[paste0('ARIMA', i)]])[2]), 
-                         N
-                       )
+              ), 
+              dim = c(sum(dim(T_kal)[1], dim(T_list[[paste0('ARIMA', i)]])[1]),
+                      sum(dim(T_kal)[2], dim(T_list[[paste0('ARIMA', i)]])[2]),
+                      N
+              )
             )
           }
           R_kal <- BlockMatrix(R_kal, R_list[[paste0('ARIMA', i)]])
@@ -509,6 +548,60 @@ StateSpaceFit <- function(y,
                          sum(dim(T_kal)[2], dim(update$Tmat)[2]), 
                          N
                        )
+            )
+          }
+          R_kal <- BlockMatrix(R_kal, update$R)
+        }
+      }
+    }
+    
+    # SARIMA
+    if (!is.null(sarima_list)) {
+      for (i in seq_along(sarima_list)) {
+        update <- SARIMA(p = p,
+                         sarima_spec = sarima_list[[i]],
+                         exclude_sarima = exclude_sarima_list[[i]],
+                         fixed_part = FALSE,
+                         update_part = TRUE,
+                         param = param[param_indices[[paste0('SARIMA', i)]]],
+                         decompositions = FALSE,
+                         T1 = temp_list[[paste0('SARIMA', i)]]$T1,
+                         T2 = temp_list[[paste0('SARIMA', i)]]$T2,
+                         T3 = temp_list[[paste0('SARIMA', i)]]$T3,
+                         R1 = temp_list[[paste0('SARIMA', i)]]$R1,
+                         R2 = temp_list[[paste0('SARIMA', i)]]$R2
+        )
+        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        P_star <- BlockMatrix(P_star, update$P_star)
+        if (sum(sarima_list[[i]]$ar) == 0 & sum(sarima_list[[i]]$ma) == 0) {
+          if (Tdim < 3) {
+            T_kal <- BlockMatrix(T_kal, T_list[[paste0('SARIMA', i)]])
+          } else {
+            T_kal <- array(
+              apply(
+                T_kal, 3, 
+                function(x) BlockMatrix(as.matrix(x), T_list[[paste0('SARIMA', i)]])
+              ), 
+              dim = c(sum(dim(T_kal)[1], dim(T_list[[paste0('SARIMA', i)]])[1]),
+                      sum(dim(T_kal)[2], dim(T_list[[paste0('SARIMA', i)]])[2]),
+                      N
+              )
+            )
+          }
+          R_kal <- BlockMatrix(R_kal, R_list[[paste0('SARIMA', i)]])
+        } else {
+          if (Tdim < 3) {
+            T_kal <- BlockMatrix(T_kal, update$Tmat)
+          } else {
+            T_kal <- array(
+              apply(
+                T_kal, 3, 
+                function(x) BlockMatrix(as.matrix(x), update$Tmat)
+              ), 
+              dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]), 
+                      sum(dim(T_kal)[2], dim(update$Tmat)[2]), 
+                      N
+              )
             )
           }
           R_kal <- BlockMatrix(R_kal, update$R)
@@ -539,7 +632,8 @@ StateSpaceFit <- function(y,
       if (i %% p == 0) {
         timestep <- TRUE
         
-        # T, R, and Q matrices only needed when a transition to the next timepoint is made
+        # T, R, and Q matrices only needed when a transition to 
+        # the next timepoint is made
         if (Tdim < 3) {
           T_input <- T_kal
         } else {
@@ -575,7 +669,7 @@ StateSpaceFit <- function(y,
                                   Q = Q_input,
                                   timestep = timestep)
         
-        # Storing next predicted state and variance used for the next iteration 
+        # Storing next predicted state and variance used for the next iteration
         if (i < (N*p)) {
           a[i + 1,] <- filter_output$a
           P_inf[,,i + 1] <- filter_output$P_inf
@@ -597,7 +691,7 @@ StateSpaceFit <- function(y,
                                   Q = Q_input,
                                   timestep = timestep)
         
-        # Storing next predicted state and variance used for the next iteration 
+        # Storing next predicted state and variance used for the next iteration
         if (i < (N*p)) {
           a[i + 1,] <- filter_output$a
           P_star[,,i + 1] <- filter_output$P
@@ -608,7 +702,8 @@ StateSpaceFit <- function(y,
       loglik[i] <- filter_output$loglik
     }
     
-    # Return the average loglikelihood. Note: The average is computed as sum / N, using mean would divide by N*p
+    # Return the average loglikelihood
+    # Note: The average is computed as sum / N, using mean would divide by N*p
     return(-sum(loglik, na.rm = TRUE) / N)
   }
   
@@ -616,15 +711,20 @@ StateSpaceFit <- function(y,
   if (length(initial) < sys_mat$param_num) {
     warning(
       paste0(
-        "Number of initial parameters is less than the required amount of parameters (", sys_mat$param_num, "), ",
+        "Number of initial parameters is less than the required ",
+        "amount of parameters (", sys_mat$param_num, "), ",
         "recycling the initial parameters the required amount of times."
       )
     )
-    initial <- rep(initial, ceiling(sys_mat$param_num / length(initial)))[1:sys_mat$param_num]
+    initial <- rep(
+      initial, 
+      ceiling(sys_mat$param_num / length(initial))
+    )[1:sys_mat$param_num]
   } else if (length(initial) > sys_mat$param_num) {
     warning(
       paste0(
-        "Number of initial parameters is more than the required amount of parameters (", sys_mat$param_num, "), ",
+        "Number of initial parameters is more than the required ",
+        "amount of parameters (", sys_mat$param_num, "), ",
         "only using the first ", sys_mat$param_num, " initial parameters."
       )
     )
@@ -662,7 +762,10 @@ StateSpaceFit <- function(y,
   )
   
   # List that will be returned by the function
-  result <- do.call(StateSpaceEval, c(list(param = fit$par, y = y), sys_mat$function_call))
+  result <- do.call(
+    StateSpaceEval, 
+    c(list(param = fit$par, y = y), sys_mat$function_call)
+  )
   result$function_call <- function_call
   result$optim <- fit
   result$loglik_fun <- function(param) -N * LogLikelihood(param)

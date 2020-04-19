@@ -14,10 +14,14 @@ StateSpaceFit(
   addvar_list = NULL,
   level_addvar_list = NULL,
   slope_addvar_list = NULL,
+  arima_list = NULL,
+  sarima_list = NULL,
   exclude_level = NULL,
   exclude_slope = NULL,
   exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
   exclude_cycle_list = list(0),
+  exclude_arima_list = lapply(arima_list, FUN = function(x) 0),
+  exclude_sarima_list = lapply(sarima_list, FUN = function(x) 0),
   damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
   format_level = NULL,
   format_slope = NULL,
@@ -31,16 +35,17 @@ StateSpaceFit(
 )
 }
 \arguments{
-\item{y}{N x p matrix containing the N observations of the p dependent variables.}
+\item{y}{N x p matrix containing the N observations of the p
+dependent variables.}
 
 \item{H_format}{Format of the H system matrix,
 the variance - covariance matrix of the observation equation.}
 
-\item{local_level_ind}{Boolean indicating whether a local level should be added
-to the state space model.}
+\item{local_level_ind}{Boolean indicating whether a local level should
+be added to the state space model.}
 
-\item{slope_ind}{Boolean indicating whether a local level + slope should be added
-to the state space model.}
+\item{slope_ind}{Boolean indicating whether a local level + slope should
+be added to the state space model.}
 
 \item{BSM_vec}{Vector containing the BSM seasonalities that have to be added
 to the state space model.}
@@ -48,97 +53,135 @@ to the state space model.}
 \item{cycle_ind}{Boolean indicating whether a cycle has to be added
 to the state space model.}
 
-\item{addvar_list}{A list containing the explanatory variables for each of the
-dependent variables. The list should contain p (number of dependent variables)
-elements. Each element of the list should be a N x k_p matrix,
-with k_p being the number of explanatory variables for the pth dependent variable.
-If no explanatory variables should be added for one of the dependent variables,
-then set the corresponding element to \code{NULL}.}
+\item{addvar_list}{A list containing the explanatory variables for each of
+the dependent variables. The list should contain p (number of dependent
+variables) elements. Each element of the list should be a N x k_p matrix,
+with k_p being the number of explanatory variables for the pth
+dependent variable. If no explanatory variables should be added for one
+of the dependent variables, then set the corresponding element to \code{NULL}.}
 
-\item{level_addvar_list}{A list containing the explanatory variables for each of
-the dependent variables. The list should contain p (number of dependent variables)
-elements. Each element of the list should be a N x k_p matrix,
-with k_p being the number of explanatory variables for the pth dependent variable.
-If no explanatory variables should be added for one of the dependent variables,
-then set the corresponding element to \code{NULL}.}
+\item{level_addvar_list}{A list containing the explanatory variables for
+each of the dependent variables. The list should contain p (number of
+dependent variables) elements. Each element of the list should be a
+N x k_p matrix, with k_p being the number of explanatory variables
+for the pth dependent variable. If no explanatory variables should be
+added for one of the dependent variables, then set the corresponding
+element to \code{NULL}.}
 
-\item{slope_addvar_list}{A list containing the explanatory variables for each of
-the dependent variables. The list should contain p (number of dependent variables)
-elements. Each element of the list should be a N x k_p matrix,
-with k_p being the number of explanatory variables for the pth dependent variable.
-If no explanatory variables should be added for one of the dependent variables,
-then set the corresponding element to \code{NULL}.}
+\item{slope_addvar_list}{A list containing the explanatory variables for
+each of the dependent variables. The list should contain p (number of
+dependent variables) elements. Each element of the list should be
+a N x k_p matrix, with k_p being the number of explanatory variables for
+the pth dependent variable. If no explanatory variables should be added
+for one of the dependent variables, then set the corresponding element
+to \code{NULL}.}
 
-\item{exclude_level}{Vector containing the dependent variables that should not
-get a local level.}
+\item{arima_list}{Specifications of the ARIMA components, should be a list
+containing vectors of length 3 with the following format: c(AR, I, MA).
+Should be a list to allow different ARIMA models for different sets of
+dependent variables. Note: The AR and MA coefficients are
+constrained such that the AR component is stationary, and the MA
+component is invertible.
+See \insertCite{ansley1986note;textual}{statespacer} for details about
+the transformation used.}
 
-\item{exclude_slope}{Vector containing the dependent variables that should not
-get a slope.}
+\item{sarima_list}{Specifications of the SARIMA components, should be a list
+containing lists that contain 4 named vectors. Vectors should be named:
+"s", "ar", "i", "ma". Should be a list of lists to allow different SARIMA
+models for different sets of dependent variables. Note: The AR and MA
+coefficients are constrained such that the AR components are stationary,
+and the MA components are invertible.
+See \insertCite{ansley1986note;textual}{statespacer} for details about
+the transformation used.}
 
-\item{exclude_BSM_list}{List of vectors, each vector containing the dependent variables
-that should not get the corresponding BSM component.}
+\item{exclude_level}{Vector containing the dependent variables that should
+not get a local level.}
 
-\item{exclude_cycle_list}{The dependent variables that should not get a cycle component.
-Should be a list to allow different dependent variables to be excluded for
-different cycles.}
+\item{exclude_slope}{Vector containing the dependent variables that should
+not get a slope.}
+
+\item{exclude_BSM_list}{List of vectors, each vector containing the
+dependent variables that should not get the corresponding BSM component.}
+
+\item{exclude_cycle_list}{The dependent variables that should not get the
+corresponding cycle component. Should be a list of vectors to allow
+different dependent variables to be excluded for different cycles.}
+
+\item{exclude_arima_list}{The dependent variables that should not be
+involved in the corresponding ARIMA component. Should be a list of
+vectors to allow different dependent variables to be excluded for
+different ARIMA components.}
+
+\item{exclude_sarima_list}{The dependent variables that should not be
+involved in the corresponding SARIMA component. Should be a list of
+vectors to allow different dependent variables to be excluded for
+different SARIMA components.}
 
 \item{damping_factor_ind}{Boolean indicating whether a damping factor should
-be included. Must be a vector if multiple cycles are included, to indicate which cycles
-should include a damping factor.}
+be included. Must be a vector if multiple cycles are included,
+to indicate which cycles should include a damping factor.}
 
-\item{format_level}{Format of the Q_level system matrix the variance - covariance matrix
-of the level state equation.}
+\item{format_level}{Format of the Q_level system matrix
+the variance - covariance matrix of the level state equation.}
 
-\item{format_slope}{Format of the Q_slope system matrix, the variance - covariance matrix
-of the slope state equation.}
+\item{format_slope}{Format of the Q_slope system matrix,
+the variance - covariance matrix of the slope state equation.}
 
-\item{format_BSM_list}{Format of the Q_BSM system matrix, the variance - covariance matrix
-of the BSM state equation. Should be a list to allow different formats for different
-seasonality periods.}
+\item{format_BSM_list}{Format of the Q_BSM system matrix,
+the variance - covariance matrix of the BSM state equation. Should be a
+list to allow different formats for different seasonality periods.}
 
-\item{format_cycle_list}{Format of the Q_cycle system matrix, the variance - covariance
-matrix of the cycle state equation. Should be a list to allow different formats
-for different cycles.}
+\item{format_cycle_list}{Format of the Q_cycle system matrix,
+the variance - covariance matrix of the cycle state equation. Should be a
+list to allow different formats for different cycles.}
 
-\item{format_addvar}{Format of the Q_addvar system matrix, the variance - covariance matrix
-of the explanatory variables state equation.}
+\item{format_addvar}{Format of the Q_addvar system matrix, the
+variance - covariance matrix of the explanatory variables state equation.}
 
 \item{format_level_addvar}{Format of the Q_level_addvar system matrix, the
-variance - covariance matrix of the explanatory variables of the level state equation.}
+variance - covariance matrix of the explanatory variables of the level
+state equation.}
 
-\item{method}{Method that should be used by the \code{\link[stats]{optim}} or
-\code{\link[optimx]{optimr}} function to estimate the parameters.}
+\item{method}{Method that should be used by the \code{\link[stats]{optim}}
+or \code{\link[optimx]{optimr}} function to estimate the parameters.}
 
-\item{initial}{Initial values for the parameter search, allowed to be a vector
-or just one number.}
+\item{initial}{Initial values for the parameter search, allowed to be a
+vector or just one number.}
 
-\item{control}{A list of control parameters for the \code{\link[stats]{optim}}
-or \code{\link[optimx]{optimr}} function.}
+\item{control}{A list of control parameters for the
+\code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.}
 }
 \value{
 A list containing:
 \itemize{
 \item function_call: A list containing the input to the function.
-\item system_matrices: A list containing the system matrices of the State Space model.
-\item predicted: A list containing the predicted components of the State Space model.
-\item filtered: A list containing the filtered components of the State Space model.
-\item smoothed: A list containing the smoothed components of the State Space model.
+\item system_matrices: A list containing the system matrices of
+the State Space model.
+\item predicted: A list containing the predicted components of
+the State Space model.
+\item filtered: A list containing the filtered components of
+the State Space model.
+\item smoothed: A list containing the smoothed components of
+the State Space model.
 \item diagnostics: A list containing items useful for diagnostical tests.
 \item optim: A list containing the variables that are returned by the
 \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
-\item loglik_fun: Function that returns the loglikelihood of the specified State Space model,
-as a function of its parameters
+\item loglik_fun: Function that returns the loglikelihood of the
+specified State Space model, as a function of its parameters.
 }
 }
 \description{
 Fits a State Space model as specified by the user.
 }
 \details{
-To fit the specified State Space model, usually it is beneficial to scale the dependent variables.
-This prevents the numbers from blowing up. A good rule of thumb is to scale the dependents such
-that their absolute values are no bigger than 10. If an error occurs, try to scale the dependents
-by a bigger number. Note: after fitting the model, remember to scale the estimates back! Variances
-should be multiplied by the square of the scaling number!
+To fit the specified State Space model, usually it is beneficial to scale
+the dependent variables. This prevents the numbers from blowing up.
+If an error occurs, try to scale the dependents by a bigger number, or
+try different initial values. Initial values should not be too big, as
+some parameters use the transformation exp(2x) to ensure non-negative
+values.
+Note: after fitting the model, remember to scale the estimates back!
+Variances should be multiplied by the square of the scaling number!
 }
 \examples{
 # Fits a local level model for the Nile data
@@ -171,6 +214,7 @@ lines(1871:1970, 100 * fit$smoothed$level -
 }
 \references{
 \insertRef{durbin2012time}{statespacer}
+\insertRef{ansley1986note}{statespacer}
 }
 \author{
 Dylan Beijers, \email{dylanbeijers@gmail.com}

@@ -1,9 +1,11 @@
 #' Construct the System Matrices of a State Space Model
 #' 
-#' Constructs the system matrices of a State Space model, as specified by the user.
+#' @description
+#' Constructs the system matrices of a State Space model, 
+#' as specified by the user.
 #' 
 #' @param p Number of dependent variables in the model.
-#' @param update_part Boolean indicating whether the system matrices should be 
+#' @param update_part Boolean indicating whether the system matrices should be
 #'   constructed that depend on the parameters.
 #' @inheritParams StateSpaceFit
 #' @inheritParams StateSpaceEval
@@ -24,11 +26,13 @@ GetSysMat <- function(p,
                       level_addvar_list = NULL,
                       slope_addvar_list = NULL,
                       arima_list = NULL,
+                      sarima_list = NULL,
                       exclude_level = NULL,
                       exclude_slope = NULL,
                       exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                       exclude_cycle_list = list(0),
                       exclude_arima_list = lapply(arima_list, FUN = function(x) 0),
+                      exclude_sarima_list = lapply(sarima_list, FUN = function(x) 0),
                       damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                       format_level = NULL,
                       format_slope = NULL,
@@ -40,10 +44,14 @@ GetSysMat <- function(p,
   # Keeping track of the number of state parameters m
   m <- 0
   
-  # Keeping track of the number of parameters supplied to the loglikelihood function
+  # Keeping track of the number of parameters supplied to the 
+  # loglikelihood function
   param_num <- 0
   
-  #### Adding components to the state space model that are specified by the input parameters ####
+  # Keeping track of which parameters to use for the components
+  index_par <- 1
+  
+  #### Adding components to the state space model that are specified ####
   
   # Initialising lists to store matrices of components
   Z_list <- list()
@@ -60,7 +68,8 @@ GetSysMat <- function(p,
   L_list <- list()
   D_list <- list()
   
-  # Initialising lists to store correlation and standard deviations of Q system matrices
+  # Initialising lists to store correlation and standard deviations of 
+  # Q system matrices
   corr_list <- list()
   stdev_list <- list()
   
@@ -84,6 +93,10 @@ GetSysMat <- function(p,
   ar_list <- NULL
   ma_list <- NULL
   
+  # Initialising lists to store AR and MA coefficients of the SARIMA components
+  sar_list <- NULL
+  sma_list <- NULL
+  
   # Initialising list to store state indices of coefficients
   coeff_list <- list()
   
@@ -96,7 +109,8 @@ GetSysMat <- function(p,
   P_inf <- NULL
   P_star <- NULL
   
-  # Dimensions of the matrices start at 2, is overwritten if a component has dimension 3
+  # Dimensions of the matrices start at 2, is overwritten if a component 
+  # has dimension 3
   Zdim <- 2 
   Tdim <- 2
   Rdim <- 2 
@@ -111,7 +125,8 @@ GetSysMat <- function(p,
   if (is.null(H_format)) {
     H_format <- diag(1, p, p)
   }
-  H_format[upper.tri(H_format)] <- 0 # Only entries in lower triangle of matrix count
+  # Only entries in lower triangle of matrix count
+  H_format[upper.tri(H_format)] <- 0
   param_num_list$H <- sum(H_format != 0 & lower.tri(H_format, diag = TRUE))
   param_indices$H <- 1:param_num_list$H
   param_num <- param_num + param_num_list$H
@@ -149,11 +164,12 @@ GetSysMat <- function(p,
   # Indices of the residuals in the state vector
   residuals_state <- 1:p
   
-  # Keeping track of which parameters to use for the components
-  index_par <- param_num_list$H + 1
+  # Updating indices for the first parameter to use for the next component
+  index_par <- index_par + param_num_list$H
   
   #### Local Level ####
-  if (local_level_ind & !slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
+  if (local_level_ind & !slope_ind & 
+      is.null(level_addvar_list) & is.null(slope_addvar_list)) {
     
     # Constructing matrix with 0s using former m dimension
     zero_mat <- matrix(0, p, m)
@@ -172,14 +188,20 @@ GetSysMat <- function(p,
     m <- m + n_level
     
     # Label of the state parameters
-    state_label <- c(state_label, paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)]))
+    state_label <- c(
+      state_label, 
+      paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)])
+    )
     
     # How many parameters in param vector are meant for the level component?
     if (is.null(format_level)) {
       format_level <- diag(1, n_level, n_level)
     }
-    format_level[upper.tri(format_level)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$level <- sum(format_level != 0 & lower.tri(format_level, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_level[upper.tri(format_level)] <- 0 
+    param_num_list$level <- sum(format_level != 0 & 
+                                lower.tri(format_level, diag = TRUE)
+    )
     
     # Last index of parameter that should be used for the component
     index_par2 <- index_par + param_num_list$level - 1
@@ -255,22 +277,34 @@ GetSysMat <- function(p,
     m <- m + n_level + n_slope
     
     # Label of the state parameters
-    state_label <- c(state_label, paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)]))
-    state_label <- c(state_label, paste0("Slope y", (1:p)[which(!1:p %in% exclude_slope)]))
+    state_label <- c(
+      state_label, 
+      paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)])
+    )
+    state_label <- c(
+      state_label, 
+      paste0("Slope y", (1:p)[which(!1:p %in% exclude_slope)])
+    )
     
     # How many parameters in param vector are meant for the level component?
     if (is.null(format_level)) {
       format_level <- diag(1, n_level, n_level)
     }
-    format_level[upper.tri(format_level)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$level <- sum(format_level != 0 & lower.tri(format_level, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_level[upper.tri(format_level)] <- 0 
+    param_num_list$level <- sum(format_level != 0 & 
+                                lower.tri(format_level, diag = TRUE)
+    )
     
     # How many parameters in param vector are meant for the slope component?
     if (is.null(format_slope)) {
       format_slope <- diag(1, n_slope, n_slope)
     }
-    format_slope[upper.tri(format_slope)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$slope <- sum(format_slope != 0 & lower.tri(format_slope, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_slope[upper.tri(format_slope)] <- 0 
+    param_num_list$slope <- sum(format_slope != 0 & 
+                                lower.tri(format_slope, diag = TRUE)
+    )
     
     # Last index of parameter that should be used for the component
     index_par2 <- index_par + param_num_list$level + param_num_list$slope - 1
@@ -339,7 +373,9 @@ GetSysMat <- function(p,
       s <- BSM_vec[i]
       
       # Check which dependent variables will be excluded, removing doubles as well
-      exclude_BSM_list[[i]] <- exclude_BSM_list[[i]][which(exclude_BSM_list[[i]] >= 1 & exclude_BSM_list[[i]] <= p)]
+      exclude_BSM_list[[i]] <- exclude_BSM_list[[i]][
+        which(exclude_BSM_list[[i]] >= 1 & exclude_BSM_list[[i]] <= p)
+      ]
       exclude_BSM_list[[i]] <- unique(exclude_BSM_list[[i]])
       
       # The number of dependent variables that should get a BSM`s` component
@@ -352,14 +388,24 @@ GetSysMat <- function(p,
       m <- m + (s - 1) * n_BSM
       
       # Label of the state parameters
-      state_label <- c(state_label, rep(paste0("BSM", s, " y", (1:p)[which(!1:p %in% exclude_BSM_list[[i]])]), s - 1))
+      state_label <- c(
+        state_label, 
+        rep(
+          paste0("BSM", s, " y", (1:p)[which(!1:p %in% exclude_BSM_list[[i]])]),
+          s - 1
+        )
+      )
       
       # How many parameters in param vector are meant for the BSM`s` component?
       if (is.null(format_BSM_list[[i]])) {
         format_BSM_list[[i]] <- diag(1, n_BSM, n_BSM)
       }
-      format_BSM_list[[i]][upper.tri(format_BSM_list[[i]])] <- 0 # Only entries in lower triangle of matrix count
-      param_num_list[[paste0('BSM', s)]] <- sum(format_BSM_list[[i]] != 0 & lower.tri(format_BSM_list[[i]], diag = TRUE))
+      # Only entries in lower triangle of matrix count
+      format_BSM_list[[i]][upper.tri(format_BSM_list[[i]])] <- 0 
+      param_num_list[[paste0('BSM', s)]] <- sum(
+        format_BSM_list[[i]] != 0 & 
+        lower.tri(format_BSM_list[[i]], diag = TRUE)
+      )
       
       # Last index of parameter that should be used for the component
       index_par2 <- index_par + param_num_list[[paste0('BSM', s)]] - 1
@@ -417,10 +463,14 @@ GetSysMat <- function(p,
     zero_mat <- matrix(0, p, m)
     
     # Number of coefficients
-    k <- sum(sapply(addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}}))
+    k <- sum(
+      sapply(addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}})
+    )
     
     # Number of observations
-    N <- max(sapply(addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}}))
+    N <- max(
+      sapply(addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}})
+    )
     
     # Saving former m
     m_old <- m
@@ -434,7 +484,9 @@ GetSysMat <- function(p,
     # Function for naming the explanatory variables
     names_fun <- function(i) {
       if (!is.null(addvar_list[[i]]) & is.null(colnames(addvar_list[[i]]))) {
-        return(rep(paste0("Explanatory Variable of y", i), dim(addvar_list[[i]])[2]))
+        return(
+          rep(paste0("Explanatory Variable of y", i), dim(addvar_list[[i]])[2])
+        )
       } else {
         return(colnames(addvar_list[[i]]))
       }
@@ -447,8 +499,12 @@ GetSysMat <- function(p,
     if (is.null(format_addvar)) {
       format_addvar <- matrix(0, k, k)
     }
-    format_addvar[upper.tri(format_addvar)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$addvar <- sum(format_addvar != 0 & lower.tri(format_addvar, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_addvar[upper.tri(format_addvar)] <- 0 
+    param_num_list$addvar <- sum(
+      format_addvar != 0 & 
+      lower.tri(format_addvar, diag = TRUE)
+    )
     
     # Last index of parameter that should be used for the component
     index_par2 <- index_par + param_num_list$addvar - 1
@@ -529,10 +585,14 @@ GetSysMat <- function(p,
     n_level <- p - length(exclude_level)
     
     # Number of coefficients
-    k_level <- sum(sapply(level_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}}))
+    k_level <- sum(
+      sapply(level_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}})
+    )
     
     # Number of observations
-    N <- max(sapply(level_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}}))
+    N <- max(
+      sapply(level_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}})
+    )
     
     # Saving former m
     m_old <- m
@@ -545,33 +605,51 @@ GetSysMat <- function(p,
     
     # Function for naming the explanatory variables
     names_fun <- function(i) {
-      if (!is.null(level_addvar_list[[i]]) & is.null(colnames(level_addvar_list[[i]]))) {
-        return(rep(paste0("Explanatory Variable in level y", i), dim(level_addvar_list[[i]])[2]))
+      if (!is.null(level_addvar_list[[i]]) & 
+          is.null(colnames(level_addvar_list[[i]]))) {
+        return(
+          rep(
+            paste0("Explanatory Variable in level y", i), 
+            dim(level_addvar_list[[i]])[2]
+          )
+        )
       } else {
         return(colnames(level_addvar_list[[i]]))
       }
     }
     
     # Label of the state parameters
-    state_label <- c(state_label, paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)]))
+    state_label <- c(
+      state_label, 
+      paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)])
+    )
     state_label <- c(state_label, do.call(c, lapply(1:p, names_fun)))
     
     # How many parameters in param vector are meant for the level component?
     if (is.null(format_level)) {
       format_level <- diag(1, n_level, n_level)
     }
-    format_level[upper.tri(format_level)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$level <- sum(format_level != 0 & lower.tri(format_level, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_level[upper.tri(format_level)] <- 0 
+    param_num_list$level <- sum(
+      format_level != 0 & 
+      lower.tri(format_level, diag = TRUE)
+    )
     
     # How many parameters in param vector are meant for the explanatory variables?
     if (is.null(format_level_addvar)) {
       format_level_addvar <- matrix(0, k_level, k_level)
     }
-    format_level_addvar[upper.tri(format_level_addvar)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$level_addvar <- sum(format_level_addvar != 0 & lower.tri(format_level_addvar, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_level_addvar[upper.tri(format_level_addvar)] <- 0 
+    param_num_list$level_addvar <- sum(
+      format_level_addvar != 0 & 
+      lower.tri(format_level_addvar, diag = TRUE)
+    )
     
     # Last index of parameter that should be used for the component
-    index_par2 <- index_par + param_num_list$level + param_num_list$level_addvar - 1
+    index_par2 <- index_par + param_num_list$level + 
+      param_num_list$level_addvar - 1
     
     # Indices of parameters that should be used for the component
     param_indices$level_addvar <- index_par:index_par2
@@ -668,10 +746,14 @@ GetSysMat <- function(p,
     n_slope <- p - length(exclude_slope)
     
     # Number of coefficients
-    k_level <- sum(sapply(slope_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}}))
+    k_level <- sum(
+      sapply(slope_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}})
+    )
     
     # Number of observations
-    N <- max(sapply(slope_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}}))
+    N <- max(
+      sapply(slope_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}})
+    )
     
     # Saving former m
     m_old <- m
@@ -684,47 +766,73 @@ GetSysMat <- function(p,
     
     # Function for naming the explanatory variables
     names_fun <- function(i) {
-      if (!is.null(slope_addvar_list[[i]]) & is.null(colnames(slope_addvar_list[[i]]))) {
-        return(rep(paste0("Explanatory Variable in level y", i), dim(slope_addvar_list[[i]])[2]))
+      if (!is.null(slope_addvar_list[[i]]) & 
+          is.null(colnames(slope_addvar_list[[i]]))) {
+        return(
+          rep(
+            paste0("Explanatory Variable in level y", i), 
+            dim(slope_addvar_list[[i]])[2]
+          )
+        )
       } else {
         return(colnames(slope_addvar_list[[i]]))
       }
     }
     
     # Label of the state parameters
-    state_label <- c(state_label, paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)]))
-    state_label <- c(state_label, paste0("Slope y", (1:p)[which(!1:p %in% exclude_slope)]))
+    state_label <- c(
+      state_label, 
+      paste0("Local Level y", (1:p)[which(!1:p %in% exclude_level)])
+    )
+    state_label <- c(
+      state_label, 
+      paste0("Slope y", (1:p)[which(!1:p %in% exclude_slope)])
+    )
     state_label <- c(state_label, do.call(c, lapply(1:p, names_fun)))
     
     # How many parameters in param vector are meant for the level component?
     if (is.null(format_level)) {
       format_level <- diag(1, n_level, n_level)
     }
-    format_level[upper.tri(format_level)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$level <- sum(format_level != 0 & lower.tri(format_level, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_level[upper.tri(format_level)] <- 0 
+    param_num_list$level <- sum(
+      format_level != 0 & 
+      lower.tri(format_level, diag = TRUE)
+    )
     
     # How many parameters in param vector are meant for the slope component?
     if (is.null(format_slope)) {
       format_slope <- diag(1, n_slope, n_slope)
     }
-    format_slope[upper.tri(format_slope)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$slope <- sum(format_slope != 0 & lower.tri(format_slope, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_slope[upper.tri(format_slope)] <- 0 
+    param_num_list$slope <- sum(
+      format_slope != 0 & 
+      lower.tri(format_slope, diag = TRUE)
+    )
     
     # How many parameters in param vector are meant for the explanatory variables?
     if (is.null(format_level_addvar)) {
       format_level_addvar <- matrix(0, k_level, k_level)
     }
-    format_level_addvar[upper.tri(format_level_addvar)] <- 0 # Only entries in lower triangle of matrix count
-    param_num_list$level_addvar <- sum(format_level_addvar != 0 & lower.tri(format_level_addvar, diag = TRUE))
+    # Only entries in lower triangle of matrix count
+    format_level_addvar[upper.tri(format_level_addvar)] <- 0 
+    param_num_list$level_addvar <- sum(
+      format_level_addvar != 0 & 
+      lower.tri(format_level_addvar, diag = TRUE)
+    )
     
     # Last index of parameter that should be used for the component
-    index_par2 <- index_par + param_num_list$level + param_num_list$slope + param_num_list$level_addvar - 1
+    index_par2 <- index_par + param_num_list$level + param_num_list$slope + 
+      param_num_list$level_addvar - 1
     
     # Indices of parameters that should be used for the component
     param_indices$slope_addvar <- index_par:index_par2
     
     # Keeping track of how many parameters the State Space model needs
-    param_num <- param_num + param_num_list$level + param_num_list$slope + param_num_list$level_addvar
+    param_num <- param_num + param_num_list$level + param_num_list$slope + 
+      param_num_list$level_addvar
     
     # Calling the proper function to obtain system matrices
     update <- SlopeAddVar(p = p,
@@ -818,7 +926,9 @@ GetSysMat <- function(p,
       zero_mat <- matrix(0, p, m)
       
       # Check which dependent variables will be excluded, removing doubles as well
-      exclude_cycle_list[[i]] <- exclude_cycle_list[[i]][which(exclude_cycle_list[[i]] >= 1 & exclude_cycle_list[[i]] <= p)]
+      exclude_cycle_list[[i]] <- exclude_cycle_list[[i]][
+        which(exclude_cycle_list[[i]] >= 1 & exclude_cycle_list[[i]] <= p)
+      ]
       exclude_cycle_list[[i]] <- unique(exclude_cycle_list[[i]])
       
       # The number of dependent variables that should get a cycle
@@ -831,14 +941,24 @@ GetSysMat <- function(p,
       m <- m + 2 * n_cycle
       
       # Label of the state parameters
-      state_label <- c(state_label, rep(paste0("Cycle", i, " y", (1:p)[which(!1:p %in% exclude_cycle_list[[i]])]), 2))
+      state_label <- c(
+        state_label, 
+        rep(
+          paste0("Cycle", i, " y", (1:p)[which(!1:p %in% exclude_cycle_list[[i]])]),
+          2
+        )
+      )
       
       # How many parameters in param vector are meant for the cycle component?
       if (is.null(format_cycle_list[[i]])) {
         format_cycle_list[[i]] <- diag(1, n_cycle, n_cycle)
       }
-      format_cycle_list[[i]][upper.tri(format_cycle_list[[i]])] <- 0 # Only entries in lower triangle of matrix count
-      param_num_list[[paste0('Cycle', i)]] <- 1 + damping_factor_ind[i] + sum(format_cycle_list[[i]] != 0 & lower.tri(format_cycle_list[[i]], diag = TRUE))
+      # Only entries in lower triangle of matrix count
+      format_cycle_list[[i]][upper.tri(format_cycle_list[[i]])] <- 0 
+      param_num_list[[paste0('Cycle', i)]] <- 1 + damping_factor_ind[i] + 
+        sum(format_cycle_list[[i]] != 0 & 
+            lower.tri(format_cycle_list[[i]], diag = TRUE)
+        )
       
       # Last index of parameter that should be used for the component
       index_par2 <- index_par + param_num_list[[paste0('Cycle', i)]] - 1
@@ -886,7 +1006,8 @@ GetSysMat <- function(p,
       Pinf_list[[paste0('Cycle', i)]] <- update$P_inf
       P_inf <- BlockMatrix(P_inf, update$P_inf)
       Z_padded_list[[paste0('Cycle', i)]] <- cbind(zero_mat, update$Z)
-      if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) | update_part) {
+      if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) | 
+          update_part) {
         Q_list[[paste0('Cycle', i)]] <- update$Q_cycle
         Q_list2[[paste0('Cycle', i)]] <- update$Q
         Q_kal <- BlockMatrix(Q_kal, update$Q)
@@ -895,7 +1016,8 @@ GetSysMat <- function(p,
         corr_list[[paste0('Cycle', i)]] <- update$correlation_matrix
         stdev_list[[paste0('Cycle', i)]] <- update$stdev_matrix
       }
-      if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) | !damping_factor_ind[i] | update_part) {
+      if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) | 
+          !damping_factor_ind[i] | update_part) {
         Pstar_list[[paste0('Cycle', i)]] <- update$P_star
         P_star <- BlockMatrix(P_star, update$P_star)
       }
@@ -908,7 +1030,10 @@ GetSysMat <- function(p,
             apply(T_kal, 3, 
                   function(x) BlockMatrix(as.matrix(x), update$Tmat)
             ), 
-            dim = c(sum(dim(T_kal)[1], 2 * n_cycle), sum(dim(T_kal)[2], 2 * n_cycle), N)
+            dim = c(sum(dim(T_kal)[1], 2 * n_cycle), 
+                    sum(dim(T_kal)[2], 2 * n_cycle), 
+                    N
+            )
           )
         }
         lambda_list[[paste0('Cycle', i)]] <- update$lambda
@@ -932,10 +1057,12 @@ GetSysMat <- function(p,
       zero_mat <- matrix(0, p, m)
       
       # Check which dependent variables will be excluded, removing doubles as well
-      exclude_arima_list[[i]] <- exclude_arima_list[[i]][which(exclude_arima_list[[i]] >= 1 & exclude_arima_list[[i]] <= p)]
+      exclude_arima_list[[i]] <- exclude_arima_list[[i]][
+        which(exclude_arima_list[[i]] >= 1 & exclude_arima_list[[i]] <= p)
+      ]
       exclude_arima_list[[i]] <- unique(exclude_arima_list[[i]])
       
-      # The number of dependent variables that should get a cycle
+      # The number of dependent variables that are involved in the ARIMA component
       n_arima <- p - length(exclude_arima_list[[i]])
       
       # The number of state parameters
@@ -1015,7 +1142,11 @@ GetSysMat <- function(p,
             apply(T_kal, 3, 
                   function(x) BlockMatrix(as.matrix(x), update$Tmat)
             ), 
-            dim = c(sum(dim(T_kal)[1], state_num), sum(dim(T_kal)[2], state_num), N)
+            dim = c(
+              sum(dim(T_kal)[1], state_num), 
+              sum(dim(T_kal)[2], state_num), 
+              N
+            )
           )
         }
         Q_list[[paste0('ARIMA', i)]] <- update$Q
@@ -1043,6 +1174,141 @@ GetSysMat <- function(p,
     }
   }
   
+  #### SARIMA ####
+  if (!is.null(sarima_list)) {
+    
+    # Initialising lists to store AR and MA coefficients of the SARIMA components
+    sar_list <- list()
+    sma_list <- list()
+    
+    for (i in seq_along(sarima_list)) {
+      
+      # Constructing matrix with 0s using former m dimension
+      zero_mat <- matrix(0, p, m)
+      
+      # Check which dependent variables will be excluded, removing doubles as well
+      exclude_sarima_list[[i]] <- exclude_sarima_list[[i]][
+        which(exclude_sarima_list[[i]] >= 1 & exclude_sarima_list[[i]] <= p)
+      ]
+      exclude_sarima_list[[i]] <- unique(exclude_sarima_list[[i]])
+      
+      # The number of dependent variables that are involved in the SARIMA component
+      n_sarima <- p - length(exclude_sarima_list[[i]])
+      
+      # The number of state parameters
+      state_num <- (max(
+        sum(sarima_list[[i]]$s * sarima_list[[i]]$ar), 
+        sum(sarima_list[[i]]$s * sarima_list[[i]]$ma) + 1
+      ) + sum(sarima_list[[i]]$s * sarima_list[[i]]$i)) * n_sarima
+      
+      # Saving former m
+      m_old <- m
+      
+      # Updating m
+      m <- m + state_num
+      
+      # Label of the state parameters
+      state_label <- c(state_label, rep(paste0("SARIMA", i), state_num))
+      
+      # How many parameters in param vector are meant for the SARIMA component?
+      param_num_list[[paste0('SARIMA', i)]] <- 0.5 * n_sarima * (n_sarima + 1) +
+        n_sarima^2 * (sum(sarima_list[[i]]$ar) + sum(sarima_list[[i]]$ma))
+      
+      # Last index of parameter that should be used for the component
+      index_par2 <- index_par + param_num_list[[paste0('SARIMA', i)]] - 1
+      
+      # Indices of parameters that should be used for the component
+      param_indices[[paste0('SARIMA', i)]] <- index_par:index_par2
+      
+      # Keeping track of how many parameters the State Space model needs
+      param_num <- param_num + param_num_list[[paste0('SARIMA', i)]]
+      
+      # Calling the proper function to obtain system matrices
+      update <- SARIMA(p = p,
+                       sarima_spec = sarima_list[[i]],
+                       exclude_sarima = exclude_sarima_list[[i]],
+                       fixed_part = TRUE,
+                       update_part = update_part,
+                       param = param[param_indices[[paste0('SARIMA', i)]]],
+                       decompositions = TRUE
+      )
+      
+      # Updating indices for the first parameter to use for the next component
+      index_par <- index_par2 + 1
+      
+      # Storing system matrices
+      Z_list[[paste0('SARIMA', i)]] <- update$Z
+      if (Zdim < 3) {
+        Z_kal <- cbind(Z_kal, update$Z)
+      } else {
+        Z_kal <- array(
+          apply(
+            Z_kal, 3, 
+            function(x) {cbind(
+              matrix(x, p, dim(Z_kal)[2]), 
+              update$Z
+            )}
+          ), 
+          dim = c(p, sum(dim(Z_kal)[2], state_num), N)
+        )
+      }
+      a_list[[paste0('SARIMA', i)]] <- update$a1
+      a <- rbind(a, update$a1)
+      Pinf_list[[paste0('SARIMA', i)]] <- update$P_inf
+      P_inf <- BlockMatrix(P_inf, update$P_inf)
+      Z_padded_list[[paste0('SARIMA', i)]] <- cbind(zero_mat, update$Z)
+      if (update_part) {
+        if (sum(sarima_list[[i]]$ar) > 0) {
+          sar_list[[paste0('SARIMA', i)]] <- update$sar
+        }
+        if (sum(sarima_list[[i]]$ma) > 0) {
+          sma_list[[paste0('SARIMA', i)]] <- update$sma
+        }
+        R_list[[paste0('SARIMA', i)]] <- update$R
+        R_kal <- BlockMatrix(R_kal, update$R)
+        T_list[[paste0('SARIMA', i)]] <- update$Tmat
+        if (Tdim < 3) {
+          T_kal <- BlockMatrix(T_kal, update$Tmat)
+        } else {
+          T_kal <- array(
+            apply(T_kal, 3, 
+                  function(x) BlockMatrix(as.matrix(x), update$Tmat)
+            ), 
+            dim = c(
+              sum(dim(T_kal)[1], state_num), 
+              sum(dim(T_kal)[2], state_num), 
+              N
+            )
+          )
+        }
+        Q_list[[paste0('SARIMA', i)]] <- update$Q
+        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        L_list[[paste0('SARIMA', i)]] <- update$loading_matrix
+        D_list[[paste0('SARIMA', i)]] <- update$diagonal_matrix
+        corr_list[[paste0('SARIMA', i)]] <- update$correlation_matrix
+        stdev_list[[paste0('SARIMA', i)]] <- update$stdev_matrix
+        Pstar_list[[paste0('SARIMA', i)]] <- update$P_star
+        P_star <- BlockMatrix(P_star, update$P_star)
+      }
+      if (!update_part & 
+          sum(sarima_list[[i]]$ar) == 0 & 
+          sum(sarima_list[[i]]$ma) == 0) {
+        R_list[[paste0('SARIMA', i)]] <- update$R
+        T_list[[paste0('SARIMA', i)]] <- update$Tmat
+      }
+      if (!update_part & 
+          (sum(sarima_list[[i]]$ar) > 0 | sum(sarima_list[[i]]$ma) > 0)) {
+        temp_list[[paste0('SARIMA', i)]] <- list(
+          T1 = update$T1,
+          T2 = update$T2,
+          T3 = update$T3,
+          R1 = update$R1,
+          R2 = update$R2
+        )
+      }
+    }
+  }
+  
   # Input arguments that specify the state space model
   function_call <- list(H_format = H_format,
                         local_level_ind = local_level_ind,
@@ -1053,11 +1319,13 @@ GetSysMat <- function(p,
                         level_addvar_list = level_addvar_list,
                         slope_addvar_list = slope_addvar_list,
                         arima_list = arima_list,
+                        sarima_list = sarima_list,
                         exclude_level = exclude_level,
                         exclude_slope = exclude_slope,
                         exclude_BSM_list = exclude_BSM_list,
                         exclude_cycle_list = exclude_cycle_list,
                         exclude_arima_list = exclude_arima_list,
+                        exclude_sarima_list = exclude_sarima_list,
                         damping_factor_ind = damping_factor_ind,
                         format_level = format_level,
                         format_slope = format_slope,
@@ -1104,6 +1372,12 @@ GetSysMat <- function(p,
   }
   if (length(ma_list) > 0) {
     result$MA <- ma_list
+  }
+  if (length(sar_list) > 0) {
+    result$SAR <- sar_list
+  }
+  if (length(sma_list) > 0) {
+    result$SMA <- sma_list
   }
   result$addvar_state <- coeff_list$addvar_state
   result$level_addvar_state <- coeff_list$level_addvar_state

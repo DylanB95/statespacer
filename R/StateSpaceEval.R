@@ -1,18 +1,25 @@
 #' State Space Model Evaluation at Specified Parameters
 #' 
-#' Evaluates the specified State Space model at the parameters specified by the user.
+#' @description
+#' Evaluates the specified State Space model at the parameters
+#' specified by the user.
 #' 
 #' @param param Parameters used to construct the system matrices.
-#' @param loglik_only Boolean indicating whether only the loglikelihood should be returned.
+#' @param loglik_only Boolean indicating whether only the 
+#'   loglikelihood should be returned.
 #' @inheritParams StateSpaceFit
 #' 
 #' @return 
 #' A list containing:
 #' * function_call: A list containing the input to the function.
-#' * system_matrices: A list containing the system matrices of the State Space model.
-#' * predicted: A list containing the predicted components of the State Space model.
-#' * filtered: A list containing the filtered components of the State Space model.
-#' * smoothed: A list containing the smoothed components of the State Space model.
+#' * system_matrices: A list containing the system matrices of
+#'   the State Space model.
+#' * predicted: A list containing the predicted components of
+#'   the State Space model.
+#' * filtered: A list containing the filtered components of
+#'   the State Space model.
+#' * smoothed: A list containing the smoothed components of
+#'   the State Space model.
 #' * diagnostics: A list containing items useful for diagnostical tests.
 #' 
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
@@ -37,11 +44,13 @@ StateSpaceEval <- function(param,
                            level_addvar_list = NULL,
                            slope_addvar_list = NULL,
                            arima_list = NULL,
+                           sarima_list = NULL,
                            exclude_level = NULL,
                            exclude_slope = NULL,
                            exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
                            exclude_cycle_list = list(0),
                            exclude_arima_list = lapply(arima_list, FUN = function(x) 0),
+                           exclude_sarima_list = lapply(sarima_list, FUN = function(x) 0),
                            damping_factor_ind = rep(TRUE, length(exclude_cycle_list)),
                            format_level = NULL,
                            format_slope = NULL,
@@ -52,11 +61,11 @@ StateSpaceEval <- function(param,
                            loglik_only = FALSE) {
 
   ##### Initialising lists to return #####
-  filtered <- list() # list of items to return that correspond to the Kalman filter
-  predicted <- list() # list of items to return that correspond to the Kalman predicter
-  smoothed <- list() # list of items to return that correspond to the Kalman smoother
-  system_matrices <- list() # list that contains the potentially useful system matrices
-  diagnostics <- list() # list that contains the useful items for diagnostic checking
+  filtered <- list() 
+  predicted <- list() 
+  smoothed <- list() 
+  system_matrices <- list()
+  diagnostics <- list()
   
   # N = Number of observations
   N <- dim(y)[1]
@@ -77,11 +86,13 @@ StateSpaceEval <- function(param,
                        level_addvar_list = level_addvar_list,
                        slope_addvar_list = slope_addvar_list,
                        arima_list = arima_list,
+                       sarima_list = sarima_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
                        exclude_cycle_list = exclude_cycle_list,
                        exclude_arima_list = exclude_arima_list,
+                       exclude_sarima_list = exclude_sarima_list,
                        damping_factor_ind = damping_factor_ind,
                        format_level = format_level,
                        format_slope = format_slope,
@@ -101,11 +112,13 @@ StateSpaceEval <- function(param,
   level_addvar_list <- sys_mat$function_call$level_addvar_list
   slope_addvar_list <- sys_mat$function_call$slope_addvar_list
   arima_list <- sys_mat$function_call$arima_list
+  sarima_list <- sys_mat$function_call$sarima_list
   exclude_level <- sys_mat$function_call$exclude_level
   exclude_slope <- sys_mat$function_call$exclude_slope
   exclude_BSM_list <- sys_mat$function_call$exclude_BSM_list
   exclude_cycle_list <- sys_mat$function_call$exclude_cycle_list
   exclude_arima_list <- sys_mat$function_call$exclude_arima_list
+  exclude_sarima_list <- sys_mat$function_call$exclude_sarima_list
   damping_factor_ind <- sys_mat$function_call$damping_factor_ind
   format_level <- sys_mat$function_call$format_level
   format_slope <- sys_mat$function_call$format_slope
@@ -198,7 +211,8 @@ StateSpaceEval <- function(param,
     if (i %% p == 0) {
       timestep <- TRUE
       
-      # T, R, and Q matrices only needed when a transition to the next timepoint is made
+      # T, R, and Q matrices only needed when a transition to 
+      # the next timepoint is made
       if (Tdim < 3) {
         T_input <- T_kal
       } else {
@@ -306,13 +320,14 @@ StateSpaceEval <- function(param,
                                 Q = Q_input,
                                 timestep = timestep)
       
-      # Storing next predicted state and variance used for the next iteration 
+      # Storing next predicted state and variance used for the next iteration
       if (i < (N*p)) {
         a[i + 1,] <- filter_output$a
         P_star[,,i + 1] <- filter_output$P
       }
       
-      # Saving predicted and filtered state and corresponding variance for each timestep
+      # Saving predicted and filtered state and corresponding variance 
+      # for each timestep
       if (timestep & !loglik_only) {
         
         # Predicted state and variance
@@ -705,7 +720,8 @@ StateSpaceEval <- function(param,
   ##-- and adding fitted components of the model ---------##
   
   # Local Level
-  if (local_level_ind & !slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
+  if (local_level_ind & !slope_ind & 
+      is.null(level_addvar_list) & is.null(slope_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
@@ -853,6 +869,23 @@ StateSpaceEval <- function(param,
       Z_padded[[paste0('ARIMA', j)]] <- tempZ
     }
   }
+  
+  # SARIMA
+  if (!is.null(sarima_list)) {
+    for (j in seq_along(sarima_list)) {
+      tempZ <- matrix(0, p, m - p)
+      predicted[[paste0('SARIMA', j)]] <- matrix(0, N, p)
+      filtered[[paste0('SARIMA', j)]] <- matrix(0, N, p)
+      smoothed[[paste0('SARIMA', j)]] <- matrix(0, N, p)
+      for (i in 1:N) {
+        tempZ[1:length(Z_padded[[paste0('SARIMA', j)]])] <- Z_padded[[paste0('SARIMA', j)]]
+        predicted[[paste0('SARIMA', j)]][i,] <- tempZ %*% a_pred[i,, drop = FALSE]
+        filtered[[paste0('SARIMA', j)]][i,] <- tempZ %*% a_fil[i,, drop = FALSE]
+        smoothed[[paste0('SARIMA', j)]][i,] <- tempZ %*% a_smooth[i,, drop = FALSE]
+      }
+      Z_padded[[paste0('SARIMA', j)]] <- tempZ
+    }
+  }
   ####################################################################################################
   
   # Filling system_matrices
@@ -869,6 +902,8 @@ StateSpaceEval <- function(param,
   system_matrices$rho <- sys_mat$rho
   system_matrices$AR <- sys_mat$AR
   system_matrices$MA <- sys_mat$MA
+  system_matrices$SAR <- sys_mat$SAR
+  system_matrices$SMA <- sys_mat$SMA
   system_matrices$a1 <- sys_mat$a1
   system_matrices$P_inf <- sys_mat$P_inf
   system_matrices$P_star <- sys_mat$P_star

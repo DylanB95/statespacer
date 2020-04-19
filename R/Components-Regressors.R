@@ -435,7 +435,7 @@ SlopeAddVar <- function(p = 1,
         cbind(
           Ttemp3, 
           rbind(
-            Ttemp2[seq(i, n_level * N, N),, drop = FALSE]
+            Ttemp2[seq(i, n_level * N, N),, drop = FALSE],
             matrix(0, n_slope, k)
           )
         ), 

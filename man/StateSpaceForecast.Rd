@@ -13,35 +13,39 @@ StateSpaceForecast(
 )
 }
 \arguments{
-\item{fit}{A list containing the specifications of the State Space Model,
-as returned by \code{\link{StateSpaceFit}} or \code{\link{StateSpaceEval}}.}
+\item{fit}{A list containing the specifications of the State Space Model, as
+returned by \code{\link{StateSpaceFit}} or \code{\link{StateSpaceEval}}.}
 
-\item{addvar_list_fc}{A list containing the explanatory variables for each of
-the dependent variables. The list should contain p (number of dependent variables)
-elements. Each element of the list should be a forecast_period x k_p matrix,
-with k_p being the number of explanatory variables for the pth dependent variable.
-If no explanatory variables should be added for one of the dependent variables,
-then set the corresponding element to \code{NULL}.}
+\item{addvar_list_fc}{A list containing the explanatory variables for each
+of the dependent variables. The list should contain p (number of dependent
+variables) elements. Each element of the list should be a
+forecast_period x k_p matrix, with k_p being the number of explanatory
+variables for the pth dependent variable. If no explanatory variables
+should be added for one of the dependent variables, then set the
+corresponding element to \code{NULL}.}
 
-\item{level_addvar_list_fc}{A list containing the explanatory variables for each
-of the dependent variables. The list should contain p (number of dependent variables)
-elements. Each element of the list should be a forecast_period x k_p matrix,
-with k_p being the number of explanatory variables for the pth dependent variable.
-If no explanatory variables should be added for one of the dependent variables,
-then set the corresponding element to \code{NULL}.}
+\item{level_addvar_list_fc}{A list containing the explanatory variables
+for each of the dependent variables. The list should contain p
+(number of dependent variables) elements. Each element of the list should
+be a forecast_period x k_p matrix, with k_p being the number of
+explanatory variables for the pth dependent variable. If no explanatory
+variables should be added for one of the dependent variables, then set
+the corresponding element to \code{NULL}.}
 
-\item{slope_addvar_list_fc}{A list containing the explanatory variables for each
-of the dependent variables. The list should contain p (number of dependent variables)
-elements. Each element of the list should be a forecast_period x k_p matrix,
-with k_p being the number of explanatory variables for the pth dependent variable.
-If no explanatory variables should be added for one of the dependent variables,
-then set the corresponding element to \code{NULL}.}
+\item{slope_addvar_list_fc}{A list containing the explanatory variables
+for each of the dependent variables. The list should contain p
+(number of dependent variables) elements. Each element of the list
+should be a forecast_period x k_p matrix, with k_p being the number
+of explanatory variables for the pth dependent variable. If no explanatory
+variables should be added for one of the dependent variables, then set the
+corresponding element to \code{NULL}.}
 
 \item{forecast_period}{Number of time steps to forecast ahead.}
 }
 \value{
-A list containing the forecasts and corresponding uncertainties. In addition,
-it returns the components of the forecasts, as specified by the State Space model.
+A list containing the forecasts and corresponding uncertainties.
+In addition, it returns the components of the forecasts, as specified
+by the State Space model.
 }
 \description{
 Produces forecasts using a fitted State Space Model.
