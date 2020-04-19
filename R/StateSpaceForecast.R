@@ -215,12 +215,12 @@ StateSpaceForecast <- function(fit,
     }
     
     # Forecast of y and corresponding uncertainty
-    y_fc[i,] <- Z_fc %*% a_fc[i,, drop = FALSE]
+    y_fc[i,] <- Z_fc %*% matrix(a_fc[i,])
     Fmat_fc[,,i] <- Z_fc %*% as.matrix(P_fc[,,i]) %*% t(Z_fc) + H
     
     # Forecast of next state and corresponding uncertainty
     if (i < forecast_period) {
-      a_fc[i + 1,] <- T_fc %*% a_fc[i,, drop = FALSE]
+      a_fc[i + 1,] <- T_fc %*% matrix(a_fc[i,])
       P_fc[,,i + 1] <- T_fc %*% as.matrix(P_fc[,,i]) %*% t(T_fc) + 
         R_fc %*% Q_fc %*% t(R_fc) 
     }
@@ -236,7 +236,7 @@ StateSpaceForecast <- function(fit,
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
       tempZ[1:length(Z_padded$level)] <- Z_padded$level
-      result$level[i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+      result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
   }
@@ -248,7 +248,7 @@ StateSpaceForecast <- function(fit,
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
       tempZ[1:length(Z_padded$level)] <- Z_padded$level
-      result$level[i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+      result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
   }
@@ -260,7 +260,7 @@ StateSpaceForecast <- function(fit,
       result[[paste0('BSM', s)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
         tempZ[1:length(Z_padded[[paste0('BSM', s)]])] <- Z_padded[[paste0('BSM', s)]]
-        result[[paste0('BSM', s)]][i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+        result[[paste0('BSM', s)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('BSM', s)]] <- tempZ
     }
@@ -272,7 +272,7 @@ StateSpaceForecast <- function(fit,
     result$addvar <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
       tempZ[,,i][1:length(Z_padded$addvar[,,i])] <- Z_padded$addvar[,,i]
-      result$addvar[i,] <- matrix(tempZ[,,i], nrow = p) %*% a_fc[i,, drop = FALSE]
+      result$addvar[i,] <- matrix(tempZ[,,i], nrow = p) %*% matrix(a_fc[i,])
     }
     Z_padded$addvar[,,i] <- tempZ
   }
@@ -284,7 +284,7 @@ StateSpaceForecast <- function(fit,
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
       tempZ[1:length(Z_padded$level)] <- Z_padded$level
-      result$level[i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+      result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
   }
@@ -296,7 +296,7 @@ StateSpaceForecast <- function(fit,
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
       tempZ[1:length(Z_padded$level)] <- Z_padded$level
-      result$level[i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+      result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
   }
@@ -308,7 +308,7 @@ StateSpaceForecast <- function(fit,
       result[[paste0('Cycle', j)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
         tempZ[1:length(Z_padded[[paste0('Cycle', j)]])] <- Z_padded[[paste0('Cycle', j)]]
-        result[[paste0('Cycle', j)]][i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+        result[[paste0('Cycle', j)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('Cycle', j)]] <- tempZ
     }
@@ -321,7 +321,7 @@ StateSpaceForecast <- function(fit,
       result[[paste0('ARIMA', j)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
         tempZ[1:length(Z_padded[[paste0('ARIMA', j)]])] <- Z_padded[[paste0('ARIMA', j)]]
-        result[[paste0('ARIMA', j)]][i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+        result[[paste0('ARIMA', j)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('ARIMA', j)]] <- tempZ
     }
@@ -334,7 +334,7 @@ StateSpaceForecast <- function(fit,
       result[[paste0('SARIMA', j)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
         tempZ[1:length(Z_padded[[paste0('SARIMA', j)]])] <- Z_padded[[paste0('SARIMA', j)]]
-        result[[paste0('SARIMA', j)]][i,] <- tempZ %*% a_fc[i,, drop = FALSE]
+        result[[paste0('SARIMA', j)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('SARIMA', j)]] <- tempZ
     }
