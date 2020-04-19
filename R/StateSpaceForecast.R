@@ -180,7 +180,7 @@ StateSpaceForecast <- function(fit,
   if (Zdim < 3) {
     Z_full <- Z_full[,-sys_mat$residuals_state, drop = FALSE]
   } else {
-    Z_full <- Z_full[,-sys_mat$residuals_state,, drop = FALSE]
+    Z_full <- matrix(Z_full[,-sys_mat$residuals_state,], nrow = p)
   }
   if (Tdim < 3) {
     T_full <- T_full[-sys_mat$residuals_state, 
@@ -188,10 +188,7 @@ StateSpaceForecast <- function(fit,
                      drop = FALSE
     ]
   } else {
-    T_full <- T_full[-sys_mat$residuals_state, 
-                     -sys_mat$residuals_state,, 
-                     drop = FALSE
-    ]
+    T_full <- as.matrix(T_full[-sys_mat$residuals_state, -sys_mat$residuals_state,])
   }
   R_fc <- R_fc[-sys_mat$residuals_state, 
                -sys_mat$residuals_state, 
@@ -208,23 +205,23 @@ StateSpaceForecast <- function(fit,
     if (Zdim < 3) {
       Z_fc <- Z_full
     } else {
-      Z_fc <- Z_full[,,i, drop = FALSE]
+      Z_fc <- matrix(Z_full[,,i], nrow = p)
     }
     
     if (Tdim < 3) {
       T_fc <- T_full
     } else {
-      T_fc <- T_full[,,i, drop = FALSE]
+      T_fc <- as.matrix(T_full[,,i])
     }
     
     # Forecast of y and corresponding uncertainty
     y_fc[i,] <- Z_fc %*% a_fc[i,, drop = FALSE]
-    Fmat_fc[,,i] <- Z_fc %*% P_fc[,,i, drop = FALSE] %*% t(Z_fc) + H
+    Fmat_fc[,,i] <- Z_fc %*% as.matrix(P_fc[,,i]) %*% t(Z_fc) + H
     
     # Forecast of next state and corresponding uncertainty
     if (i < forecast_period) {
       a_fc[i + 1,] <- T_fc %*% a_fc[i,, drop = FALSE]
-      P_fc[,,i + 1] <- T_fc %*% P_fc[,,i, drop = FALSE] %*% t(T_fc) + 
+      P_fc[,,i + 1] <- T_fc %*% as.matrix(P_fc[,,i]) %*% t(T_fc) + 
         R_fc %*% Q_fc %*% t(R_fc) 
     }
   }
@@ -275,7 +272,7 @@ StateSpaceForecast <- function(fit,
     result$addvar <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
       tempZ[,,i][1:length(Z_padded$addvar[,,i])] <- Z_padded$addvar[,,i]
-      result$addvar[i,] <- tempZ[,,i, drop = FALSE] %*% a_fc[i,, drop = FALSE]
+      result$addvar[i,] <- matrix(tempZ[,,i], nrow = p) %*% a_fc[i,, drop = FALSE]
     }
     Z_padded$addvar[,,i] <- tempZ
   }

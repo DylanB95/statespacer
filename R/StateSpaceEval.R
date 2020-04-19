@@ -216,7 +216,7 @@ StateSpaceEval <- function(param,
       if (Tdim < 3) {
         T_input <- T_kal
       } else {
-        T_input <- T_kal[,,t, drop = FALSE]
+        T_input <- as.matrix(T_kal[,,t])
       }
       R_input <- R_kal
       Q_input <- Q_kal
@@ -231,7 +231,7 @@ StateSpaceEval <- function(param,
     if (Zdim < 3) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
-      Z_input <- Z_kal[row,,t, drop = FALSE]
+      Z_input <- matrix(Z_kal[row,,t], nrow = p)
     }
     
     # Apply KalmanEI in initialisation stage, else KalmanUT
@@ -242,9 +242,9 @@ StateSpaceEval <- function(param,
       
       # Calling the Kalman Filter with exact initialisation
       filter_output <- KalmanEI(y = y[t, row],
-                                a = a[i,, drop = FALSE],
-                                P_inf = P_inf[,,i, drop = FALSE],
-                                P_star = P_star[,,i, drop = FALSE], 
+                                a = matrix(a[i,]),
+                                P_inf = as.matrix(P_inf[,,i]),
+                                P_star = as.matrix(P_star[,,i]), 
                                 Z = Z_input, 
                                 Tmat = T_input, 
                                 R = R_input, 
@@ -295,25 +295,25 @@ StateSpaceEval <- function(param,
         if (Zdim < 3) {
           Z_full <- Z_kal
         } else {
-          Z_full <- Z_kal[,,t, drop = FALSE]
+          Z_full <- matrix(Z_kal[,,t], nrow = p)
         }
         
         # Storing fitted values
-        yfit[t,] <- Z_full %*% a_pred[t,, drop = FALSE]
+        yfit[t,] <- Z_full %*% matrix(a_pred[t,])
         
         # Storing residuals
         v[t,] <- y[t,] - yfit[t,]
         
         # Storing Variance - Covariance matrix of fitted values
-        Fmat[,,t] <- Z_full %*% P_pred[,,t, drop = FALSE] %*% t(Z_full)
+        Fmat[,,t] <- Z_full %*% as.matrix(P_pred[,,t]) %*% t(Z_full)
       }
       
     } else {
       
       # Calling the Kalman Filter
       filter_output <- KalmanUT(y = y[t, row],
-                                a = a[i,, drop = FALSE],
-                                P = P_star[,,i, drop = FALSE], 
+                                a = matrix(a[i,]),
+                                P = as.matrix(P_star[,,i]), 
                                 Z = Z_input, 
                                 Tmat = T_input, 
                                 R = R_input, 
@@ -349,17 +349,17 @@ StateSpaceEval <- function(param,
         if (Zdim < 3) {
           Z_full <- Z_kal
         } else {
-          Z_full <- Z_kal[,,t, drop = FALSE]
+          Z_full <- matrix(Z_kal[,,t], nrow = p)
         }
         
         # Storing fitted values
-        yfit[t,] <- Z_full %*% a_pred[t,, drop = FALSE]
+        yfit[t,] <- Z_full %*% matrix(a_pred[t,])
         
         # Storing residuals
         v[t,] <- y[t,] - yfit[t,]
         
         # Storing Variance - Covariance matrix of fitted values
-        Fmat[,,t] <- Z_full %*% P_pred[,,t, drop = FALSE] %*% t(Z_full)
+        Fmat[,,t] <- Z_full %*% as.matrix(P_pred[,,t]) %*% t(Z_full)
 
         # Inverse of Fmat
         Finv <- solve(Fmat[,,t])
@@ -371,7 +371,7 @@ StateSpaceEval <- function(param,
         Finv_root <- svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)) %*% t(svd_Finv$u)
         
         # Normalised prediction error
-        v_norm[t,] <- Finv_root %*% v[t,, drop = FALSE]
+        v_norm[t,] <- Finv_root %*% matrix(v[t,])
       }
     }
     
@@ -478,7 +478,7 @@ StateSpaceEval <- function(param,
         T_input <- T_kal
       } else {
         if (t > 1) {
-          T_input <- T_kal[,,t - 1, drop = FALSE]
+          T_input <- as.matrix(T_kal[,,t - 1])
         }
       }
       R_input <- R_kal
@@ -490,7 +490,7 @@ StateSpaceEval <- function(param,
     if (Zdim < 3) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
-      Z_input <- Z_kal[row,,t, drop = FALSE]
+      Z_input <- matrix(Z_kal[row,,t], nrow = p)
     }
     
     # For the initialisation steps, other computations are required
@@ -503,9 +503,9 @@ StateSpaceEval <- function(param,
       } else {
         
         # Auxiliary computations
-        Finv <- 1 / c(Z_input %*% P_star[,,i, drop = FALSE] %*% t(Z_input))
+        Finv <- 1 / c(Z_input %*% as.matrix(P_star[,,i]) %*% t(Z_input))
         v_UT <- y[t, row] - c(Z_input %*% a[i,])
-        K_UT <- P_star[,,i, drop = FALSE] %*% t(Z_input) * Finv
+        K_UT <- as.matrix(P_star[,,i]) %*% t(Z_input) * Finv
         L_UT <- diag(length(Z_input)) - K_UT %*% Z_input
         r_UT[i,] <- t(Z_input) * Finv * v_UT + t(L_UT) %*% r_UT[i + 1,]
         N_UT[,,i] <- t(Z_input) %*% Z_input * Finv + 
@@ -523,20 +523,20 @@ StateSpaceEval <- function(param,
         V[,,t] <- P_pred[,,t] - P_pred[,,t] %*% Nmat[,,t] %*% P_pred[,,t]
         
         # T-statistic for the state equation
-        Tstat_state[t + 1,] <- r_vec[t + 1,] / sqrt(diag(Nmat[,,t + 1, drop = FALSE]))
+        Tstat_state[t + 1,] <- r_vec[t + 1,] / sqrt(diag(as.matrix(Nmat[,,t + 1])))
         
         # Smoothing error e and corresponding variance D 
         # Plus T-statistic for the observation equation
         if (Zdim < 3) {
           Z_full <- Z_kal
         } else {
-          Z_full <- Z_kal[,,t, drop = FALSE]
+          Z_full <- matrix(Z_kal[,,t], nrow = p)
         }
         Finv <- solve(Fmat[,,t])
         K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
         e[t,] <- Finv %*% v[t,, drop = FALSE] - t(K) %*% r_vec[t + 1,]
         D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
-        Tstat_observation[t,] <- e[t,] / sqrt(diag(D[,,t, drop = FALSE]))
+        Tstat_observation[t,] <- e[t,] / sqrt(diag(as.matrix(D[,,t])))
         
         # Compute smoothed state disturbance and corresponding variance
         eta[t,] <- Q_input %*% t(R_input) %*% r_vec[t + 1,]
@@ -560,10 +560,10 @@ StateSpaceEval <- function(param,
         
         # Auxiliary computations
         v_UT <- y[t, row] - c(Z_input %*% a[i,])
-        M_inf <- P_inf[,,i, drop = FALSE] %*% t(Z_input)
-        M_star <- P_star[,,i, drop = FALSE] %*% t(Z_input)
-        F_inf <- c(Z_input %*% P_inf[,,i, drop = FALSE] %*% t(Z_input))
-        F_star <- c(Z_input %*% P_star[,,i, drop = FALSE] %*% t(Z_input))
+        M_inf <- as.matrix(P_inf[,,i]) %*% t(Z_input)
+        M_star <- as.matrix(P_star[,,i]) %*% t(Z_input)
+        F_inf <- c(Z_input %*% as.matrix(P_inf[,,i]) %*% t(Z_input))
+        F_star <- c(Z_input %*% as.matrix(P_star[,,i]) %*% t(Z_input))
         
         # Check if F_inf is nearly 0
         if (F_inf < 1e-7) {
@@ -611,20 +611,20 @@ StateSpaceEval <- function(param,
                   P_inf[,,i] %*% N_2 %*% P_inf[,,i]
         
         # T-statistic for the state equation
-        Tstat_state[t + 1,] <- r_vec[t + 1,] / sqrt(diag(Nmat[,,t + 1, drop = FALSE]))
+        Tstat_state[t + 1,] <- r_vec[t + 1,] / sqrt(diag(as.matrix(Nmat[,,t + 1])))
         
         # Smoothing error e and corresponding variance D 
         # Plus T-statistic for the observation equation
         if (Zdim < 3) {
           Z_full <- Z_kal
         } else {
-          Z_full <- Z_kal[,,t, drop = FALSE]
+          Z_full <- matrix(Z_kal[,,t], nrow = p)
         }
         Finv <- solve(Fmat[,,t])
         K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
         e[t,] <- Finv %*% v[t,, drop = FALSE] - t(K) %*% r_vec[t + 1,]
         D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
-        Tstat_observation[t,] <- e[t,] / sqrt(diag(D[,,t, drop = FALSE]))
+        Tstat_observation[t,] <- e[t,] / sqrt(diag(as.matrix(D[,,t])))
         
         # Compute smoothed state disturbance and corresponding variance
         eta[t,] <- Q_input %*% t(R_input) %*% r_vec[t + 1,]
@@ -775,9 +775,9 @@ StateSpaceEval <- function(param,
     smoothed$addvar <- matrix(0, N, p)
     for (i in 1:N) {
       tempZ[,,i][1:length(Z_padded$addvar[,,i])] <- Z_padded$addvar[,,i]
-      predicted$addvar[i,] <- tempZ[,,i, drop = FALSE] %*% a_pred[i,, drop = FALSE]
-      filtered$addvar[i,] <- tempZ[,,i, drop = FALSE] %*% a_fil[i,, drop = FALSE]
-      smoothed$addvar[i,] <- tempZ[,,i, drop = FALSE] %*% a_smooth[i,, drop = FALSE]
+      predicted$addvar[i,] <- matrix(tempZ[,,i], nrow = p) %*% a_pred[i,, drop = FALSE]
+      filtered$addvar[i,] <- matrix(tempZ[,,i], nrow = p) %*% a_fil[i,, drop = FALSE]
+      smoothed$addvar[i,] <- matrix(tempZ[,,i], nrow = p) %*% a_smooth[i,, drop = FALSE]
     }
     Z_padded$addvar <- tempZ
     filtered$addvar_coeff <- a_fil[,sys_mat$addvar_state]

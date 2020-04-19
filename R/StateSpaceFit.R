@@ -637,7 +637,7 @@ StateSpaceFit <- function(y,
         if (Tdim < 3) {
           T_input <- T_kal
         } else {
-          T_input <- T_kal[,,t, drop = FALSE]
+          T_input <- as.matrix(T_kal[,,t])
         }
         R_input <- R_kal
         Q_input <- Q_kal
@@ -652,7 +652,7 @@ StateSpaceFit <- function(y,
       if (Zdim < 3) {
         Z_input <- Z_kal[row,, drop = FALSE]
       } else {
-        Z_input <- Z_kal[row,,t, drop = FALSE]
+        Z_input <- matrix(Z_kal[row,,t], nrow = p)
       }
       
       # Apply KalmanEI in initialisation stage, else KalmanUT
@@ -661,8 +661,8 @@ StateSpaceFit <- function(y,
         # Calling the Kalman Filter with exact initialisation
         filter_output <- KalmanEI(y = y[t, row],
                                   a = a[i,, drop = FALSE],
-                                  P_inf = P_inf[,,i, drop = FALSE],
-                                  P_star = P_star[,,i, drop = FALSE], 
+                                  P_inf = as.matrix(P_inf[,,i]),
+                                  P_star = as.matrix(P_star[,,i]), 
                                   Z = Z_input, 
                                   Tmat = T_input, 
                                   R = R_input, 
@@ -684,7 +684,7 @@ StateSpaceFit <- function(y,
         # Calling the Kalman Filter
         filter_output <- KalmanUT(y = y[t, row],
                                   a = a[i,, drop = FALSE],
-                                  P = P_star[,,i, drop = FALSE], 
+                                  P = as.matrix(P_star[,,i]), 
                                   Z = Z_input, 
                                   Tmat = T_input, 
                                   R = R_input, 
