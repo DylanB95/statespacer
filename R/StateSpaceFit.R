@@ -122,6 +122,7 @@
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
 #' @references 
 #' \insertRef{durbin2012time}{statespacer}
+#' 
 #' \insertRef{ansley1986note}{statespacer}
 #'   
 #' @examples

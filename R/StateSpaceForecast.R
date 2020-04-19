@@ -36,6 +36,8 @@
 #' @references 
 #' \insertRef{durbin2012time}{statespacer}
 #' 
+#' \insertRef{ansley1986note}{statespacer}
+
 #' @examples
 #' # Fits a local level model for the Nile data
 #' library(datasets)

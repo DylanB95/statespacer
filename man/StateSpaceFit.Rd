@@ -214,6 +214,7 @@ lines(1871:1970, 100 * fit$smoothed$level -
 }
 \references{
 \insertRef{durbin2012time}{statespacer}
+
 \insertRef{ansley1986note}{statespacer}
 }
 \author{

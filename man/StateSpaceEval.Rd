@@ -174,6 +174,8 @@ StateSpaceEval(param = c(1, 1), y = y / 100, local_level_ind = TRUE)
 }
 \references{
 \insertRef{durbin2012time}{statespacer}
+
+\insertRef{ansley1986note}{statespacer}
 }
 \author{
 Dylan Beijers, \email{dylanbeijers@gmail.com}
