@@ -233,7 +233,7 @@ StateSpaceEval <- function(param,
     if (Zdim < 3) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
-      Z_input <- matrix(Z_kal[row,,t], nrow = p)
+      Z_input <- matrix(Z_kal[row,,t], nrow = 1)
     }
     
     # Apply KalmanEI in initialisation stage, else KalmanUT
@@ -492,7 +492,7 @@ StateSpaceEval <- function(param,
     if (Zdim < 3) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
-      Z_input <- matrix(Z_kal[row,,t], nrow = p)
+      Z_input <- matrix(Z_kal[row,,t], nrow = 1)
     }
     
     # For the initialisation steps, other computations are required

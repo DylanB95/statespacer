@@ -653,7 +653,7 @@ StateSpaceFit <- function(y,
       if (Zdim < 3) {
         Z_input <- Z_kal[row,, drop = FALSE]
       } else {
-        Z_input <- matrix(Z_kal[row,,t], nrow = p)
+        Z_input <- matrix(Z_kal[row,,t], nrow = 1)
       }
       
       # Apply KalmanEI in initialisation stage, else KalmanUT
@@ -724,7 +724,7 @@ StateSpaceFit <- function(y,
   } else if (length(initial) > sys_mat$param_num) {
     warning(
       paste0(
-        "Number of initial parameters is more than the required ",
+        "Number of initial parameters is greater than the required ",
         "amount of parameters (", sys_mat$param_num, "), ",
         "only using the first ", sys_mat$param_num, " initial parameters."
       )
@@ -770,6 +770,30 @@ StateSpaceFit <- function(y,
   result$function_call <- function_call
   result$optim <- fit
   result$loglik_fun <- function(param) -N * LogLikelihood(param)
+
+  # Hessian of the loglikelihood evaluated at the ML estimates of the parameters
+  result$diagnostics$hessian <- numDeriv::hessian(
+    func = result$loglik_fun,
+    x = fit$par
+  )
+
+  # Jacobian of the transformed parameters
+  jacobian <- do.call(numDeriv::jacobian,
+                      c(list(func = TransformParam, x = fit$par, p = p),
+                        sys_mat$function_call
+                      )
+  )
+
+  # Standard errors of the transformed parameters
+  std_errors <- sqrt(
+    diag(jacobian %*% -solve(result$diagnostics$hessian) %*% t(jacobian))
+  )
+
+  # Structured standard errors of the transformed parameters
+  result$standard_errors <- StructParam(
+    param = std_errors,
+    sys_mat = result$system_matrices
+  )
   
   return(result)
 }

@@ -11,7 +11,8 @@ Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
 Imports: 
   Rdpack,
-  stats
+  stats,
+  numDeriv
 Suggests: 
   knitr, 
   rmarkdown,

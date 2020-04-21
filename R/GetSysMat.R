@@ -143,8 +143,8 @@ GetSysMat <- function(p,
         H = update$cov_mat, 
         loading_matrix = update$loading_matrix, 
         diagonal_matrix = update$diagonal_matrix,
-        correlation_matrix <- update$correlation_matrix,
-        stdev_matrix <- update$stdev_matrix
+        correlation_matrix = update$correlation_matrix,
+        stdev_matrix = update$stdev_matrix
       )
       H <- H_list$H
       Q_kal <- BlockMatrix(Q_kal, H)
