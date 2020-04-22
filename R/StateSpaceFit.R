@@ -703,7 +703,7 @@ StateSpaceFit <- function(y,
       loglik[i] <- filter_output$loglik
     }
     
-    # Return the average loglikelihood
+    # Return the negative average loglikelihood
     # Note: The average is computed as sum / N, using mean would divide by N*p
     return(-sum(loglik, na.rm = TRUE) / N)
   }
