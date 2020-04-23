@@ -168,6 +168,8 @@ the State Space model.
 \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
 \item loglik_fun: Function that returns the loglikelihood of the
 specified State Space model, as a function of its parameters.
+\item standard_errors: A list containing the standard errors of
+the parameters of the State Space model.
 }
 }
 \description{
