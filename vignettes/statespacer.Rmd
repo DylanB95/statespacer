@@ -1,0 +1,96 @@
+---
+title: "Introduction to statespacer"
+author: "Dylan Beijers"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: ../inst/REFERENCES.bib
+vignette: >
+  %\VignetteIndexEntry{Introduction to statespacer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, setup, include = FALSE}
+library(statespacer)
+```
+
+This document provides a brief introduction to using the statespacer package. It does so by showcasing the estimation of a Local Level model on the well known Nile data. See `?Nile` for more information about this dataset.
+
+To start, let's first introduce the Local Level model. Mathematically, this model can be represented as follows:
+
+$$
+\begin{aligned}
+ y_t &= \mu_t + \varepsilon_t, ~~~~~~ \varepsilon_t \sim N(0, \sigma_\varepsilon^2), \\
+ \mu_{t+1} &= \mu_t + \eta_t, ~~~~~~ \eta_t \sim N(0, \sigma_\eta^2),
+\end{aligned}
+$$
+where $y_t$ is the dependent variable at time $t$, $\mu_t$ is the unobserved level at time $t$, and $\varepsilon_t$ and $\eta_t$ are disturbances. This model has two parameters, $\sigma_\varepsilon^2$ and $\sigma_\eta^2$ that will be estimated by maximising the loglikelihood. In addition, the level $\mu_t$ is a state parameter that will be estimated by employing the Kalman Filter. For extensive details about the algorithms employed, see @durbin2012time.
+
+Estimating this model using the statespacer package is simple. First, we load the data and extract the dependent variable. The dependent variable needs to be specified as a matrix, with each column being one of the dependents. In this case, we just have one column, as the Nile data comprises a univariate series.
+
+```{r}
+library(datasets)
+y <- matrix(Nile)
+```
+
+To fit a local level model, we simply call the `StateSpaceFit()` function. See `?StateSpaceFit` for further details.
+
+```{r}
+fit <- StateSpaceFit(y = y,
+                     local_level_ind = TRUE,
+                     initial = 10)
+```
+
+We get a warning message about the number of initial parameters, as we didn't specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don't need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify `initial = rnorm(1000)`, and not have to worry about if enough parameters were supplied.
+
+Now, let's check the estimated values of $\sigma_\varepsilon^2$ and $\sigma_\eta^2$.
+
+```{r}
+c(fit$system_matrices$H$H, fit$system_matrices$Q$level)
+```
+
+Note that we use the notation used in @durbin2012time for the system matrices. $H$ being the system matrix for the variance - covariance matrix of the observation equation, and $Q$ being the system matrix for the variance - covariance matrix of the state equation.
+
+Checking out the estimated level is easy as well. The filtered level:
+
+```{r, fig.height = 4.5, fig.width = 7}
+plot(1871:1970, fit$function_call$y, type = 'p', ylim = c(500, 1400), 
+     xlab = NA, ylab = NA, 
+     sub = "The filtered level with 90% confidence intervals, 
+            and the observed data points"
+)
+lines(1871:1970, fit$filtered$level, type = 'l')
+lines(1871:1970, fit$filtered$level + qnorm(0.95) * sqrt(fit$filtered$P[1,1,]), 
+      type = 'l', col = 'gray'
+)
+lines(1871:1970, fit$filtered$level - qnorm(0.95) * sqrt(fit$filtered$P[1,1,]), 
+      type = 'l', col = 'gray'
+)
+```
+
+And the smoothed level:
+
+```{r, fig.height = 4.5, fig.width = 7}
+plot(1871:1970, fit$function_call$y, type = 'p', ylim = c(500, 1400), 
+     xlab = NA, ylab = NA, 
+     sub = "The smoothed level with 90% confidence intervals, 
+            and the observed data points")
+lines(1871:1970, fit$smoothed$level, type='l')
+lines(1871:1970, fit$smoothed$level + qnorm(0.95) * sqrt(fit$smoothed$V[1,1,]),
+      type = 'l', col = 'gray'
+)
+lines(1871:1970, fit$smoothed$level - qnorm(0.95) * sqrt(fit$smoothed$V[1,1,]),
+      type = 'l', col = 'gray'
+)
+```
+
+The object returned by `StateSpaceFit()` exhibits many other useful items. For more information about these items, please see the documentation. For more exhibitions of the statespacer package, please see <https://github.com/DylanB95/statespacer>.
+
+## References

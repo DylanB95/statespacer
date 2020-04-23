@@ -1,5 +1,5 @@
 Package: statespacer
-Version: 1.0.0.9000
+Version: 0.0.0.9000
 Date: 2020-04-23
 Title: State Space Modelling In R
 Description: Functions that make estimating models in State Space form a breeze.
@@ -23,6 +23,7 @@ Imports:
 Suggests:
     datasets,
     devtools,
+    graphics,
     knitr,
     numDeriv (>= 2016.8-1.1),
     optimx (>= 2020-4.2),
