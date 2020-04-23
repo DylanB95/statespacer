@@ -14,7 +14,6 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 .Renviron
-docs/
 .Rproj.user
 *.Rproj
 inst/doc
