@@ -1,2 +1,4 @@
 ^statespacer\.Rproj$
 ^\.Rproj\.user$
+^\.Rhistory$
+^README\.md$
