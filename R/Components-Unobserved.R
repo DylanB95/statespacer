@@ -264,9 +264,12 @@ Slope <- function(p = 1,
 #' 
 #' Constructs the system matrices of a Cycle component.
 #' 
-#' @param exclude_cycle The dependent variables that should not get a Cycle component.
-#' @param damping_factor_ind Boolean indicating whether a damping factor should be included.
-#' @param format_cycle `format` argument for the \code{\link{Cholesky}} function.
+#' @param exclude_cycle The dependent variables that should not get a 
+#'   Cycle component.
+#' @param damping_factor_ind Boolean indicating whether a damping factor 
+#'   should be included.
+#' @param format_cycle `format` argument for the 
+#'   \code{\link{Cholesky}} function.
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
@@ -373,7 +376,8 @@ Cycle <- function(p = 1,
         )
       }
       
-      # Using Cholesky function to get a valid variance - covariance matrix for the Q matrix
+      # Using Cholesky function to get a valid variance - covariance matrix
+      # for the Q matrix
       Q_cycle <- Cholesky(
         param = paramQ, 
         format = format_cycle, 
@@ -407,7 +411,8 @@ Cycle <- function(p = 1,
 #' Constructs the system matrices of a BSM seasonality component.
 #' 
 #' @param s The number of periods for the BSM seasonality.
-#' @param exclude_BSM The dependent variables that should not get a BSM component.
+#' @param exclude_BSM The dependent variables that should not get a 
+#'   BSM component.
 #' @param format_BSM `format` argument for the \code{\link{Cholesky}} function.
 #' @inheritParams GetSysMat
 #' @inheritParams LocalLevel
@@ -485,8 +490,14 @@ BSM <- function(p = 1,
     
     # T matrix = a n_BSM * 2 * lambda_num (+ n_BSM if s is even) 
     #            x n_BSM * 2 * lambda_num (+ n_BSM if s is even) matrix
-    T1 <- do.call(BlockMatrix, lapply(lambda, function(x) {diag(cos(x), n_BSM, n_BSM)}))
-    T2 <- do.call(BlockMatrix, lapply(lambda, function(x) {diag(sin(x), n_BSM, n_BSM)}))
+    T1 <- do.call(
+      BlockMatrix, 
+      lapply(lambda, function(x) {diag(cos(x), n_BSM, n_BSM)})
+    )
+    T2 <- do.call(
+      BlockMatrix, 
+      lapply(lambda, function(x) {diag(sin(x), n_BSM, n_BSM)})
+    )
     Tmat <- rbind(cbind(T1, T2), cbind(-T2, T1))
     if ((s %% 2) == 0) {
       Tmat <- BlockMatrix(Tmat, diag(-1, n_BSM, n_BSM))
@@ -537,9 +548,15 @@ BSM <- function(p = 1,
       result$diagonal_matrix <- Q_BSM$diagonal_matrix
       result$correlation_matrix <- Q_BSM$correlation_matrix
       result$stdev_matrix <- Q_BSM$stdev_matrix
-      result$Q <- do.call(BlockMatrix, replicate(s - 1, Q_BSM$cov_mat, simplify = FALSE))
+      result$Q <- do.call(
+        BlockMatrix, 
+        replicate(s - 1, Q_BSM$cov_mat, simplify = FALSE)
+      )
     } else {
-      result$Q <- do.call(BlockMatrix, replicate(s - 1, Q_BSM, simplify = FALSE))
+      result$Q <- do.call(
+        BlockMatrix, 
+        replicate(s - 1, Q_BSM, simplify = FALSE)
+      )
     }
   }
   

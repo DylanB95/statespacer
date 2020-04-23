@@ -1,23 +1,31 @@
 Package: statespacer
-Version: 1.0
-Date: 2020-03-30
-Title: State Space Modelling in R
+Version: 1.0.0.9000
+Date: 2020-04-23
+Title: State Space Modelling In R
 Description: Functions that make estimating models in State Space form a breeze.
-Author: Dylan Beijers <dylanbeijers@gmail.com>
-Maintainer: Dylan Beijers <dylanbeijers@gmail.com>
+    This package implements state-of-the-art algorithms developed by various
+    time series practitioners such as J. Durbin and S.J. Koopman. 
+    Details about the algorithms can be found in their book, 
+    "Time Series Analysis by State Space Methods". For more information about 
+    this package, please see the documentation.
+Authors@R: person("Dylan", "Beijers", email = "dylanbeijers@gmail.com", 
+                  role = c("aut", "cre"))
+URL: https://github.com/DylanB95/statespacer
+BugReports: https://github.com/DylanB95/statespacer/issues
 License: MIT + file LICENSE
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
-Imports: 
-  Rdpack,
-  stats,
-  numDeriv
-Suggests: 
-  knitr, 
-  rmarkdown,
-  devtools,
-  roxygen2,
-  datasets,
-  optimx
+Depends: R (>= 3.2.0)
+Imports:
+    Rdpack,
+    stats
+Suggests:
+    datasets,
+    devtools,
+    knitr,
+    numDeriv (>= 2016.8-1.1),
+    optimx (>= 2020-4.2),
+    rmarkdown,
+    roxygen2
 VignetteBuilder: knitr

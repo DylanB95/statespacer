@@ -1,6 +1,5 @@
 #' Kalman Filter with Univariate Treatment
 #' 
-#' @description 
 #' Applies the kalman filter with univariate treatment after the 
 #' initialisation stages to calculate the estimated state and 
 #' corresponding variance for the next step.
@@ -12,15 +11,18 @@
 #' @param Tmat T system matrix of the State Space model.
 #' @param R R system matrix of the State Space model.
 #' @param Q Q system matrix of the State Space model.
-#' @param timestep Boolean indicating whether a transition to the next timepoint should be made.
+#' @param timestep Boolean indicating whether a transition to the next 
+#'   timepoint should be made.
 #' 
 #' @return 
 #' A list containing:
 #' * a: The estimated state for the next step.
-#' * P: The corresponding variance - covariance matrix of the estimated state for the next step.
+#' * P: The corresponding variance - covariance matrix of the estimated state
+#'   for the next step.
 #' * loglik: The loglikelihood for the current step.
 #' * a_fil: The filtered state for the current step.
-#' * P_fil: The corresponding variance - covariance matrix of the filtered state for the current step.
+#' * P_fil: The corresponding variance - covariance matrix of the filtered 
+#'   state for the current step.
 #'  
 #' @noRd
 KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
@@ -113,13 +115,14 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
 
 #' Kalman Filter with Exact Initialisation
 #' 
-#' @description 
 #' Applies an exact initialisation during the initialisation stages 
 #' for the kalman filter with univariate treatment to calculate the 
 #' estimated state and corresponding variance for the next step.
 #' 
-#' @param P_inf Diffuse part of the variance - covariance matrix of the state vector.
-#' @param P_star Stationary part of the variance - covariance matrix of the state vector.
+#' @param P_inf Diffuse part of the variance - covariance matrix of the state
+#'   vector.
+#' @param P_star Stationary part of the variance - covariance matrix of the 
+#'   state vector.
 #' @inheritParams KalmanUT
 #' 
 #' @return 
@@ -133,11 +136,12 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
 #' * a_fil: The filtered state for the current step.
 #' * P_inf_fil: The corresponding diffuse part of the variance - covariance 
 #'   matrix of the filtered state for the current step.
-#' * P_star_fil: The corresponding stationary part of the variance - covariance 
+#' * P_star_fil: The corresponding stationary part of the variance - covariance
 #'   matrix of the filtered state for the current step.
 #'  
 #' @noRd
-KalmanEI <- function(y, a, P_inf, P_star, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
+KalmanEI <- function(y, a, P_inf, P_star, Z, 
+                     Tmat = NULL, R = NULL, Q = NULL, timestep) {
 
   # Initialise list to return
   result <- list()
@@ -145,7 +149,7 @@ KalmanEI <- function(y, a, P_inf, P_star, Z, Tmat = NULL, R = NULL, Q = NULL, ti
   # If y is missing, use kalman filter formulae with Z = 0
   if (is.na(y)) {
     
-    # Estimated State Vector and corresponding Variance - Covariance matrix 
+    # Estimated State Vector and corresponding Variance - Covariance matrix
     # for the next step
     a_new <- a
     P_inf_new <- P_inf

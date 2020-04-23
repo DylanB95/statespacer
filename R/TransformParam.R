@@ -1,6 +1,5 @@
 #' Transform the optimisation parameters to the parameters of a State Space Model
 #' 
-#' @description
 #' Transforms the optimisation parameters to the parameters 
 #' of a State Space Model.
 #' 
@@ -163,7 +162,6 @@ TransformParam <- function(param = NULL,
 
 #' Add structure to the parameters of a State Space Model
 #' 
-#' @description
 #' Adds structure to the parameters of a State Space Model.
 #' 
 #' @param sys_mat The list as returned by GetSysMat.

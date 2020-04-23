@@ -15,3 +15,5 @@ vignettes/*.pdf
 *.knit.md
 .Renviron
 docs/
+.Rproj.user
+*.Rproj

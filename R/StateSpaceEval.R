@@ -1,6 +1,5 @@
 #' State Space Model Evaluation at Specified Parameters
 #' 
-#' @description
 #' Evaluates the specified State Space model at the parameters
 #' specified by the user.
 #' 
@@ -27,7 +26,7 @@
 #' \insertRef{durbin2012time}{statespacer}
 #' 
 #' \insertRef{ansley1986note}{statespacer}
-
+#' 
 #' @examples
 #' # Evaluates a local level model for the Nile data at given parameters
 #' library(datasets)

@@ -27,7 +27,6 @@ PACMat <- function(A) {
 
 #' Transform partial autocorrelation matrices into coefficient matrices
 #' 
-#' @description
 #' Creates coefficient matrices for which the characteristic polynomial
 #' corresponds to a stationary process. Note, this function covers a 
 #' subset of the space of coefficient matrices that correspond to a 
@@ -106,7 +105,6 @@ TransformPAC <- function(P) {
 
 #' Transform arbitrary matrices into ARMA coefficient matrices
 #' 
-#' @description
 #' Creates coefficient matrices for which the characteristic polynomial
 #' corresponds to a stationary process.
 #' 

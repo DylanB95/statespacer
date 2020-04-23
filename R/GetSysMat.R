@@ -1,6 +1,5 @@
 #' Construct the System Matrices of a State Space Model
 #' 
-#' @description
 #' Constructs the system matrices of a State Space model, 
 #' as specified by the user.
 #' 

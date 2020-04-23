@@ -117,9 +117,11 @@ AddVar <- function(p = 1,
   return(result)
 }
 
-#' Construct the System Matrices of a Explanatory Variables in the Level Component
+#' Construct the System Matrices of a Explanatory Variables 
+#' in the Level Component
 #' 
-#' Constructs the system matrices of a explanatory variables in the level component.
+#' Constructs the system matrices of a explanatory variables 
+#' in the level component.
 #' 
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit
@@ -318,9 +320,11 @@ LevelAddVar <- function(p = 1,
   return(result)
 }
 
-#' Construct the System Matrices of a Explanatory Variables in the Level + Slope Component
+#' Construct the System Matrices of a Explanatory Variables in the 
+#' Level + Slope Component
 #' 
-#' Constructs the system matrices of a explanatory variables in the level + slope component.
+#' Constructs the system matrices of a explanatory variables in the 
+#' level + slope component.
 #' 
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceFit

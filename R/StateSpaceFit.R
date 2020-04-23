@@ -118,6 +118,8 @@
 #'   \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
 #' * loglik_fun: Function that returns the loglikelihood of the
 #'   specified State Space model, as a function of its parameters.
+#' * standard_errors: A list containing the standard errors of 
+#'   the parameters of the State Space model.
 #'   
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
 #' @references 
@@ -184,20 +186,19 @@ StateSpaceFit <- function(y,
                           control = list()) {
 
   # Check whether optimr is available
-  optimr_check <- tryCatch(
-    list(fun = optimx::optimr, available = TRUE),
-    error = function(e) list(fun = stats::optim, available = FALSE)
-  )
-  optim_fun <- optimr_check$fun
-  
-  # Negative likelihood will be minimised, equivalent to maximising likelihood
-  # This is due to a bug in optimr, that makes optimr ignore control$maximize
-  if (!optimr_check$available) {
-    control$fnscale <- 1
-  }
-  if (optimr_check$available) {
+  # Note: Negative loglikelihood will be minimised, 
+  #       equivalent to maximising loglikelihood
+  if (requireNamespace("optimx", quietly = TRUE)) {
+    optim_fun <- optimx::optimr
     control$maximize <- FALSE
+    control$fnscale <- NULL
+  } else {
+    optim_fun <- stats::optim
+    control$fnscale <- 1
+    control$maximize <- NULL
   }
+
+  # Default trace = TRUE
   if (is.null(control$trace)) {
     control$trace <- TRUE
   }
@@ -748,14 +749,6 @@ StateSpaceFit <- function(y,
   message(paste("Finished the optimisation procedure at:", t2))
   message(paste0("Time difference of ", t2 - t1, " ", units(t2 - t1), "\n"))
   
-  # Changing control$maximize or control$fnscale
-  if (!optimr_check$available) {
-    control$fnscale <- -1
-  }
-  if (optimr_check$available) {
-    control$maximize <- TRUE
-  }
-  
   # (Adjusted) Input parameters that were passed on to StateSpaceFit
   function_call <- c(list(y = y), 
                      sys_mat$function_call, 
@@ -771,29 +764,40 @@ StateSpaceFit <- function(y,
   result$optim <- fit
   result$loglik_fun <- function(param) -N * LogLikelihood(param)
 
-  # Hessian of the loglikelihood evaluated at the ML estimates of the parameters
-  result$diagnostics$hessian <- numDeriv::hessian(
-    func = result$loglik_fun,
-    x = fit$par
-  )
-
-  # Jacobian of the transformed parameters
-  jacobian <- do.call(numDeriv::jacobian,
-                      c(list(func = TransformParam, x = fit$par, p = p),
-                        sys_mat$function_call
-                      )
-  )
-
-  # Standard errors of the transformed parameters
-  std_errors <- sqrt(
-    diag(jacobian %*% -solve(result$diagnostics$hessian) %*% t(jacobian))
-  )
-
-  # Structured standard errors of the transformed parameters
-  result$standard_errors <- StructParam(
-    param = std_errors,
-    sys_mat = result$system_matrices
-  )
+  # Check if numDeriv is available, and return standard_errors if this is the case
+  if (requireNamespace("numDeriv", quietly = TRUE)) {
+    
+    # Hessian of the loglikelihood evaluated at the ML estimates of the parameters
+    result$diagnostics$hessian <- numDeriv::hessian(
+      func = result$loglik_fun,
+      x = fit$par
+    )
+  
+    # Jacobian of the transformed parameters
+    jacobian <- do.call(numDeriv::jacobian,
+                        c(list(func = TransformParam, x = fit$par, p = p),
+                          sys_mat$function_call
+                        )
+    )
+  
+    # Standard errors of the transformed parameters
+    std_errors <- sqrt(
+      diag(jacobian %*% -solve(result$diagnostics$hessian) %*% t(jacobian))
+    )
+  
+    # Structured standard errors of the transformed parameters
+    result$standard_errors <- StructParam(
+      param = std_errors,
+      sys_mat = result$system_matrices
+    )
+  } else{
+    warning(
+      paste(
+        "Install \"numDeriv\" if standard errors of the estimated",
+        "parameters are required."
+      )
+    )
+  }
   
   return(result)
 }
