@@ -1,0 +1,37 @@
+---
+title: "Dictionary of statespacer"
+output: rmarkdown::html_vignette
+bibliography: ../inst/REFERENCES.bib
+vignette: >
+  %\VignetteIndexEntry{Dictionary of statespacer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This document provides extensive details about the object as returned by `StateSpaceFit()`. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by @durbin2012time. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!
+
+## The general linear Gaussian state space model
+There are many ways to write down the form of the general linear Gaussian state space model. We use the form used by @durbin2012time:
+
+$$
+\begin{aligned}
+ y_t ~ &= ~ Z_t\alpha_t ~ + ~ \varepsilon_t, ~~~~~~~~~~ \varepsilon_t ~ \sim ~ N(0, ~ H_t), \\
+ \alpha_{t+1} ~ &= ~ T_t\alpha_t ~ + ~ R_t\eta_t, ~~~~~~ \eta_t ~ \sim ~ N(0, ~ Q_t),
+\end{aligned}
+$$
+
+where $y_t$ is the *observation vector*, a $p ~ \times ~ 1$ vector of dependent variables at time $t$. $\alpha_t$ is the unobserved *state vector*, a $m ~ \times ~ 1$ vector of state variables at time $t$. $\varepsilon_t$ and $\eta_t$ are disturbance vectors of respectively the observation equation, and the state equation. The matrices $Z_t$, $H_t$, $T_t$, $R_t$, and $Q_t$ are called the *system matrices* of the state space model. Different specifications of the system matrices, lead to different interpretations of the model.
+
+## The object as returned by StateSpaceFit
+Having obtained a better understanding of the notation used, it is easier to find our way in the object as returned by `StateSpaceFit()`. Let's say we store the object of StateSpaceFit in a variable called `fit`, that is, `fit <- StateSpaceFit(...)`. `fit` is then a list, containing many items, including other lists. This section describes the items that are included in `fit` one by one.
+
+### function_call
+
+## References
