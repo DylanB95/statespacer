@@ -2,6 +2,10 @@ pandoc: 2.9.2.1
 pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
+  dictionary: dictionary.html
   intro: intro.html
-last_built: 2020-04-23T23:38Z
+last_built: 2020-04-24T14:54Z
+urls:
+  reference: https://dylanb95.github.io/statespacer/reference
+  article: https://dylanb95.github.io/statespacer/articles
 
