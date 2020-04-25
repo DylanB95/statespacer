@@ -368,14 +368,17 @@ specified State Space model, as a function of its parameters.</p></li>
 the parameters of the State Space model.</p></li>
 </ul>
 
+<p>For extensive details about the object returned,
+see <code><a href='../articles/dictionary.html'>vignette("dictionary", package = "statespacer")</a></code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>To fit the specified State Space model, usually it is beneficial to scale
-the dependent variables. This prevents the numbers from blowing up.
+    <p>To fit the specified State Space model, it might be beneficial to scale
+the dependent variables or pay careful attention to the initial values.
 If an error occurs, try to scale the dependents by a bigger number, or
 try different initial values. Initial values should not be too big, as
 some parameters use the transformation exp(2x) to ensure non-negative
-values.
+values, they should also not be too small as some variances might be
+relatively close to 0, relative to the magnitude of y.
 Note: after fitting the model, remember to scale the estimates back!
 Variances should be multiplied by the square of the scaling number!</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
@@ -391,11 +394,11 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceFit</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-24 16:54:36</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceFit</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-25 02:37:34</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
 #&gt; initial  value 2.443183 
 #&gt; iter  10 value 1.775548
 #&gt; final  value 1.775527 
-#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-24 16:54:36</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.400003910064697 secs</span></div><div class='input'>
+#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-25 02:37:34</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.494518995285034 secs</span></div><div class='input'>
 <span class='co'># Plots the filtered estimates</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'p'</span>,
      <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>), <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'l'</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> +

@@ -10,7 +10,7 @@ Description: Functions that make estimating models in State Space form a breeze.
     this package, please see the documentation.
 Authors@R: person("Dylan", "Beijers", email = "dylanbeijers@gmail.com", 
                   role = c("aut", "cre"))
-URL: https://dylanb95.github.io/statespacer, 
+URL: https://DylanB95.github.io/statespacer, 
     https://github.com/DylanB95/statespacer
 BugReports: https://github.com/DylanB95/statespacer/issues
 License: MIT + file LICENSE

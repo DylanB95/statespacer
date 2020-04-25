@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>statespacer: A package for state space modelling in R. — statespacer • statespacer</title>
+<title>statespacer: A package for state space modelling in R. — statespacer-package • statespacer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="statespacer: A package for state space modelling in R. — statespacer" />
+<meta property="og:title" content="statespacer: A package for state space modelling in R. — statespacer-package" />
 <meta property="og:description" content="The statespacer package provides functions that make estimating models in
 State Space form a breeze. This package implements state-of-the-art
 algorithms developed by various time series practitioners such as J. Durbin
@@ -137,7 +137,7 @@ and S.J. Koopman. Details about the algorithms can be found in their book,
     <div class="page-header">
     <h1>statespacer: A package for state space modelling in R.</h1>
     <small class="dont-index">Source: <a href='https://github.com/DylanB95/statespacer/blob/master/R/statespacer.R'><code>R/statespacer.R</code></a></small>
-    <div class="hidden name"><code>statespacer.Rd</code></div>
+    <div class="hidden name"><code>statespacer-package.Rd</code></div>
     </div>
 
     <div class="ref-description">
@@ -157,6 +157,7 @@ and S.J. Koopman. Details about the algorithms can be found in their book,
 <p>This package supports numerous state space components:</p><ul>
 <li><p>The Local Level</p></li>
 <li><p>The Local Level + Slope</p></li>
+<li><p>Smoothing Splines</p></li>
 <li><p>Trigonometric Seasonality, BSM</p></li>
 <li><p>Cycles</p></li>
 <li><p>Business Cycles</p></li>
@@ -165,17 +166,17 @@ and S.J. Koopman. Details about the algorithms can be found in their book,
 <li><p>Explanatory Variables in the Local Level</p></li>
 <li><p>Explanatory Variables in the Local Level + Slope</p></li>
 <li><p>ARIMA</p></li>
-<li><p>SARIMA
-These components can be used for both univariate, as multivariate models.
+<li><p>SARIMA</p></li>
+</ul>
+
+<p>These components can be used for both univariate, as multivariate models.
 The components can be combined in order to get more extensive models.
 Moreover, the user can control the format of the variance - covariance
 matrices of each of the components. This way, one could specify the
 components to be deterministic instead of stochastic. In the multivariate
 case, one could set some correlations to be 0 if desired. Also, the rank of
 the variance - covariance matrix could be set such that commonalities in the
-components are estimated (common levels, common slopes, etc.).</p></li>
-</ul>
-
+components are estimated (common levels, common slopes, etc.).</p>
     <h2 class="hasAnchor" id="fitting-procedure"><a class="anchor" href="#fitting-procedure"></a>Fitting Procedure</h2>
 
     
@@ -187,6 +188,15 @@ diffuse elements, to estimate the state parameters.</p>
     <p>Durbin J, Koopman SJ (2012).
 <em>Time series analysis by state space methods</em>.
 Oxford university press.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Useful links:</p><ul>
+<li><p><a href='https://DylanB95.github.io/statespacer'>https://DylanB95.github.io/statespacer</a></p></li>
+<li><p><a href='https://github.com/DylanB95/statespacer'>https://github.com/DylanB95/statespacer</a></p></li>
+<li><p>Report bugs at <a href='https://github.com/DylanB95/statespacer/issues'>https://github.com/DylanB95/statespacer/issues</a></p></li>
+</ul>
+
+</div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

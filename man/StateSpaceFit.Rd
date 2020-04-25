@@ -171,17 +171,21 @@ specified State Space model, as a function of its parameters.
 \item standard_errors: A list containing the standard errors of
 the parameters of the State Space model.
 }
+
+For extensive details about the object returned,
+see \code{vignette("dictionary", package = "statespacer")}.
 }
 \description{
 Fits a State Space model as specified by the user.
 }
 \details{
-To fit the specified State Space model, usually it is beneficial to scale
-the dependent variables. This prevents the numbers from blowing up.
+To fit the specified State Space model, it might be beneficial to scale
+the dependent variables or pay careful attention to the initial values.
 If an error occurs, try to scale the dependents by a bigger number, or
 try different initial values. Initial values should not be too big, as
 some parameters use the transformation exp(2x) to ensure non-negative
-values.
+values, they should also not be too small as some variances might be
+relatively close to 0, relative to the magnitude of y.
 Note: after fitting the model, remember to scale the estimates back!
 Variances should be multiplied by the square of the scaling number!
 }
@@ -192,25 +196,25 @@ y <- matrix(Nile)
 fit <- StateSpaceFit(initial = 1, y = y / 100, local_level_ind = TRUE)
 
 # Plots the filtered estimates
-plot(1871:1970, 100 * fit$function_call$y, type = 'p', 
+plot(1871:1970, 100 * fit$function_call$y, type = 'p',
      ylim = c(500, 1400), xlab = NA, ylab = NA)
 lines(1871:1970, 100 * fit$filtered$level, type = 'l')
-lines(1871:1970, 100 * fit$filtered$level + 
-                 1.644854 * 100 * sqrt(fit$filtered$P[1,1,]), 
+lines(1871:1970, 100 * fit$filtered$level +
+                 1.644854 * 100 * sqrt(fit$filtered$P[1,1,]),
       type = 'l', col = 'gray')
-lines(1871:1970, 100 * fit$filtered$level - 
-                 1.644854 * 100 * sqrt(fit$filtered$P[1,1,]), 
+lines(1871:1970, 100 * fit$filtered$level -
+                 1.644854 * 100 * sqrt(fit$filtered$P[1,1,]),
       type = 'l', col = 'gray')
 
 # Plots the smoothed estimates
-plot(1871:1970, 100 * fit$function_call$y, type = 'p', 
+plot(1871:1970, 100 * fit$function_call$y, type = 'p',
      ylim = c(500, 1400), xlab = NA, ylab = NA)
 lines(1871:1970, 100 * fit$smoothed$level,type='l')
-lines(1871:1970, 100 * fit$smoothed$level + 
-                 1.644854 * 100 * sqrt(fit$smoothed$V[1,1,]), 
+lines(1871:1970, 100 * fit$smoothed$level +
+                 1.644854 * 100 * sqrt(fit$smoothed$V[1,1,]),
       type = 'l', col = 'gray')
-lines(1871:1970, 100 * fit$smoothed$level - 
-                 1.644854 * 100 * sqrt(fit$smoothed$V[1,1,]), 
+lines(1871:1970, 100 * fit$smoothed$level -
+                 1.644854 * 100 * sqrt(fit$smoothed$V[1,1,]),
       type = 'l', col = 'gray')
 
 }

@@ -160,6 +160,9 @@ the State Space model.
 the State Space model.
 \item diagnostics: A list containing items useful for diagnostical tests.
 }
+
+For extensive details about the object returned,
+see \code{vignette("dictionary", package = "statespacer")}.
 }
 \description{
 Evaluates the specified State Space model at the parameters
@@ -169,7 +172,7 @@ specified by the user.
 # Evaluates a local level model for the Nile data at given parameters
 library(datasets)
 y <- matrix(Nile)
-StateSpaceEval(param = c(1, 1), y = y / 100, local_level_ind = TRUE)
+eval <- StateSpaceEval(param = c(1, 1), y = y / 100, local_level_ind = TRUE)
 
 }
 \references{

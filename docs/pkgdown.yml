@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   dictionary: dictionary.html
   intro: intro.html
-last_built: 2020-04-24T14:54Z
+last_built: 2020-04-25T00:37Z
 urls:
   reference: https://dylanb95.github.io/statespacer/reference
   article: https://dylanb95.github.io/statespacer/articles

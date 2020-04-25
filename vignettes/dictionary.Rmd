@@ -15,23 +15,92 @@ knitr::opts_chunk$set(
 )
 ```
 
-This document provides extensive details about the object as returned by `StateSpaceFit()`. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by @durbin2012time. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!
+This document provides extensive details about the object that is returned by `StateSpaceFit()`. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by @durbin2012time. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!
 
 ## The general linear Gaussian state space model
 There are many ways to write down the form of the general linear Gaussian state space model. We use the form used by @durbin2012time:
 
 $$
 \begin{aligned}
- y_t ~ &= ~ Z_t\alpha_t ~ + ~ \varepsilon_t, ~~~~~~~~~~ \varepsilon_t ~ \sim ~ N(0, ~ H_t), \\
- \alpha_{t+1} ~ &= ~ T_t\alpha_t ~ + ~ R_t\eta_t, ~~~~~~ \eta_t ~ \sim ~ N(0, ~ Q_t),
+ y_t ~ &= ~ Z_t\alpha_t ~ + ~ \varepsilon_t, &\varepsilon_t ~ &\sim ~ N(0, ~ H_t), \\
+ \alpha_{t+1} ~ &= ~ T_t\alpha_t ~ + ~ R_t\eta_t, &\eta_t ~ &\sim ~ N(0, ~ Q_t), \\
+ & &\alpha_1 ~ &\sim ~ N(a_1, ~ P_1),
 \end{aligned}
 $$
 
-where $y_t$ is the *observation vector*, a $p ~ \times ~ 1$ vector of dependent variables at time $t$. $\alpha_t$ is the unobserved *state vector*, a $m ~ \times ~ 1$ vector of state variables at time $t$. $\varepsilon_t$ and $\eta_t$ are disturbance vectors of respectively the observation equation, and the state equation. The matrices $Z_t$, $H_t$, $T_t$, $R_t$, and $Q_t$ are called the *system matrices* of the state space model. Different specifications of the system matrices, lead to different interpretations of the model.
+where $y_t$ is the *observation vector*, a $p ~ \times ~ 1$ vector of dependent variables at time $t$, $\alpha_t$ is the unobserved *state vector*, a $m ~ \times ~ 1$ vector of state variables at time $t$, and $\varepsilon_t$ and $\eta_t$ are disturbance vectors of respectively the observation equation, and the state equation. To initialise the model, $a_1$ is used as the initial guess of the state vector, and $P_1$ is the corresponding uncertainty of that guess. The matrices $Z_t$, $H_t$, $T_t$, $R_t$, and $Q_t$ are called the *system matrices* of the state space model. Different specifications of these system matrices, lead to different interpretations of the model at hand.
 
 ## The object as returned by StateSpaceFit
-Having obtained a better understanding of the notation used, it is easier to find our way in the object as returned by `StateSpaceFit()`. Let's say we store the object of StateSpaceFit in a variable called `fit`, that is, `fit <- StateSpaceFit(...)`. `fit` is then a list, containing many items, including other lists. This section describes the items that are included in `fit` one by one.
+Having obtained a better understanding of the notation used, it is easier to find our way in the object that is returned by `StateSpaceFit()`. Let's say we store the object of StateSpaceFit in a variable called `fit`, that is, `fit <- StateSpaceFit(...)`. `fit` is then a list, containing many items, including other lists. This section describes the items that are included in `fit` one by one.
 
 ### function_call
+`function_call` is a list that contains, as the name suggests, the call to the `StateSpaceFit()` function, including default values for the input arguments that were not specified. For details about the various input arguments, check out `?StateSpaceFit`.
+
+### system_matrices
+`system_matrices` is a list containing all of the system matrices of each of the components. For the variance - covariance matrices $H$ and $Q$, it also contains 2 decompositions, namely the Cholesky $LDL^{\top}$ decomposition, where $L$ is the loading matrix and $D$ is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, `a1`, is also included, together with the corresponding uncertainty splitted out by its diffuse component, `P_inf`, and its stationary component `P_star`. Further, it contains `Z_padded`, which is a list containing the $Z$ matrices of the components augmented with zeroes, such that its dimension is $p ~ \times ~ m$. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There's also a vector called `state_label`, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are `lamba` (frequency) and `rho` (dampening factor) for the cycles, `AR` and `MA` for the ARIMA components, and `SAR` and `SMA` for the SARIMA components. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter. 
+
+### predicted
+`predicted` is a list that contains the one-step ahead predicted (predicting time $t$ using data up to time $t ~ - ~ 1$) objects as returned by the Kalman filter: 
+
+* `yfit` is the predicted value of $y$. 
+* `v` is the prediction error.
+* `Fmat` is the uncertainty of the prediction.
+* `a` is the predicted state.
+* `P` is the uncertainty of the predicted state.
+* `P_inf` is the diffuse part of `P`.
+* `P_star` is the non-diffuse part of `P`.
+* `a_fc` is the predicted state for time $N ~ + ~ 1$ ($N$ being the last observed timepoint).
+* `P_fc` is the uncertainty of `a_fc`. 
+
+Further, the contributions of the components to the predicted values are extracted seperately.
+
+### filtered
+`filtered` is a list that contains the filtered (estimates for time $t$ using data up to time $t$) objects as returned by the Kalman filter. Here, `a` is the filtered state, and `P` the uncertainty of the filtered state. Further, the filtered values of the components are extracted seperately.
+
+### smoothed
+`smoothed` is a list that contains smoothed (estimates for time $t$ using all of the timepoints) objects as returned by the Kalman smoother: 
+
+* `a` is the smoothed state.
+* `V` the uncertainty of the smoothed state.
+* `eta` the smoothed state disturbance.
+* `eta_var` the uncertainty of `eta`.
+* `epsilon` the smoothed observation disturbance.
+* `epsilon_var` the uncertainty of `epsilon`. 
+
+Further, the smoothed values of the components are extracted seperately.
+
+### diagnostics
+`diagnostics` is a list that contains items useful for diagnostic tests and model selection:
+
+* `initialisation_steps` is the number of timesteps required before initialisation was achieved of the diffuse elements of the state vector. 
+* `loglik` is the loglikelihood value at the estimated parameters.
+* `AIC` is the Akaike Information Criterion for the model.
+* `BIC` is the Bayesian Information Criterion for the model.
+* `r` is the scaled smoothed state disturbance.
+* `N` is the uncertainty of `r`.
+* `e` is the smoothing error.
+* `D` is the uncertainty of `e`.
+* `Tstat_observation` is the T-statistic for testing whether deviations from the observation equation are significant.
+* `Tstat_state` is the T-statistic for testing whether deviations from the state equation are significant.
+* `v_normalised` is the normalised prediction error.
+* `Skewness` is the skewness of `v_normalised`.
+* `Kurtosis` is the Kurtosis of `v_normalised`.
+* `Jarque_Bera` is the Jarque-Bera statistic for testing for normality.
+* `Jarque_Bera_criticalvalue` is the critical value of the Jarque-Bera test.
+* `correlogram` is the correlogram of `v_normalised`.
+* `Box_Ljung` are the Box-Ljung statistics for testing for serial correlation.
+* `Box_Ljung_criticalvalues` are the critical values of the Box-Ljung tests.
+* `Heteroscedasticity` are statistics for testing for heteroscedasticity.
+* `Heteroscedasticity_criticalvalues` are the critical values of the heteroscedasticity tests.
+* `hessian` is the hessian of the loglikelihood evaluated at the estimated parameters.
+
+### optim
+`optim` is the list as returned by `stats::optim` or `optimx::optimr`, depending on if you have optimx installed. See `?stats::optim` and `?optimx::optimr` for details.
+
+### loglik_fun
+`loglik_fun` is the loglikelihood function that takes `param` as its only argument. It returns the loglikelihood at the specified parameters.
+
+### standard_errors
+`standard_errors` is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from `system_matrices`, but only representing those system matrices that depend on the parameters.
 
 ## References
