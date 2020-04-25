@@ -27,13 +27,6 @@
 #'   for the pth dependent variable. If no explanatory variables should be
 #'   added for one of the dependent variables, then set the corresponding
 #'   element to `NULL`.
-#' @param slope_addvar_list A list containing the explanatory variables for
-#'   each of the dependent variables. The list should contain p (number of
-#'   dependent variables) elements. Each element of the list should be
-#'   a N x k_p matrix, with k_p being the number of explanatory variables for
-#'   the pth dependent variable. If no explanatory variables should be added
-#'   for one of the dependent variables, then set the corresponding element
-#'   to `NULL`.
 #' @param arima_list Specifications of the ARIMA components, should be a list
 #'   containing vectors of length 3 with the following format: c(AR, I, MA).
 #'   Should be a list to allow different ARIMA models for different sets of
@@ -169,7 +162,6 @@ StateSpaceFit <- function(y,
                           cycle_ind = FALSE,
                           addvar_list = NULL,
                           level_addvar_list = NULL,
-                          slope_addvar_list = NULL,
                           arima_list = NULL,
                           sarima_list = NULL,
                           exclude_level = NULL,
@@ -224,7 +216,6 @@ StateSpaceFit <- function(y,
                        cycle_ind = cycle_ind,
                        addvar_list = addvar_list,
                        level_addvar_list = level_addvar_list,
-                       slope_addvar_list = slope_addvar_list,
                        arima_list = arima_list,
                        sarima_list = sarima_list,
                        exclude_level = exclude_level,
@@ -250,7 +241,6 @@ StateSpaceFit <- function(y,
   cycle_ind <- sys_mat$function_call$cycle_ind
   addvar_list <- sys_mat$function_call$addvar_list
   level_addvar_list <- sys_mat$function_call$level_addvar_list
-  slope_addvar_list <- sys_mat$function_call$slope_addvar_list
   arima_list <- sys_mat$function_call$arima_list
   sarima_list <- sys_mat$function_call$sarima_list
   exclude_level <- sys_mat$function_call$exclude_level
@@ -329,8 +319,7 @@ StateSpaceFit <- function(y,
     ## Constructing Q Matrix ##
 
     # Local Level
-    if (local_level_ind & !slope_ind &
-        is.null(level_addvar_list) & is.null(slope_addvar_list)) {
+    if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
       if (param_num_list$level > 0) {
         update <- LocalLevel(p = p,
                              exclude_level =  exclude_level,
@@ -347,14 +336,14 @@ StateSpaceFit <- function(y,
     }
 
     # Local Level + Slope
-    if (slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
+    if (slope_ind & is.null(level_addvar_list)) {
       if ((param_num_list$level + param_num_list$slope) > 0) {
         update <- Slope(p = p,
                         exclude_level = exclude_level,
                         exclude_slope = exclude_slope,
                         fixed_part = FALSE,
                         update_part = TRUE,
-                        param = param[param_indices$slope],
+                        param = param[param_indices$level],
                         format_level = format_level,
                         format_slope = format_slope,
                         decompositions = FALSE
@@ -411,14 +400,14 @@ StateSpaceFit <- function(y,
     }
 
     # Local Level + Explanatory Variables
-    if (!is.null(level_addvar_list) & is.null(slope_addvar_list) & !slope_ind) {
+    if (!is.null(level_addvar_list) & !slope_ind) {
       if ((param_num_list$level + param_num_list$level_addvar) > 0) {
         update <- LevelAddVar(p = p,
                               exclude_level = exclude_level,
                               level_addvar_list = level_addvar_list,
                               fixed_part = FALSE,
                               update_part = TRUE,
-                              param = param[param_indices$level_addvar],
+                              param = param[param_indices$level],
                               format_level = format_level,
                               format_level_addvar = format_level_addvar,
                               decompositions = FALSE
@@ -437,17 +426,17 @@ StateSpaceFit <- function(y,
     }
 
     # Local Level + Explanatory Variables + Slope
-    if (!is.null(slope_addvar_list) | (!is.null(level_addvar_list) & slope_ind)) {
+    if (!is.null(level_addvar_list) & slope_ind) {
       if ((param_num_list$level +
            param_num_list$slope +
            param_num_list$level_addvar) > 0) {
         update <- SlopeAddVar(p = p,
                               exclude_level = exclude_level,
                               exclude_slope = exclude_slope,
-                              slope_addvar_list = slope_addvar_list,
+                              level_addvar_list = level_addvar_list,
                               fixed_part = FALSE,
                               update_part = TRUE,
-                              param = param[param_indices$slope_addvar],
+                              param = param[param_indices$level],
                               format_level = format_level,
                               format_slope = format_slope,
                               format_level_addvar = format_level_addvar,
@@ -767,6 +756,9 @@ StateSpaceFit <- function(y,
   result$function_call <- function_call
   result$optim <- fit
   result$loglik_fun <- function(param) -N * LogLikelihood(param)
+
+  # Indices of the parameters for each of the components
+  result$diagnostics$param_indices <- param_indices
 
   # Check if numDeriv is available, and return standard_errors if this is the case
   if (requireNamespace("numDeriv", quietly = TRUE)) {

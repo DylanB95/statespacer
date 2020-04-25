@@ -96,6 +96,7 @@ Further, the smoothed values of the components are extracted seperately.
 * `Box_Ljung_criticalvalues` are the critical values of the Box-Ljung tests.
 * `Heteroscedasticity` are statistics for testing for heteroscedasticity.
 * `Heteroscedasticity_criticalvalues` are the critical values of the heteroscedasticity tests.
+* `param_indices` is a list containing the indices of the parameters in the parameter vector for each of the components.
 * `hessian` is the hessian of the loglikelihood evaluated at the estimated parameters.
 
 ### optim

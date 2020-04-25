@@ -46,7 +46,6 @@ StateSpaceEval <- function(param,
                            cycle_ind = FALSE,
                            addvar_list = NULL,
                            level_addvar_list = NULL,
-                           slope_addvar_list = NULL,
                            arima_list = NULL,
                            sarima_list = NULL,
                            exclude_level = NULL,
@@ -88,7 +87,6 @@ StateSpaceEval <- function(param,
                        cycle_ind = cycle_ind,
                        addvar_list = addvar_list,
                        level_addvar_list = level_addvar_list,
-                       slope_addvar_list = slope_addvar_list,
                        arima_list = arima_list,
                        sarima_list = sarima_list,
                        exclude_level = exclude_level,
@@ -114,7 +112,6 @@ StateSpaceEval <- function(param,
   cycle_ind <- sys_mat$function_call$cycle_ind
   addvar_list <- sys_mat$function_call$addvar_list
   level_addvar_list <- sys_mat$function_call$level_addvar_list
-  slope_addvar_list <- sys_mat$function_call$slope_addvar_list
   arima_list <- sys_mat$function_call$arima_list
   sarima_list <- sys_mat$function_call$sarima_list
   exclude_level <- sys_mat$function_call$exclude_level
@@ -724,8 +721,7 @@ StateSpaceEval <- function(param,
   ##-- and adding fitted components of the model ---------##
 
   # Local Level
-  if (local_level_ind & !slope_ind &
-      is.null(level_addvar_list) & is.null(slope_addvar_list)) {
+  if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
@@ -740,7 +736,7 @@ StateSpaceEval <- function(param,
   }
 
   # Local Level + Slope
-  if (slope_ind & is.null(level_addvar_list) & is.null(slope_addvar_list)) {
+  if (slope_ind & is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
@@ -795,7 +791,7 @@ StateSpaceEval <- function(param,
   }
 
   # level_addvar
-  if (!is.null(level_addvar_list) & is.null(slope_addvar_list) & !slope_ind) {
+  if (!is.null(level_addvar_list) & !slope_ind) {
     tempZ <- matrix(0, p, m - p)
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
@@ -818,25 +814,25 @@ StateSpaceEval <- function(param,
   }
 
   # slope_addvar
-  if (!is.null(slope_addvar_list) | (!is.null(level_addvar_list) & slope_ind)) {
+  if (!is.null(level_addvar_list) & slope_ind) {
     tempZ <- matrix(0, p, m - p)
-    predicted$slope <- matrix(0, N, p)
-    filtered$slope <- matrix(0, N, p)
-    smoothed$slope <- matrix(0, N, p)
+    predicted$level <- matrix(0, N, p)
+    filtered$level <- matrix(0, N, p)
+    smoothed$level <- matrix(0, N, p)
     for (i in 1:N) {
       tempZ[1:length(Z_padded$level)] <- Z_padded$level
-      predicted$slope[i,] <- tempZ %*% matrix(a_pred[i,])
-      filtered$slope[i,] <- tempZ %*% matrix(a_fil[i,])
-      smoothed$slope[i,] <- tempZ %*% matrix(a_smooth[i,])
+      predicted$level[i,] <- tempZ %*% matrix(a_pred[i,])
+      filtered$level[i,] <- tempZ %*% matrix(a_fil[i,])
+      smoothed$level[i,] <- tempZ %*% matrix(a_smooth[i,])
     }
     Z_padded$level <- tempZ
-    filtered$level_addvar_coeff <- a_fil[,sys_mat$slope_addvar_state]
+    filtered$level_addvar_coeff <- a_fil[,sys_mat$level_addvar_state]
     filtered$level_addvar_coeff_se <- t(apply(
-      P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])
+      P_fil, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])
     ))
-    smoothed$level_addvar_coeff <- a_smooth[,sys_mat$slope_addvar_state]
+    smoothed$level_addvar_coeff <- a_smooth[,sys_mat$level_addvar_state]
     smoothed$level_addvar_coeff_se <- t(apply(
-      V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$slope_addvar_state])
+      V, 3, function(x) sqrt(diag(as.matrix(x))[sys_mat$level_addvar_state])
     ))
   }
 
