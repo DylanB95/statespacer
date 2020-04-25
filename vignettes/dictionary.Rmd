@@ -1,5 +1,9 @@
 ---
 title: "Dictionary of statespacer"
+description: >
+  `StateSpaceFit()` returns an object containing many items. In this vignette, 
+  you will learn what exactly is returned by `StateSpaceFit()`, so that you 
+  can obtain more value out of the statespacer package.
 output: rmarkdown::html_vignette
 bibliography: ../inst/REFERENCES.bib
 vignette: >

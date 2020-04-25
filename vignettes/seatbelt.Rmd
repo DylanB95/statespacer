@@ -1,0 +1,39 @@
+---
+title: "State Space models applied to the UK Road Deaths dataset"
+description: >
+  A lot of time series exhibit some form of seasonality. In this vignette you 
+  will learn how to deal with seasonality using the statespacer package. 
+  Moreover, you will learn how to add explanatory variables to the State Space 
+  model, and how to estimate multivariate models if there is more than one 
+  dependent variable available.
+output: rmarkdown::html_vignette
+bibliography: ../inst/REFERENCES.bib
+vignette: >
+  %\VignetteIndexEntry{State Space models applied to the UK Road Deaths dataset}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+A lot of time series exhibit some form of seasonality. An example of such a time serie is the UK Road Deaths dataset, see `?Seatbelts` for details about this dataset. In this vignette you will learn how to deal with this seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. The UK Road Deaths dataset provides to be an excellent dataset at hand to showcase all of these functionalities of the statespacer package! The approach used in this document follows that of @commandeur2007introduction.
+
+To start, we need to load the package and the dataset.
+
+```{r, setup}
+# Load statespacer
+library(statespacer)
+
+# Load the dataset
+library(datasets)
+Data <- Seatbelts
+```
+
+
+
+## References

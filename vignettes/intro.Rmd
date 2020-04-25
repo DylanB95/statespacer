@@ -1,5 +1,9 @@
 ---
 title: "Introduction to statespacer"
+description: >
+  Start here if this is your first time using statespacer. You'll learn how to 
+  use `StateSpaceFit()` to fit a simple State Space model, called the Local 
+  Level model, to the Nile dataset.
 output: rmarkdown::html_vignette
 bibliography: ../inst/REFERENCES.bib
 vignette: >
