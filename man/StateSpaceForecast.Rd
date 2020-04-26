@@ -8,7 +8,6 @@ StateSpaceForecast(
   fit,
   addvar_list_fc = NULL,
   level_addvar_list_fc = NULL,
-  slope_addvar_list_fc = NULL,
   forecast_period = 1
 )
 }
@@ -31,14 +30,6 @@ be a forecast_period x k_p matrix, with k_p being the number of
 explanatory variables for the pth dependent variable. If no explanatory
 variables should be added for one of the dependent variables, then set
 the corresponding element to \code{NULL}.}
-
-\item{slope_addvar_list_fc}{A list containing the explanatory variables
-for each of the dependent variables. The list should contain p
-(number of dependent variables) elements. Each element of the list
-should be a forecast_period x k_p matrix, with k_p being the number
-of explanatory variables for the pth dependent variable. If no explanatory
-variables should be added for one of the dependent variables, then set the
-corresponding element to \code{NULL}.}
 
 \item{forecast_period}{Number of time steps to forecast ahead.}
 }

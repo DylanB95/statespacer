@@ -109,6 +109,9 @@ specified by the user." />
     <li>
       <a href="../articles/intro.html">Introduction to statespacer</a>
     </li>
+    <li>
+      <a href="../articles/seatbelt.html">State Space models applied to the UK Road Deaths dataset</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -152,7 +155,6 @@ specified by the user.</p>
   <span class='kw'>cycle_ind</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>addvar_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>level_addvar_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>slope_addvar_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>arima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>sarima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>exclude_level</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -226,16 +228,6 @@ N x k_p matrix, with k_p being the number of explanatory variables
 for the pth dependent variable. If no explanatory variables should be
 added for one of the dependent variables, then set the corresponding
 element to <code>NULL</code>.</p></td>
-    </tr>
-    <tr>
-      <th>slope_addvar_list</th>
-      <td><p>A list containing the explanatory variables for
-each of the dependent variables. The list should contain p (number of
-dependent variables) elements. Each element of the list should be
-a N x k_p matrix, with k_p being the number of explanatory variables for
-the pth dependent variable. If no explanatory variables should be added
-for one of the dependent variables, then set the corresponding element
-to <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>arima_list</th>

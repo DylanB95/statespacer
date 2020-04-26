@@ -14,7 +14,6 @@ StateSpaceEval(
   cycle_ind = FALSE,
   addvar_list = NULL,
   level_addvar_list = NULL,
-  slope_addvar_list = NULL,
   arima_list = NULL,
   sarima_list = NULL,
   exclude_level = NULL,
@@ -68,14 +67,6 @@ N x k_p matrix, with k_p being the number of explanatory variables
 for the pth dependent variable. If no explanatory variables should be
 added for one of the dependent variables, then set the corresponding
 element to \code{NULL}.}
-
-\item{slope_addvar_list}{A list containing the explanatory variables for
-each of the dependent variables. The list should contain p (number of
-dependent variables) elements. Each element of the list should be
-a N x k_p matrix, with k_p being the number of explanatory variables for
-the pth dependent variable. If no explanatory variables should be added
-for one of the dependent variables, then set the corresponding element
-to \code{NULL}.}
 
 \item{arima_list}{Specifications of the ARIMA components, should be a list
 containing vectors of length 3 with the following format: c(AR, I, MA).

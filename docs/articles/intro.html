@@ -18,7 +18,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to statespacer">
-<meta property="og:description" content="statespacer">
+<meta property="og:description" content="Start here if this is your first time using statespacer. You'll learn how to  use `StateSpaceFit()` to fit a simple State Space model, called the Local  Level model, to the Nile dataset.
+">
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -65,6 +66,9 @@
     </li>
     <li>
       <a href="../articles/intro.html">Introduction to statespacer</a>
+    </li>
+    <li>
+      <a href="../articles/seatbelt.html">State Space models applied to the UK Road Deaths dataset</a>
     </li>
   </ul>
 </li>
@@ -123,14 +127,14 @@
 <span class="co">#&gt; Warning in StateSpaceFit(y = y, local_level_ind = TRUE, initial = 10): Number of</span>
 <span class="co">#&gt; initial parameters is less than the required amount of parameters (2), recycling</span>
 <span class="co">#&gt; the initial parameters the required amount of times.</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-25 02:37:44</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-26 02:29:28</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1</span>
 <span class="co">#&gt; initial  value 11.296135 </span>
 <span class="co">#&gt; iter  10 value 6.349232</span>
 <span class="co">#&gt; final  value 6.334646 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-25 02:37:44</span>
-<span class="co">#&gt; Time difference of 0.569255113601685 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-26 02:29:28</span>
+<span class="co">#&gt; Time difference of 0.564722061157227 secs</span></pre></body></html></div>
 <p>We get a warning message about the number of initial parameters, as we didn’t specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don’t need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify <code>initial = rnorm(1000)</code>, and not have to worry about if enough parameters were supplied.</p>
 <p>Now, let’s check the estimated values of <span class="math inline">\(\sigma_\varepsilon^2\)</span> and <span class="math inline">\(\sigma_\eta^2\)</span>.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>, <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">Q</span>$<span class="no">level</span>)

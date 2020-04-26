@@ -23,7 +23,9 @@ knitr::opts_chunk$set(
 
 A lot of time series exhibit some form of seasonality. An example of such a time serie is the UK Road Deaths dataset, see `?Seatbelts` for details about this dataset. In this vignette you will learn how to deal with this seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. The UK Road Deaths dataset provides to be an excellent dataset at hand to showcase all of these functionalities of the statespacer package! The approach used in this document follows that of @commandeur2007introduction.
 
-To start, we need to load the package and the dataset.
+## Data preparation
+
+To start, we need to load the package and the dataset. We also log-transform the dependent variables, and some of the explanatory variables. 
 
 ```{r, setup}
 # Load statespacer
@@ -32,8 +34,136 @@ library(statespacer)
 # Load the dataset
 library(datasets)
 Data <- Seatbelts
+
+# Data preparation
+Data <- Seatbelts
+
+# The log of "drivers", "front", and "rear" will be used as dependent variables
+# The log of "PetrolPrice" will be used as explanatory variable
+Data[, c("drivers", "front", "rear", "PetrolPrice")] <- log(Data[, c("drivers", "front", "rear", "PetrolPrice")])
 ```
 
+## Univariate model with deterministic level and seasonal
+We start with estimating a univariate model for the "drivers" variable. We specify a deterministic seasonal component of period 12, and a deterministic level. Furhermore, we take the log of "PetrolPrice" together with the "law" dummy as explanatory variables.
+
+```{r}
+# Dependent variable
+y <- matrix(Data[, "drivers"])
+
+# Period of the seasonal component
+BSM_vec <- 12
+
+# Explanatory variables
+# Note: Must be a list of matrices! 
+#       Each dependent gets its own matrix of explanatory variables
+addvar_list <- list(as.matrix(Data[, c("PetrolPrice", "law")]))
+
+# Format of the variance - covariance matrix of the level component
+# By setting the elements of this matrix to 0, we make the component deterministic
+format_level <- matrix(0)
+
+# Format of the variance - covariance matrix of the seasonal component
+# Note: This format must be a list of matrices, because multiple seasonalities
+#       can be specified!
+format_BSM_list <- list(matrix(0))
+
+# Fitting the model
+fit <- StateSpaceFit(y = y,
+                     local_level_ind = TRUE,
+                     BSM_vec = BSM_vec,
+                     addvar_list = addvar_list,
+                     format_level = format_level, 
+                     format_BSM_list = format_BSM_list,
+                     method = "BFGS",
+                     initial = log(var(y)))
+```
+
+The warning can be ignored, it's a common warning that arises when calculating T-statistics where the variance is a small negative number like -1e-13. Let's check out the estimates:
+
+```{r}
+# The estimated variance of the observation disturbance
+fit$system_matrices$H$H
+
+# Smoothed estimate of the level
+fit$smoothed$level[1,]
+
+# Smoothed estimate of the coefficient of log PetrolPrice
+fit$smoothed$addvar_coeff[1, 1]
+
+# Smoothed estimate of the coefficient of the law dummy
+fit$smoothed$addvar_coeff[1, 2]
+
+# Plot the data next to the smoothed level + explanatory variables components
+plot(Data[, c("drivers")], type = "l", ylim = c(6.95, 8.1),
+     xlab = "year", ylab = "logarithm of drivers")
+lines(seq(tsp(Data)[1], tsp(Data)[2], 1/tsp(Data)[3]), 
+      fit$smoothed$level + fit$smoothed$addvar, type = 'l', col = "red")
+legend(1978, 8.09, c("log(drivers)", "level + regression effects"), 
+       lty = c(1,1), lwd=c(2.5, 2.5), col = c("black", "red"))
+```
+
+## Univariate model with stochastic level and seasonal
+Now, let's specify a stochastic level and seasonal component. This can be done by setting the entries in the format of the components to 1.
+
+```{r}
+# By setting the entries in the format to 1, the component becomes stochastic
+format_level <- matrix(1)
+format_BSM_list <- list(matrix(1))
+fit <- StateSpaceFit(y = y,
+                     local_level_ind = TRUE,
+                     BSM_vec = BSM_vec,
+                     addvar_list = addvar_list,
+                     format_level = format_level,
+                     format_BSM_list = format_BSM_list,
+                     method = "BFGS",
+                     initial = log(var(y)))
+
+# The estimated variance of the observation disturbance
+fit$system_matrices$H$H
+
+# The estimated variance of the level disturbance
+fit$system_matrices$Q$level
+
+# The estimated variance of the seasonal disturbance
+fit$system_matrices$Q$BSM12
+
+# Smoothed estimate of the coefficient of log PetrolPrice
+fit$smoothed$addvar_coeff[1, 1]
+
+# Smoothed estimate of the coefficient of the law dummy
+fit$smoothed$addvar_coeff[1, 2]
+
+# Plot the data next to the smoothed level + explanatory variables components
+plot(Data[, c("drivers")], type = "l", ylim = c(6.95, 8.1),
+     xlab = "year", ylab = "logarithm of drivers")
+lines(seq(tsp(Data)[1], tsp(Data)[2], 1/tsp(Data)[3]), 
+      fit$smoothed$level + fit$smoothed$addvar, type = 'l', col = "red")
+legend(1978, 8.09, c("log(drivers)", "level + regression effects"), 
+       lty = c(1,1), lwd=c(2.5, 2.5), col = c("black", "red"))
+```
+
+Plotting the stochastic seasonal, we can see that it barely changes over time, which is in line with the near zero value of its variance. It might be worthwhile to set the seasonal component to be deterministic, while letting the level be stochastic. I'll leave that as an exercise for you. You can compare the AICs of both models, and see which one scores better!
+
+```{r}
+# Plot the stochastic seasonal and irregular as well
+plot(seq(tsp(Data)[1], tsp(Data)[2], 1/tsp(Data)[3]), 
+     fit$smoothed$BSM12,
+     type = "l", ylim = c(-0.2, 0.3),
+     xlab = "year", ylab = "stochastic seasonal")
+abline(h = 0)
+```
+
+And for the sake of completeness, the irregular component:
+
+```{r}
+plot(seq(tsp(Data)[1], tsp(Data)[2], 1/tsp(Data)[3]), 
+     fit$smoothed$epsilon,
+     type = "l", ylim = c(-0.15, 0.15),
+     xlab = "year", ylab = "irregular component")
+abline(h = 0)
+```
+
+## Bivariate model of front and rear passengers
 
 
 ## References

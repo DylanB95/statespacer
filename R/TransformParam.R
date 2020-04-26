@@ -1,15 +1,15 @@
 #' Transform the optimisation parameters to the parameters of a State Space Model
-#' 
-#' Transforms the optimisation parameters to the parameters 
+#'
+#' Transforms the optimisation parameters to the parameters
 #' of a State Space Model.
-#' 
+#'
 #' @inheritParams StateSpaceFit
 #' @inheritParams StateSpaceEval
 #' @inheritParams GetSysMat
-#' 
-#' @return 
+#'
+#' @return
 #' A vector containing the transformed parameters.
-#'  
+#'
 #' @noRd
 TransformParam <- function(param = NULL,
                            p,
@@ -20,7 +20,6 @@ TransformParam <- function(param = NULL,
                            cycle_ind = FALSE,
                            addvar_list = NULL,
                            level_addvar_list = NULL,
-                           slope_addvar_list = NULL,
                            arima_list = NULL,
                            sarima_list = NULL,
                            exclude_level = NULL,
@@ -36,7 +35,7 @@ TransformParam <- function(param = NULL,
                            format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) NULL),
                            format_addvar = NULL,
                            format_level_addvar = NULL) {
-  
+
   # Construct the system matrices
   sys_mat <- GetSysMat(p = p,
                        param = param,
@@ -48,7 +47,6 @@ TransformParam <- function(param = NULL,
                        cycle_ind = cycle_ind,
                        addvar_list = addvar_list,
                        level_addvar_list = level_addvar_list,
-                       slope_addvar_list = slope_addvar_list,
                        arima_list = arima_list,
                        sarima_list = sarima_list,
                        exclude_level = exclude_level,
@@ -65,80 +63,80 @@ TransformParam <- function(param = NULL,
                        format_addvar = format_addvar,
                        format_level_addvar = format_level_addvar
   )
-  
+
   # Initialise vector of transformed parameters
   result <- c()
-  
+
   # H
   if (!is.null(sys_mat$H)) {
     for (i in sys_mat$H) {
       result <- c(result, i)
     }
   }
-  
+
   # Q
   if (!is.null(sys_mat$Q)) {
     for (i in sys_mat$Q) {
       result <- c(result, i)
     }
   }
-  
+
   # Q_loading_matrix
   if (!is.null(sys_mat$Q_loading_matrix)) {
     for (i in sys_mat$Q_loading_matrix) {
       result <- c(result, i)
     }
   }
-  
+
   # Q_diagonal_matrix
   if (!is.null(sys_mat$Q_diagonal_matrix)) {
     for (i in sys_mat$Q_diagonal_matrix) {
       result <- c(result, i)
     }
   }
-  
+
   # Q_correlation_matrix
   if (!is.null(sys_mat$Q_correlation_matrix)) {
     for (i in sys_mat$Q_correlation_matrix) {
       result <- c(result, i)
     }
   }
-  
+
   # Q_stdev_matrix
   if (!is.null(sys_mat$Q_stdev_matrix)) {
     for (i in sys_mat$Q_stdev_matrix) {
       result <- c(result, i)
     }
   }
-  
+
   # lambda
   if (!is.null(sys_mat$lambda)) {
     for (i in sys_mat$lambda) {
       result <- c(result, i)
     }
   }
-  
+
   # rho
   if (!is.null(sys_mat$rho)) {
     for (i in sys_mat$rho) {
       result <- c(result, i)
     }
   }
-  
+
   # AR
   if (!is.null(sys_mat$AR)) {
     for (i in sys_mat$AR) {
       result <- c(result, i)
     }
   }
-  
+
   # MA
   if (!is.null(sys_mat$MA)) {
     for (i in sys_mat$MA) {
       result <- c(result, i)
     }
   }
-  
+
   # SAR
   if (!is.null(sys_mat$SAR)) {
     for (j in sys_mat$SAR) {
@@ -147,7 +145,7 @@ TransformParam <- function(param = NULL,
       }
     }
   }
-  
+
   # SMA
   if (!is.null(sys_mat$SMA)) {
     for (j in sys_mat$SMA) {
@@ -156,27 +154,27 @@ TransformParam <- function(param = NULL,
       }
     }
   }
-  
+
   return(result)
 }
 
 #' Add structure to the parameters of a State Space Model
-#' 
+#'
 #' Adds structure to the parameters of a State Space Model.
-#' 
+#'
 #' @param sys_mat The list as returned by GetSysMat.
 #' @inheritParams StateSpaceEval
-#' 
-#' @return 
+#'
+#' @return
 #' A list containing the structured parameters of a State Space Model.
-#'  
+#'
 #' @noRd
 StructParam <- function(param = NULL,
                         sys_mat) {
-  
+
   # Initialise list to return
   result <- list()
-  
+
   # H
   if (!is.null(sys_mat$H)) {
     H <- list()
@@ -189,7 +187,7 @@ StructParam <- function(param = NULL,
     names(H) <- names(sys_mat$H)
     result$H <- H
   }
-  
+
   # Q
   if (!is.null(sys_mat$Q)) {
     Q <- list()
@@ -202,7 +200,7 @@ StructParam <- function(param = NULL,
     names(Q) <- names(sys_mat$Q)
     result$Q <- Q
   }
-  
+
   # Q_loading_matrix
   if (!is.null(sys_mat$Q_loading_matrix)) {
     Q_loading_matrix <- list()
@@ -215,7 +213,7 @@ StructParam <- function(param = NULL,
     names(Q_loading_matrix) <- names(sys_mat$Q_loading_matrix)
     result$Q_loading_matrix <- Q_loading_matrix
   }
-  
+
   # Q_diagonal_matrix
   if (!is.null(sys_mat$Q_diagonal_matrix)) {
     Q_diagonal_matrix <- list()
@@ -228,7 +226,7 @@ StructParam <- function(param = NULL,
     names(Q_diagonal_matrix) <- names(sys_mat$Q_diagonal_matrix)
     result$Q_diagonal_matrix <- Q_diagonal_matrix
   }
-  
+
   # Q_correlation_matrix
   if (!is.null(sys_mat$Q_correlation_matrix)) {
     Q_correlation_matrix <- list()
@@ -241,7 +239,7 @@ StructParam <- function(param = NULL,
     names(Q_correlation_matrix) <- names(sys_mat$Q_correlation_matrix)
     result$Q_correlation_matrix <- Q_correlation_matrix
   }
-  
+
   # Q_stdev_matrix
   if (!is.null(sys_mat$Q_stdev_matrix)) {
     Q_stdev_matrix <- list()
@@ -254,7 +252,7 @@ StructParam <- function(param = NULL,
     names(Q_stdev_matrix) <- names(sys_mat$Q_stdev_matrix)
     result$Q_stdev_matrix <- Q_stdev_matrix
   }
-  
+
   # lambda
   if (!is.null(sys_mat$lambda)) {
     lambda <- list()
@@ -265,7 +263,7 @@ StructParam <- function(param = NULL,
     names(lambda) <- names(sys_mat$lambda)
     result$lambda <- lambda
   }
-  
+
   # rho
   if (!is.null(sys_mat$rho)) {
     rho <- list()
@@ -276,7 +274,7 @@ StructParam <- function(param = NULL,
     names(rho) <- names(sys_mat$rho)
     result$rho <- rho
   }
-  
+
   # AR
   if (!is.null(sys_mat$AR)) {
     AR <- list()
@@ -293,7 +291,7 @@ StructParam <- function(param = NULL,
     names(AR) <- names(sys_mat$AR)
     result$AR <- AR
   }
-  
+
   # MA
   if (!is.null(sys_mat$MA)) {
     MA <- list()
@@ -310,7 +308,7 @@ StructParam <- function(param = NULL,
     names(MA) <- names(sys_mat$MA)
     result$MA <- MA
   }
-  
+
   # SAR
   if (!is.null(sys_mat$SAR)) {
     SAR <- list()
@@ -332,7 +330,7 @@ StructParam <- function(param = NULL,
     names(SAR) <- names(sys_mat$SAR)
     result$SAR <- SAR
   }
-  
+
   # SMA
   if (!is.null(sys_mat$SMA)) {
     SMA <- list()
@@ -354,6 +352,6 @@ StructParam <- function(param = NULL,
     names(SMA) <- names(sys_mat$SMA)
     result$SMA <- SMA
   }
-  
+
   return(result)
 }

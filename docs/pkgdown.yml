@@ -4,7 +4,8 @@ pkgdown_sha: ~
 articles:
   dictionary: dictionary.html
   intro: intro.html
-last_built: 2020-04-25T00:37Z
+  seatbelt: seatbelt.html
+last_built: 2020-04-26T00:29Z
 urls:
   reference: https://dylanb95.github.io/statespacer/reference
   article: https://dylanb95.github.io/statespacer/articles

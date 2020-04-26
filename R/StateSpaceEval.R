@@ -307,6 +307,21 @@ StateSpaceEval <- function(param,
 
         # Storing Variance - Covariance matrix of fitted values
         Fmat[,,t] <- Z_full %*% as.matrix(P_pred[,,t]) %*% t(Z_full)
+
+        if (all(abs(Z_full %*% as.matrix(P_inf[,,i]) %*% t(Z_full)) < 1e-7)) {
+
+          # Inverse of Fmat
+          Finv <- solve(Fmat[,,t])
+
+          # Singular Value decomposition to obtain square root of the inverse of Fmat
+          svd_Finv <- svd(Finv)
+
+          # Square root of Inverse of Fmat
+          Finv_root <- svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)) %*% t(svd_Finv$u)
+
+          # Normalised prediction error
+          v_norm[t,] <- Finv_root %*% matrix(v[t,])
+        }
       }
 
     } else {
@@ -385,7 +400,10 @@ StateSpaceEval <- function(param,
     return(sum(loglik, na.rm = TRUE))
   }
 
+  #### Diagnostics ####
+
   # Calculating test statistics based on the normalised prediction errors
+  obs_vec <- apply(v_norm, MARGIN = 2, FUN = function(x) sum(!is.na(x)))
   m1 <- apply(v_norm, MARGIN = 2, FUN = mean, na.rm = TRUE)
   v_norm_centered <- t(t(v_norm) - m1)
   m2 <- apply(v_norm_centered^2, MARGIN = 2, FUN = mean, na.rm = TRUE)
@@ -393,26 +411,25 @@ StateSpaceEval <- function(param,
   m4 <- apply(v_norm_centered^4, MARGIN = 2, FUN = mean, na.rm = TRUE)
   Sstat <- m3 / sqrt(m2^3)
   Kstat <- m4 / m2^2
-  Nstat <- N * (Sstat^2 / 6 + (Kstat - 3)^2 / 24)
+  Nstat <- obs_vec * (Sstat^2 / 6 + (Kstat - 3)^2 / 24)
+
+  # Number of observations after initialisation
+  obs <- min(obs_vec)
 
   # Correlogram and Box-Ljung statistic
-  # Number of observations used for initialisation
-  obs_init <- ceiling(initialisation_steps / p)
-  # Number of observations after initialisation
-  obs <- N - obs_init
   if (obs > 0) {
     correlogram <- matrix(0, floor(obs/2), p)
     Box_Ljung <- matrix(0, floor(obs/2), p)
     BL_running <- 0
     # Number of non NA values per column
-    N_p <- apply(v_norm_centered, MARGIN = 2, FUN = function(x) sum(!is.na(x)))
     for (i in 1:floor(obs/2)) {
       correlogram[i,] <- apply(
         v_norm_centered[(i+1):N,, drop = FALSE] *
           v_norm_centered[1:(N-i),, drop = FALSE],
         MARGIN = 2, FUN = sum, na.rm = TRUE
-      ) / (N_p * m2)
-      BL_running <- BL_running + N_p * (N_p + 2) * correlogram[i,]^2 / (N_p - i)
+      ) / (obs_vec * m2)
+      BL_running <- BL_running +
+        obs_vec * (obs_vec + 2) * correlogram[i,]^2 / (obs_vec - i)
       Box_Ljung[i,] <- BL_running
     }
 
@@ -420,9 +437,10 @@ StateSpaceEval <- function(param,
     Heteroscedasticity <- matrix(0, floor(obs/3), p)
     group1 <- 0
     group2 <- 0
+    v_2 <- v_norm[!is.na(apply(v_norm, MARGIN = 1, FUN = sum)),, drop = FALSE]
     for (i in 1:floor(obs/3)) {
-      group1 <- group1 + v_norm[obs_init + i,]^2
-      group2 <- group2 + v_norm[N + 1 - i,]^2
+      group1 <- group1 + v_2[i,]^2
+      group2 <- group2 + v_2[dim(v_2)[1] + 1 - i,]^2
       Heteroscedasticity[i,] <- group2 / group1
     }
   }
