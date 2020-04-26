@@ -23,11 +23,9 @@ Imports:
     stats
 Suggests:
     datasets,
-    devtools,
     graphics,
     knitr,
     numDeriv (>= 2016.8-1.1),
     optimx (>= 2020-4.2),
-    rmarkdown,
-    roxygen2
+    rmarkdown
 VignetteBuilder: knitr
