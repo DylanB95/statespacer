@@ -308,7 +308,7 @@ StateSpaceEval <- function(param,
         # Storing Variance - Covariance matrix of fitted values
         Fmat[,,t] <- Z_full %*% as.matrix(P_pred[,,t]) %*% t(Z_full)
 
-        if (all(abs(Z_full %*% as.matrix(P_inf[,,i]) %*% t(Z_full)) < 1e-7)) {
+        if (all(abs(Z_full %*% as.matrix(P_inf[,,i - (p - 1)]) %*% t(Z_full)) < 1e-7)) {
 
           # Inverse of Fmat
           Finv <- solve(Fmat[,,t])
