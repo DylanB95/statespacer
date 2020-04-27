@@ -521,14 +521,33 @@ StateSpaceEval <- function(param,
         N_UT[,,i] <- N_UT[,,i + 1]
       } else {
 
-        # Auxiliary computations
-        Finv <- 1 / c(Z_input %*% as.matrix(P_star[,,i]) %*% t(Z_input))
-        v_UT <- y[t, row] - c(Z_input %*% a[i,])
-        K_UT <- as.matrix(P_star[,,i]) %*% t(Z_input) * Finv
-        L_UT <- diag(length(Z_input)) - K_UT %*% Z_input
-        r_UT[i,] <- t(Z_input) * Finv * v_UT + t(L_UT) %*% r_UT[i + 1,]
-        N_UT[,,i] <- t(Z_input) %*% Z_input * Finv +
-                     t(L_UT) %*% N_UT[,,i + 1] %*% L_UT
+        # PZ' as in Kalman formulae
+        PtZ <- as.matrix(P_star[,,i]) %*% t(Z_input)
+
+        # Variance of the current residual/fitted value
+        F_scalar <- c(Z_input %*% PtZ)
+
+        # Check if F_scalar is nearly 0
+        if (F_scalar < 1e-7) {
+          r_UT[i,] <- r_UT[i + 1,]
+          N_UT[,,i] <- N_UT[,,i + 1]
+        } else {
+
+          # Inverse of Fmat
+          Finv <- 1 / F_scalar
+
+          # Current residual
+          v_UT <- y[t, row] - c(Z_input %*% a[i,])
+
+          # Auxiliary matrices
+          K_UT <- PtZ * Finv
+          L_UT <- diag(length(Z_input)) - K_UT %*% Z_input
+
+          # r and N
+          r_UT[i,] <- t(Z_input) * Finv * v_UT + t(L_UT) %*% r_UT[i + 1,]
+          N_UT[,,i] <- t(Z_input) %*% Z_input * Finv +
+                       t(L_UT) %*% N_UT[,,i + 1] %*% L_UT
+        }
       }
 
       # If a transition to the previous timepoint is made,
@@ -577,29 +596,55 @@ StateSpaceEval <- function(param,
         N_UT[,,i] <- N_UT[,,i + 1]
       } else {
 
-        # Auxiliary computations
-        v_UT <- y[t, row] - c(Z_input %*% a[i,])
+        # PZ' as in Kalman formulae
         M_inf <- as.matrix(P_inf[,,i]) %*% t(Z_input)
         M_star <- as.matrix(P_star[,,i]) %*% t(Z_input)
-        F_inf <- c(Z_input %*% as.matrix(P_inf[,,i]) %*% t(Z_input))
-        F_star <- c(Z_input %*% as.matrix(P_star[,,i]) %*% t(Z_input))
+
+        # Variance matrix of the current residual/fitted value
+        F_inf <- c(Z_input %*% M_inf)
+        F_star <- c(Z_input %*% M_star)
 
         # Check if F_inf is nearly 0
         if (F_inf < 1e-7) {
-          F_1 <- 1 / F_star
-          K_0 <- M_star * F_1
-          L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
-          r_UT[i,] <- t(Z_input) * F_1 * v_UT + t(L_0) %*% r_UT[i + 1,]
-          N_UT[,,i] <- t(Z_input) %*% Z_input * F_1 +
-                       t(L_0) %*% N_UT[,,i + 1] %*% L_0
-          N_1 <- N_1 %*% L_0
+
+          # Check if F_star is nearly 0
+          if (F_star < 1e-7) {
+            r_UT[i,] <- r_UT[i + 1,]
+            N_UT[,,i] <- N_UT[,,i + 1]
+          } else {
+
+            # Inverse of Fmat
+            F_1 <- 1 / F_star
+
+            # Current residual
+            v_UT <- y[t, row] - c(Z_input %*% a[i,])
+
+            # Auxiliary matrices
+            K_0 <- M_star * F_1
+            L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
+
+            # r and N
+            r_UT[i,] <- t(Z_input) * F_1 * v_UT + t(L_0) %*% r_UT[i + 1,]
+            N_UT[,,i] <- t(Z_input) %*% Z_input * F_1 +
+                         t(L_0) %*% N_UT[,,i + 1] %*% L_0
+            N_1 <- N_1 %*% L_0
+          }
         } else {
+
+          # Inverse of Fmat
           F_1 <- 1 / F_inf
           F_2 <- -F_1 * F_star * F_1
+
+          # Current residual
+          v_UT <- y[t, row] - c(Z_input %*% a[i,])
+
+          # Auxiliary matrices
           K_0 <- M_inf * F_1
           K_1 <- M_star * F_1 + M_inf * F_2
           L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
           L_1 <- -K_1 %*% Z_input
+
+          # r and N
           r_UT[i,] <- t(L_0) %*% r_UT[i + 1,]
           r_1 <- t(Z_input) * F_1 * v_UT +
                  t(L_0) %*% r_1 + t(L_1) %*% r_UT[i + 1,]
