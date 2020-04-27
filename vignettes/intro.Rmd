@@ -48,7 +48,7 @@ To fit a local level model, we simply call the `StateSpaceFit()` function. See `
 ```{r}
 fit <- StateSpaceFit(y = y,
                      local_level_ind = TRUE,
-                     initial = 10)
+                     initial = 0.5*log(var(y)))
 ```
 
 We get a warning message about the number of initial parameters, as we didn't specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don't need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify `initial = rnorm(1000)`, and not have to worry about if enough parameters were supplied.

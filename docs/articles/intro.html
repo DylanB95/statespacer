@@ -123,22 +123,22 @@
 <p>To fit a local level model, we simply call the <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> function. See <code><a href="../reference/StateSpaceFit.html">?StateSpaceFit</a></code> for further details.</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/StateSpaceFit.html">StateSpaceFit</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
                      <span class="kw">local_level_ind</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-                     <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">10</span>)
-<span class="co">#&gt; Warning in StateSpaceFit(y = y, local_level_ind = TRUE, initial = 10): Number of</span>
-<span class="co">#&gt; initial parameters is less than the required amount of parameters (2), recycling</span>
-<span class="co">#&gt; the initial parameters the required amount of times.</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-26 13:54:46</span>
+                     <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
+<span class="co">#&gt; Warning in StateSpaceFit(y = y, local_level_ind = TRUE, initial = 0.5 * :</span>
+<span class="co">#&gt; Number of initial parameters is less than the required amount of parameters (2),</span>
+<span class="co">#&gt; recycling the initial parameters the required amount of times.</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-27 14:43:21</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1</span>
-<span class="co">#&gt; initial  value 11.296135 </span>
-<span class="co">#&gt; iter  10 value 6.349232</span>
+<span class="co">#&gt; initial  value 6.623273 </span>
+<span class="co">#&gt; iter  10 value 6.334646</span>
 <span class="co">#&gt; final  value 6.334646 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-26 13:54:47</span>
-<span class="co">#&gt; Time difference of 0.570472002029419 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-27 14:43:22</span>
+<span class="co">#&gt; Time difference of 0.3788001537323 secs</span></pre></body></html></div>
 <p>We get a warning message about the number of initial parameters, as we didn’t specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don’t need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify <code>initial = rnorm(1000)</code>, and not have to worry about if enough parameters were supplied.</p>
 <p>Now, let’s check the estimated values of <span class="math inline">\(\sigma_\varepsilon^2\)</span> and <span class="math inline">\(\sigma_\eta^2\)</span>.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>, <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">Q</span>$<span class="no">level</span>)
-<span class="co">#&gt; [1] 15097.703  1469.643</span></pre></body></html></div>
+<span class="co">#&gt; [1] 15100.252  1468.724</span></pre></body></html></div>
 <p>Note that we use the notation used in <span class="citation">Durbin and Koopman (2012)</span> for the system matrices. <span class="math inline">\(H\)</span> being the system matrix for the variance - covariance matrix of the observation equation, and <span class="math inline">\(Q\)</span> being the system matrix for the variance - covariance matrix of the state equation.</p>
 <p>Checking out the estimated level is easy as well. The filtered level:</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="fl">1871</span>:<span class="fl">1970</span>, <span class="no">fit</span>$<span class="no">function_call</span>$<span class="no">y</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">'p'</span>, <span class="kw">ylim</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">500</span>, <span class="fl">1400</span>),
