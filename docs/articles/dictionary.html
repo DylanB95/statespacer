@@ -62,6 +62,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/boxjenkins.html">Fitting ARIMA models with statespacer</a>
+    </li>
+    <li>
       <a href="../articles/dictionary.html">Dictionary of statespacer</a>
     </li>
     <li>
@@ -248,6 +251,27 @@
 <a href="#standard_errors" class="anchor"></a>standard_errors</h3>
 <p><code>standard_errors</code> is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from <code>system_matrices</code>, but only representing those system matrices that depend on the parameters.</p>
 </div>
+</div>
+<div id="order-of-parameter-input" class="section level2">
+<h2 class="hasAnchor">
+<a href="#order-of-parameter-input" class="anchor"></a>Order of parameter input</h2>
+<p>This section provides details about the parameter vector that’s supplied to <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code>. It clarifies which elements are used for what components.</p>
+<p>Most components use a variance - covariance matrix, which are constructed using the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition. The parameters supplied to build the variance - covariance matrix are ordered as follows: First, parameters are used for the Diagonal matrix <span class="math inline">\(D\)</span> and transformed by <span class="math inline">\(exp(2x)\)</span>. Second, the remaining parameters are assigned columnwise to the Loading matrix <span class="math inline">\(L\)</span>, so first the <span class="math inline">\(1_{st}\)</span> column, then the <span class="math inline">\(2_{nd}\)</span> column, and so on.</p>
+<p>The parameters are assigned to the components in the following order:</p>
+<ol style="list-style-type: decimal">
+<li>The variance - covariance matrix, <span class="math inline">\(H\)</span>, of the observation equation. Unless, the <span class="math inline">\(H\)</span> matrix is self-specified!</li>
+<li>The Local Level component.</li>
+<li>The Local Level component + Slope in that order.</li>
+<li>The BSM components, in the order of the specified <code>BSM_vec</code>.</li>
+<li>Explanatory Variables, if the coefficients are time-varying. The coefficients themselves go into the state vector, so they don’t need any parameters!</li>
+<li>Local Level + Explanatory Variables in the Level. First the parameters go to the variance - covariance matrix of the Level, after which the remaining parameters go to the variance - covariance matrix of the Explanatory Variables (if time-varying).</li>
+<li>Local Level + Slope + Explanatory Variables in the Level. First the parameters go to the variance - covariance matrix of the Level, then they go to the variance - covariance matrix of the Slope, after which the remaining parameters go to the variance - covariance matrix of the Explanatory Variables (if time-varying).</li>
+<li>The Cycle components, in the order of the specified cycles. The first parameter is used for the frequency, <span class="math inline">\(\lambda\)</span>, of the cycle. The second parameter is used for the damping factor, <span class="math inline">\(\rho\)</span>, of the cycle, but only if <code>damping_factor_ind = TRUE</code>. The remaining parameters are used for the variance - covariance matrix.</li>
+<li>ARIMA, in the order of the specified ARIMA components. First, the parameters are used for the variance - covariance matrix. Then, the remaining parameters are first used for the AR coefficients, and then the MA coefficients.</li>
+<li>SARIMA, in the order of the specified SARIMA components. First, the parameters are used for the variance - covariance matrix. Then, the remaining parameters are used in the order of the specified seasonalities <code>s</code>, first used for the AR coefficients of the first seasonality, and then the MA coefficients of the first seasonality, and so on for the subsequent seasonalities.</li>
+<li>The self-specified part.</li>
+</ol>
+<p>Care should be taken in specifying the initial parameters! Usually, I check out the variances of the dependent variables and then apply the transformation <span class="math inline">\(0.5\log(x)\)</span> to the variances, and specify those as initial values for the parameters that go to the various variance - covariance matrices. For the AR and MA coefficients, it is beneficial to initialise them close to 0, to prevent them from converging to unit root solutions. Using the information in this section, it should make the trial and error process of finding proper initial parameters less cumbersome!</p>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">

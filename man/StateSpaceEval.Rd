@@ -84,7 +84,8 @@ models for different sets of dependent variables. Note: The AR and MA
 coefficients are constrained such that the AR components are stationary,
 and the MA components are invertible.
 See \insertCite{ansley1986note;textual}{statespacer} for details about
-the transformation used.}
+the transformation used. Note: For multivariate models, the order of "s"
+matters, as matrix multiplication is not commutative!}
 
 \item{exclude_level}{Vector containing the dependent variables that should
 not get a local level.}

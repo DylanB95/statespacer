@@ -1,12 +1,16 @@
 ---
 title: "Fitting ARIMA models with statespacer"
 description: >
-  A lot of time series exhibit some form of seasonality. In this vignette you 
-  will learn how to deal with seasonality using the statespacer package. 
-  Moreover, you will learn how to add explanatory variables to the State Space 
-  model, and how to estimate multivariate models if there is more than one 
-  dependent variable available.
+  A lot of time series practitiones resort to the well-known Box-Jenkins 
+  methods, such as ARIMA and SARIMA, when modelling time series. Those methods 
+  are easily incorporated into the State Space framework. This provides to be 
+  beneficial, as missing observations are easily dealt with in the State Space 
+  framework. Moreover, no observations need to be discarded due to the 
+  differencing and introduced lagged variables. The loglikelihood is calculated in an 
+  exact manner! In this document, we'll show you how to estimate ARIMA and 
+  SARIMA models using statespacer.
 output: rmarkdown::html_vignette
+bibliography: ../inst/REFERENCES.bib
 vignette: >
   %\VignetteIndexEntry{Fitting ARIMA models with statespacer}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,6 +24,101 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+A lot of time series practitiones resort to the well-known Box-Jenkins methods, such as ARIMA and SARIMA, when modelling time series. Those methods are easily incorporated into the State Space framework. This provides to be beneficial, as missing observations are easily dealt with in the State Space framework. Moreover, no observations need to be discarded due to the differencing and introduced lagged variables. The loglikelihood is calculated in an exact manner! In this document, we show you how to estimate ARIMA and SARIMA models using statespacer. We reproduce some estimation results as in @box2015time.
+
+## ARIMA modelling of the yearly sunspot data
+To showcase the estimation of ARIMA models, we make use of the `sunspot.year` data, which contains yearly numbers of sunspots from 1700 to 1988. See `?sunspot.year` for details. We only use the data from 1770 to 1869, to stay in line with @box2015time. We estimate an $\text{ARIMA}(3, ~ 0, ~ 0)$ with deterministic level (or constant if you prefer) as follows: 
+
+```{r, setup}
+# Load statespacer
 library(statespacer)
+
+# Load the dataset
+Data <- matrix(window(sunspot.year, start = 1770, end = 1869))
+
+# Estimate the ARIMA model
+fit <- StateSpaceFit(y = Data,
+                     H_format = matrix(0),
+                     local_level_ind = TRUE,
+                     arima_list = list(c(3, 0, 0)),
+                     format_level = matrix(0),
+                     initial = c(0.5*log(var(Data)), 0, 0, 0))
+
 ```
+
+Note that we eliminate the observation error by setting its variance to 0, although it's perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see vignette("dictionary", "statespacer").
+
+We obtain the following estimates:
+
+```{r}
+# Coefficients of the ARMA component
+arma_coeff <- rbind(
+   fit$system_matrices$AR$ARIMA1,
+   fit$standard_errors$AR$ARIMA1
+)
+arma_coeff <- cbind(
+   arma_coeff,
+   c(fit$smoothed$level[1],
+     sqrt(fit$system_matrices$Z_padded$level %*%
+          fit$smoothed$V[,,1] %*%
+          t(fit$system_matrices$Z_padded$level))
+   )
+)
+rownames(arma_coeff) <- c("coefficient", "std_error")
+colnames(arma_coeff) <- c("ar1", "ar2", "ar3", "intercept")
+arma_coeff
+
+goodness_fit <- rbind(
+   fit$system_matrices$Q$ARIMA1,
+   fit$diagnostics$loglik,
+   fit$diagnostics$AIC
+)
+rownames(goodness_fit) <- c("Variance", "Loglikelihood", "AIC")
+goodness_fit
+```
+
+We see that the results are fairly similar to the results as obtained by @box2015time. Differences may occur due to the different estimation procedures. We don't have to eliminate observations, so we use the full information available at hand, in contrast to traditional estimation procedures. Note that not much has to be done to estimate VARIMA models. In fact, you only need to specify a dependent variable `y` that has more than one column! It's also straightforward to add explanatory variables, by making use of the `addvar_list` option, see vignette("seatbelt", "statespacer") for an example of adding explanatory variables.
+
+## SARIMA modelling of the airline data
+To showcase the estimation of SARIMA models, we make use of the classic `AirPassengers` data, which contains monthly totals of international airline passengers from 1949 to 1960. See `?AirPassengers` for details. We estimate a $\text{SARIMA}(0, ~ 1, ~ 1)_{1} ~ \times ~ (0, ~ 1, ~ 1)_{12}$. Note that in the multivariate case, there is a subtle difference between $\text{SARIMA}(0, ~ 1, ~ 1)_{1} ~ \times ~ (0, ~ 1, ~ 1)_{12}$ and $\text{SARIMA}(0, ~ 1, ~ 1)_{12} ~ \times ~ (0, ~ 1, ~ 1)_{1}$ as matrix multiplication is not commutative.
+
+We proceed as follows:
+```{r, warning = FALSE}
+# Load the dataset
+Data <- matrix(log(AirPassengers))
+
+# The SARIMA specification, must be a list containing lists!
+sarima_list <- list(list(s = c(12, 1), ar = c(0, 0), i = c(1, 1), ma = c(1, 1)))
+
+# Fit the SARIMA model
+fit <- StateSpaceFit(y = Data,
+                     H_format = matrix(0),
+                     sarima_list = sarima_list,
+                     initial = c(0.5*log(var(diff(Data))), 0, 0))
+```
+
+We obtain the following estimates:
+
+```{r}
+# Coefficients of the ARMA component
+arma_coeff <- rbind(
+   c(fit$system_matrices$SMA$SARIMA1$S1, fit$system_matrices$SMA$SARIMA1$S12),
+   c(fit$standard_errors$SMA$SARIMA1$S1, fit$standard_errors$SMA$SARIMA1$S12)
+)
+
+rownames(arma_coeff) <- c("coefficient", "std_error")
+colnames(arma_coeff) <- c("ma1 s = 1", "ma1 s = 12")
+arma_coeff
+
+goodness_fit <- rbind(
+   fit$system_matrices$Q$SARIMA1,
+   fit$diagnostics$loglik,
+   fit$diagnostics$AIC
+)
+rownames(goodness_fit) <- c("Variance", "Loglikelihood", "AIC")
+goodness_fit
+```
+
+As you can see, fitting the Box-Jenkins models with statespacer is quite easy!
+
+## References

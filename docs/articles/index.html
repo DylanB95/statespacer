@@ -102,6 +102,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/boxjenkins.html">Fitting ARIMA models with statespacer</a>
+    </li>
+    <li>
       <a href="../articles/dictionary.html">Dictionary of statespacer</a>
     </li>
     <li>
@@ -141,12 +144,14 @@
       <p class="section-desc"></p>
 
       <dl>
+        <dt><a href="boxjenkins.html">Fitting ARIMA models with statespacer</a></dt>
+        <dd><p>A lot of time series practitiones resort to the well-known Box-Jenkins methods, such as ARIMA and SARIMA, when modelling time series. Those methods are easily incorporated into the State Space framework. This provides to be beneficial, as missing observations are easily dealt with in the State Space framework. Moreover, no observations need to be discarded due to the differencing and introduced lagged variables. The loglikelihood is calculated in an exact manner! In this document, we’ll show you how to estimate ARIMA and SARIMA models using statespacer.</p></dt>
         <dt><a href="dictionary.html">Dictionary of statespacer</a></dt>
         <dd><p><code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> returns an object containing many items. In this vignette, you will learn what exactly is returned by <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code>, so that you can obtain more value out of the statespacer package.</p></dt>
         <dt><a href="intro.html">Introduction to statespacer</a></dt>
         <dd><p>Start here if this is your first time using statespacer. You’ll learn how to use <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> to fit a simple State Space model, called the Local Level model, to the Nile dataset.</p></dt>
         <dt><a href="seatbelt.html">State Space models applied to the UK Road Deaths dataset</a></dt>
-        <dd><p>A lot of time series exhibit some form of seasonality. In this vignette you will learn how to deal with seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available.</p></dt>
+        <dd><p>A lot of time series exhibit some form of seasonality. In this vignette you will learn how to deal with seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. We also show you how to control the variance - covariance matrices of the various components.</p></dt>
       </dl>
     </div>
   </div>

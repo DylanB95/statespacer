@@ -2,10 +2,11 @@ pandoc: 2.9.2.1
 pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
+  boxjenkins: boxjenkins.html
   dictionary: dictionary.html
   intro: intro.html
   seatbelt: seatbelt.html
-last_built: 2020-04-27T12:43Z
+last_built: 2020-04-28T13:30Z
 urls:
   reference: https://dylanb95.github.io/statespacer/reference
   article: https://dylanb95.github.io/statespacer/articles
