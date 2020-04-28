@@ -13,6 +13,11 @@
     background-color: #00718b;
 }
 
+.navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:hover, .navbar-inverse .navbar-nav>.open>a:focus {
+    color: #ffffff;
+    background-color: #00718b;
+}
+
 .navbar-brand {
     padding: 0 0 0 54px;
     height: 50px;
