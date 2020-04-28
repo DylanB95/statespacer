@@ -19,8 +19,8 @@
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
@@ -69,7 +69,7 @@
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -86,39 +86,34 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
+  <a href="../articles/intro.html">Intro</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li>
+  <a href="../articles/dictionary.html">Dictionary</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/seatbelt.html">statespacer applied to UK Road Deaths</a>
+    </li>
+    <li>
       <a href="../articles/boxjenkins.html">Fitting ARIMA models with statespacer</a>
-    </li>
-    <li>
-      <a href="../articles/dictionary.html">Dictionary of statespacer</a>
-    </li>
-    <li>
-      <a href="../articles/intro.html">Introduction to statespacer</a>
-    </li>
-    <li>
-      <a href="../articles/seatbelt.html">State Space models applied to the UK Road Deaths dataset</a>
     </li>
   </ul>
 </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li>
+<li>
   <a href="https://github.com/DylanB95/statespacer/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
@@ -202,11 +197,11 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='StateSpaceFit.html'>StateSpaceFit</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-28 15:50:09</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='StateSpaceFit.html'>StateSpaceFit</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-28 23:22:28</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
 #&gt; initial  value 2.443183 
 #&gt; iter  10 value 1.775548
 #&gt; final  value 1.775527 
-#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-28 15:50:09</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.542688131332397 secs</span></div><div class='input'>
+#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-28 23:22:28</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.461241006851196 secs</span></div><div class='input'>
 <span class='co'># Obtain forecasts for 10 steps ahead using the fitted model</span>
 <span class='no'>fc</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceForecast</span>(<span class='no'>fit</span>, <span class='kw'>forecast_period</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 
@@ -224,7 +219,7 @@ Oxford university press.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Dylan Beijers.</p>
+  <p>Developed by <a href='https://www.linkedin.com/in/dylanbeijers/'>Dylan Beijers</a>.</p>
 </div>
 
 <div class="pkgdown">

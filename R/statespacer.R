@@ -41,4 +41,5 @@
 #'
 #' @docType package
 #' @keywords internal
+#' @importFrom Rdpack reprompt
 "_PACKAGE"

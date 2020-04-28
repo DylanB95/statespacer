@@ -154,7 +154,6 @@
 #'       type = 'l', col = 'gray')
 #'
 #' @export
-#' @importFrom Rdpack reprompt
 StateSpaceFit <- function(y,
                           H_format = NULL,
                           local_level_ind = FALSE,

@@ -1,3 +1,47 @@
-destination: docs
-  
 url: https://dylanb95.github.io/statespacer
+
+destination: docs
+
+template:
+  params:
+    bootswatch: cosmo
+
+home:
+  title: An R package for state space modelling in R
+  description: >
+    Functions that make estimating models in State Space form a breeze.
+    This package implements state-of-the-art algorithms for estimating 
+    State Space models, and using those models to produce forecasts.
+  strip_header: false
+
+reference:
+- title: State Space model
+  contents:
+  - StateSpaceFit
+  - StateSpaceForecast
+  - StateSpaceEval
+
+navbar:
+  type: inverse
+  structure:
+    left: [home]
+    right: [intro, reference, dictionary, articles, github]
+  components:
+    home: ~
+    intro:
+      text: Intro
+      href: articles/intro.html
+    dictionary: 
+      text: Dictionary
+      href: articles/dictionary.html
+    articles:
+      text: Tutorials
+      menu: 
+      - text: statespacer applied to UK Road Deaths
+        href: articles/seatbelt.html
+      - text: Fitting ARIMA models with statespacer
+        href: articles/boxjenkins.html
+
+authors:
+  Dylan Beijers:
+    href: https://www.linkedin.com/in/dylanbeijers/

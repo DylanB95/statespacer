@@ -5,25 +5,21 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>State Space Modelling In R • statespacer</title>
+<title>An R package for state space modelling in R • statespacer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="State Space Modelling In R">
-<meta property="og:description" content='Functions that make estimating models in State Space form a breeze.
-    This package implements state-of-the-art algorithms developed by various
-    time series practitioners such as J. Durbin and S.J. Koopman. 
-    Details about the algorithms can be found in their book, 
-    "Time Series Analysis by State Space Methods". For more information about 
-    this package, please see the documentation.'>
+<script src="pkgdown.js"></script><meta property="og:title" content="An R package for state space modelling in R">
+<meta property="og:description" content="Functions that make estimating models in State Space form a breeze. This package implements state-of-the-art algorithms for estimating  State Space models, and using those models to produce forecasts.
+">
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -32,7 +28,7 @@
 </head>
 <body data-spy="scroll" data-target="#toc">
     <div class="container template-home">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -48,39 +44,32 @@
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav"></ul>
+<ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
+  <a href="articles/intro.html">Intro</a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
+<li>
+  <a href="articles/dictionary.html">Dictionary</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/seatbelt.html">statespacer applied to UK Road Deaths</a>
+    </li>
+    <li>
       <a href="articles/boxjenkins.html">Fitting ARIMA models with statespacer</a>
-    </li>
-    <li>
-      <a href="articles/dictionary.html">Dictionary of statespacer</a>
-    </li>
-    <li>
-      <a href="articles/intro.html">Introduction to statespacer</a>
-    </li>
-    <li>
-      <a href="articles/seatbelt.html">State Space models applied to the UK Road Deaths dataset</a>
     </li>
   </ul>
 </li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/DylanB95/statespacer/">
     <span class="fab fa fab fa-github fa-lg"></span>
@@ -99,11 +88,65 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="statespacer-" class="section level1">
+<div id="state-space-modelling-in-r-" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#statespacer-" class="anchor"></a>statespacer <a href="https://DylanB95.github.io/statespacer"><img src="reference/figures/logo.png" align="right" height="138.5"></a>
+<a href="#state-space-modelling-in-r-" class="anchor"></a>State Space Modelling in R <a href="https://DylanB95.github.io/statespacer"><img src="reference/figures/logo.png" align="right" height="138.5"></a>
 </h1></div>
-<p>State Space Modelling in R</p>
+<!-- badges: start -->
+<!-- badges: end -->
+<div id="overview" class="section level2">
+<h2 class="hasAnchor">
+<a href="#overview" class="anchor"></a>Overview</h2>
+<p>statespacer is a package for state space modelling in R. It provides functions that make estimating models in State Space form a breeze. This package implements state-of-the-art algorithms developed by various time series practitioners such as J. Durbin and S.J. Koopman. Details about the algorithms can be found in their book, “Time Series Analysis by State Space Methods”.</p>
+<p>If you are new to statespacer, check out <code><a href="articles/intro.html">vignette("intro", "statespacer")</a></code> for a quick start to the statespacer package! Also check out the references for the following functions:</p>
+<ul>
+<li>
+<code><a href="reference/StateSpaceFit.html">StateSpaceFit()</a></code> for fitting State Space models.</li>
+<li>
+<code><a href="reference/StateSpaceForecast.html">StateSpaceForecast()</a></code> for producing forecasts using fitted State Space models.</li>
+<li>
+<code><a href="reference/StateSpaceEval.html">StateSpaceEval()</a></code> for evaluating State Space models at user specified parameters.</li>
+</ul>
+</div>
+<div id="state-space-components" class="section level2">
+<h2 class="hasAnchor">
+<a href="#state-space-components" class="anchor"></a>State Space Components</h2>
+<p>This package supports numerous state space components:</p>
+<ul>
+<li>The Local Level</li>
+<li>The Local Level + Slope</li>
+<li>Smoothing Splines</li>
+<li>Trigonometric Seasonality, BSM</li>
+<li>Cycles</li>
+<li>Business Cycles</li>
+<li>Explanatory Variables</li>
+<li>Explanatory Variables with time-varying coefficients</li>
+<li>Explanatory Variables in the Local Level</li>
+<li>Explanatory Variables in the Local Level + Slope</li>
+<li>ARIMA</li>
+<li>SARIMA</li>
+</ul>
+<p>These components can be used for both univariate, as multivariate models. The components can be combined in order to get more extensive models. Moreover, the user can control the format of the variance - covariance matrices of each of the components. This way, one could specify the components to be deterministic instead of stochastic. In the multivariate case, one could impose rank restrictions on the variance - covariance matrices such that commonalities in the components are estimated, like common levels, common slopes, etc.</p>
+</div>
+<div id="fitting-procedure" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fitting-procedure" class="anchor"></a>Fitting Procedure</h2>
+<p>The package employs a univariate treatment, and an exact initialisation for diffuse elements, to estimate the state parameters and compute the loglikelihood.</p>
+</div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>You can install statespacer with:</p>
+<div class="sourceCode" id="cb1"><pre class="r"><span class="co"># install.packages("devtools")</span>
+<span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"DylanB95/statespacer"</span>)</pre></div>
+</div>
+<div id="getting-help" class="section level2">
+<h2 class="hasAnchor">
+<a href="#getting-help" class="anchor"></a>Getting help</h2>
+<p>If you encounter a clear bug, please file an issue with a minimal reproducible example on <a href="https://github.com/DylanB95/statespacer/issues">GitHub</a>.</p>
+<hr>
+<p>Please note that the ‘statespacer’ project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+</div>
 </div>
   </div>
 
@@ -120,15 +163,27 @@
 <div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
-<li>
-<a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
-</li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+</ul>
+</div>
+<div class="community">
+<h2>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
+</ul>
+</div>
+<div class="citation">
+<h2>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html">Citing statespacer</a></li>
 </ul>
 </div>
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Dylan Beijers <br><small class="roles"> Author, maintainer </small>  </li>
+<li>
+<a href="https://www.linkedin.com/in/dylanbeijers/">Dylan Beijers</a> <br><small class="roles"> Author, maintainer </small>  </li>
 </ul>
 </div>
 
@@ -137,7 +192,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Dylan Beijers.</p>
+  <p>Developed by <a href="https://www.linkedin.com/in/dylanbeijers/">Dylan Beijers</a>.</p>
 </div>
 
 <div class="pkgdown">
