@@ -46,7 +46,7 @@ fit <- StateSpaceFit(y = Data,
 
 ```
 
-Note that we eliminate the observation error by setting its variance to 0, although it's perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see vignette("dictionary", "statespacer").
+Note that we eliminate the observation error by setting its variance to 0, although it's perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see `vignette("dictionary", "statespacer")`.
 
 We obtain the following estimates:
 
@@ -77,7 +77,7 @@ rownames(goodness_fit) <- c("Variance", "Loglikelihood", "AIC")
 goodness_fit
 ```
 
-We see that the results are fairly similar to the results as obtained by @box2015time. Differences may occur due to the different estimation procedures. We don't have to eliminate observations, so we use the full information available at hand, in contrast to traditional estimation procedures. Note that not much has to be done to estimate VARIMA models. In fact, you only need to specify a dependent variable `y` that has more than one column! It's also straightforward to add explanatory variables, by making use of the `addvar_list` option, see vignette("seatbelt", "statespacer") for an example of adding explanatory variables.
+We see that the results are fairly similar to the results as obtained by @box2015time. Differences may occur due to the different estimation procedures. We don't have to eliminate observations, so we use the full information available at hand, in contrast to traditional estimation procedures. Note that not much has to be done to estimate VARIMA models. In fact, you only need to specify a dependent variable `y` that has more than one column! It's also straightforward to add explanatory variables, by making use of the `addvar_list` option, see `vignette("seatbelt", "statespacer")` for an example of adding explanatory variables.
 
 ## SARIMA modelling of the airline data
 To showcase the estimation of SARIMA models, we make use of the classic `AirPassengers` data, which contains monthly totals of international airline passengers from 1949 to 1960. See `?AirPassengers` for details. We estimate a $\text{SARIMA}(0, ~ 1, ~ 1)_{1} ~ \times ~ (0, ~ 1, ~ 1)_{12}$. Note that in the multivariate case, there is a subtle difference between $\text{SARIMA}(0, ~ 1, ~ 1)_{1} ~ \times ~ (0, ~ 1, ~ 1)_{12}$ and $\text{SARIMA}(0, ~ 1, ~ 1)_{12} ~ \times ~ (0, ~ 1, ~ 1)_{1}$ as matrix multiplication is not commutative.

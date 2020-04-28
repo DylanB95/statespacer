@@ -94,6 +94,6 @@ lines(1871:1970, fit$smoothed$level - qnorm(0.95) * sqrt(fit$smoothed$V[1,1,]),
 )
 ```
 
-The object returned by `StateSpaceFit()` exhibits many other useful items. For more information about these items, please see `vignette("dictionary", "statespacer")`. For more exhibitions of the statespacer package, please see the other tutorials on <https://DylanB95.github.io/statespacer> or browseVignettes("statespacer").
+The object returned by `StateSpaceFit()` exhibits many other useful items. For more information about these items, please see `vignette("dictionary", "statespacer")`. For more exhibitions of the statespacer package, please see the other tutorials on <https://DylanB95.github.io/statespacer> or `browseVignettes("statespacer")`.
 
 ## References
