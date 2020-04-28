@@ -12,3 +12,27 @@
     color: #ffffff;
     background-color: #00718b;
 }
+
+.navbar-brand {
+    padding: 0 0 0 54px;
+    height: 50px;
+    line-height: 50px;
+    background-image: url(logo.png);
+    background-size: 32px auto;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+}
+
+.label-default {
+    background-color: #003f4f;
+}
+
+.label {
+    padding: .0em .0em .0em;
+    font-size: 65%;
+    font-weight: 100;
+    line-height: 1;
+    text-align: left;
+    white-space: nowrap;
+    vertical-align: sub;
+}

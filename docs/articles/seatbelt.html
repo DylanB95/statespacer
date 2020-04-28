@@ -154,13 +154,13 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:26:53</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:56:22</span>
 <span class="co">#&gt; Parameter scaling:[1] 1</span>
 <span class="co">#&gt; initial  value -0.443442 </span>
 <span class="co">#&gt; final  value -0.735372 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:26:53</span>
-<span class="co">#&gt; Time difference of 0.494735956192017 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:56:23</span>
+<span class="co">#&gt; Time difference of 0.408766984939575 secs</span>
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span>
 
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span></pre></body></html></div>
@@ -206,7 +206,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:26:54</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:56:24</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -0.172423 </span>
 <span class="co">#&gt; iter  10 value -0.893962</span>
@@ -214,8 +214,8 @@
 <span class="co">#&gt; iter  30 value -0.915515</span>
 <span class="co">#&gt; final  value -0.915517 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:27:01</span>
-<span class="co">#&gt; Time difference of 7.21394109725952 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:56:31</span>
+<span class="co">#&gt; Time difference of 6.96523213386536 secs</span>
 
 <span class="co"># The estimated variance of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
@@ -304,7 +304,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>))))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:27:03</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:56:33</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value 0.389588 </span>
 <span class="co">#&gt; iter  10 value -1.583528</span>
@@ -312,8 +312,8 @@
 <span class="co">#&gt; iter  30 value -1.676530</span>
 <span class="co">#&gt; final  value -1.676537 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:27:51</span>
-<span class="co">#&gt; Time difference of 48.0332889556885 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:57:25</span>
+<span class="co">#&gt; Time difference of 52.1640331745148 secs</span></pre></body></html></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The estimated variance - covariance matrix of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
