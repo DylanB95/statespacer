@@ -1,0 +1,25 @@
+---
+title: "Fitting ARIMA models with statespacer"
+description: >
+  A lot of time series exhibit some form of seasonality. In this vignette you 
+  will learn how to deal with seasonality using the statespacer package. 
+  Moreover, you will learn how to add explanatory variables to the State Space 
+  model, and how to estimate multivariate models if there is more than one 
+  dependent variable available.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Fitting ARIMA models with statespacer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(statespacer)
+```

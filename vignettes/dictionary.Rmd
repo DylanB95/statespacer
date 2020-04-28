@@ -108,4 +108,25 @@ Further, the smoothed values of the components are extracted seperately.
 ### standard_errors
 `standard_errors` is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from `system_matrices`, but only representing those system matrices that depend on the parameters.
 
+## Order of parameter input
+This section provides details about the parameter vector that's supplied to `StateSpaceFit()`. It clarifies which elements are used for what components. 
+
+Most components use a variance - covariance matrix, which are constructed using the Cholesky $LDL^{\top}$ decomposition. The parameters supplied to build the variance - covariance matrix are ordered as follows: First, parameters are used for the Diagonal matrix $D$ and transformed by $exp(2x)$. Second, the remaining parameters are assigned columnwise to the Loading matrix $L$, so first the $1_{st}$ column, then the $2_{nd}$ column, and so on.
+
+The parameters are assigned to the components in the following order:
+
+1. The variance - covariance matrix, $H$, of the observation equation. Unless, the $H$ matrix is self-specified!
+1. The Local Level component.
+1. The Local Level component + Slope in that order.
+1. The BSM components, in the order of the specified `BSM_vec`.
+1. Explanatory Variables, if the coefficients are time-varying. The coefficients themselves go into the state vector, so they don't need any parameters!
+1. Local Level + Explanatory Variables in the Level. First the parameters go to the variance - covariance matrix of the Level, after which the remaining parameters go to the variance - covariance matrix of the Explanatory Variables (if time-varying).
+1. Local Level + Slope + Explanatory Variables in the Level. First the parameters go to the variance - covariance matrix of the Level, then they go to the variance - covariance matrix of the Slope, after which the remaining parameters go to the variance - covariance matrix of the Explanatory Variables (if time-varying).
+1. The Cycle components, in the order of the specified cycles. The first parameter is used for the frequency, $\lambda$, of the cycle. The second parameter is used for the damping factor, $\rho$, of the cycle, but only if `damping_factor_ind = TRUE`. The remaining parameters are used for the variance - covariance matrix.
+1. ARIMA, in the order of the specified ARIMA components. First, the parameters are used for the variance - covariance matrix. Then, the remaining parameters are first used for the AR coefficients, and then the MA coefficients.
+1. SARIMA, in the order of the specified SARIMA components. First, the parameters are used for the variance - covariance matrix. Then, the remaining parameters are used in the order of the specified seasonalities `s`, first used for the AR coefficients of the first seasonality, and then the MA coefficients of the first seasonality, and so on for the subsequent seasonalities.
+1. The self-specified part.
+
+Care should be taken in specifying the initial parameters! Usually, I check out the variances of the dependent variables and then apply the transformation $0.5\log(x)$ to the variances, and specify those as initial values for the parameters that go to the various variance - covariance matrices. For the AR and MA coefficients, it is beneficial to initialise them close to 0, to prevent them from converging to unit root solutions. Using the information in this section, it should make the trial and error process of finding proper initial parameters less cumbersome!
+
 ## References

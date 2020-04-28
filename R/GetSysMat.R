@@ -126,7 +126,11 @@ GetSysMat <- function(p,
   # Only entries in lower triangle of matrix count
   H_format[upper.tri(H_format)] <- 0
   param_num_list$H <- sum(H_format != 0 & lower.tri(H_format, diag = TRUE))
-  param_indices$H <- 1:param_num_list$H
+  if (param_num_list$H > 0) {
+    param_indices$H <- 1:param_num_list$H
+  } else {
+    param_indices$H <- 0
+  }
   param_num <- param_num + param_num_list$H
 
   H_list <- list()
@@ -204,8 +208,11 @@ GetSysMat <- function(p,
     index_par2 <- index_par + param_num_list$level - 1
 
     # Indices of parameters that should be used for the component
-    param_indices$level <- index_par:index_par2
-
+    if (index_par2 >= index_par) {
+      param_indices$level <- index_par:index_par2
+    } else {
+      param_indices$level <- 0
+    }
     # Keeping track of how many parameters the State Space model uses
     param_num <- param_num + param_num_list$level
 
@@ -307,7 +314,11 @@ GetSysMat <- function(p,
     index_par2 <- index_par + param_num_list$level + param_num_list$slope - 1
 
     # Indices of parameters that should be used for the component
-    param_indices$level <- index_par:index_par2
+    if (index_par2 >= index_par) {
+      param_indices$level <- index_par:index_par2
+    } else {
+      param_indices$level <- 0
+    }
 
     # Keeping track of how many parameters the State Space model needs
     param_num <- param_num + param_num_list$level + param_num_list$slope
@@ -408,7 +419,11 @@ GetSysMat <- function(p,
       index_par2 <- index_par + param_num_list[[paste0('BSM', s)]] - 1
 
       # Indices of parameters that should be used for the component
-      param_indices[[paste0('BSM', s)]] <- index_par:index_par2
+      if (index_par2 >= index_par) {
+        param_indices[[paste0('BSM', s)]] <- index_par:index_par2
+      } else {
+        param_indices[[paste0('BSM', s)]] <- 0
+      }
 
       # Keeping track of how many parameters the State Space model needs
       param_num <- param_num + param_num_list[[paste0('BSM', s)]]
@@ -507,7 +522,11 @@ GetSysMat <- function(p,
     index_par2 <- index_par + param_num_list$addvar - 1
 
     # Indices of parameters that should be used for the component
-    param_indices$addvar <- index_par:index_par2
+    if (index_par2 >= index_par) {
+      param_indices$addvar <- index_par:index_par2
+    } else {
+      param_indices$addvar <- 0
+    }
 
     # Keeping track of how many parameters the State Space model needs
     param_num <- param_num + param_num_list$addvar
@@ -649,7 +668,11 @@ GetSysMat <- function(p,
       param_num_list$level_addvar - 1
 
     # Indices of parameters that should be used for the component
-    param_indices$level <- index_par:index_par2
+    if (index_par2 >= index_par) {
+      param_indices$level <- index_par:index_par2
+    } else {
+      param_indices$level <- 0
+    }
 
     # Keeping track of how many parameters the State Space model needs
     param_num <- param_num + param_num_list$level + param_num_list$level_addvar
@@ -825,7 +848,11 @@ GetSysMat <- function(p,
       param_num_list$level_addvar - 1
 
     # Indices of parameters that should be used for the component
-    param_indices$level <- index_par:index_par2
+    if (index_par2 >= index_par) {
+      param_indices$level <- index_par:index_par2
+    } else {
+      param_indices$level <- 0
+    }
 
     # Keeping track of how many parameters the State Space model needs
     param_num <- param_num + param_num_list$level + param_num_list$slope +
@@ -961,7 +988,11 @@ GetSysMat <- function(p,
       index_par2 <- index_par + param_num_list[[paste0('Cycle', i)]] - 1
 
       # Indices of parameters that should be used for the component
-      param_indices[[paste0('Cycle', i)]] <- index_par:index_par2
+      if (index_par2 >= index_par) {
+        param_indices[[paste0('Cycle', i)]] <- index_par:index_par2
+      } else {
+        param_indices[[paste0('Cycle', i)]] <- 0
+      }
 
       # Keeping track of how many parameters the State Space model needs
       param_num <- param_num + param_num_list[[paste0('Cycle', i)]]
@@ -1083,7 +1114,11 @@ GetSysMat <- function(p,
       index_par2 <- index_par + param_num_list[[paste0('ARIMA', i)]] - 1
 
       # Indices of parameters that should be used for the component
-      param_indices[[paste0('ARIMA', i)]] <- index_par:index_par2
+      if (index_par2 >= index_par) {
+        param_indices[[paste0('ARIMA', i)]] <- index_par:index_par2
+      } else {
+        param_indices[[paste0('ARIMA', i)]] <- 0
+      }
 
       # Keeping track of how many parameters the State Space model needs
       param_num <- param_num + param_num_list[[paste0('ARIMA', i)]]
@@ -1215,7 +1250,11 @@ GetSysMat <- function(p,
       index_par2 <- index_par + param_num_list[[paste0('SARIMA', i)]] - 1
 
       # Indices of parameters that should be used for the component
-      param_indices[[paste0('SARIMA', i)]] <- index_par:index_par2
+      if (index_par2 >= index_par) {
+        param_indices[[paste0('SARIMA', i)]] <- index_par:index_par2
+      } else {
+        param_indices[[paste0('SARIMA', i)]] <- 0
+      }
 
       # Keeping track of how many parameters the State Space model needs
       param_num <- param_num + param_num_list[[paste0('SARIMA', i)]]
