@@ -45,6 +45,8 @@
 
 
 
+  <link href="../extra.css" rel="stylesheet">
+  
 
 <meta property="og:title" content="State Space Model Forecasting — StateSpaceForecast" />
 <meta property="og:description" content="Produces forecasts using a fitted State Space Model." />
@@ -197,11 +199,11 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='StateSpaceFit.html'>StateSpaceFit</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-28 23:22:28</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='StateSpaceFit.html'>StateSpaceFit</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-29 00:26:25</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
 #&gt; initial  value 2.443183 
 #&gt; iter  10 value 1.775548
 #&gt; final  value 1.775527 
-#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-28 23:22:28</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.461241006851196 secs</span></div><div class='input'>
+#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-29 00:26:26</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.620154142379761 secs</span></div><div class='input'>
 <span class='co'># Obtain forecasts for 10 steps ahead using the fitted model</span>
 <span class='no'>fc</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceForecast</span>(<span class='no'>fit</span>, <span class='kw'>forecast_period</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 

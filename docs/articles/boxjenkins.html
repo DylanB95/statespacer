@@ -17,7 +17,8 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Fitting ARIMA models with statespacer">
+<script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Fitting ARIMA models with statespacer">
 <meta property="og:description" content="A lot of time series practitiones resort to the well-known Box-Jenkins  methods, such as ARIMA and SARIMA, when modelling time series. Those methods  are easily incorporated into the State Space framework. This provides to be  beneficial, as missing observations are easily dealt with in the State Space  framework. Moreover, no observations need to be discarded due to the  differencing and introduced lagged variables. The loglikelihood is calculated in an  exact manner! In this document, we'll show you how to estimate ARIMA and  SARIMA models using statespacer.
 ">
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png">
@@ -118,14 +119,14 @@
                      <span class="kw">arima_list</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">0</span>)),
                      <span class="kw">format_level</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">Data</span>)), <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-28 23:22:32</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:26:30</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1</span>
 <span class="co">#&gt; initial  value 5.022561 </span>
 <span class="co">#&gt; iter  10 value 4.114363</span>
 <span class="co">#&gt; final  value 4.111163 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-28 23:22:33</span>
-<span class="co">#&gt; Time difference of 1.15236711502075 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:26:31</span>
+<span class="co">#&gt; Time difference of 1.34730100631714 secs</span></pre></body></html></div>
 <p>Note that we eliminate the observation error by setting its variance to 0, although it’s perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>.</p>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Coefficients of the ARMA component</span>
@@ -177,13 +178,13 @@
                      <span class="kw">H_format</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
                      <span class="kw">sarima_list</span> <span class="kw">=</span> <span class="no">sarima_list</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span>(<span class="no">Data</span>))), <span class="fl">0</span>, <span class="fl">0</span>))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-28 23:22:34</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 00:26:32</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -1.034434 </span>
 <span class="co">#&gt; final  value -1.616321 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-28 23:22:36</span>
-<span class="co">#&gt; Time difference of 1.36724710464478 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 00:26:34</span>
+<span class="co">#&gt; Time difference of 1.45120215415955 secs</span></pre></body></html></div>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># Coefficients of the ARMA component</span>
 <span class="no">arma_coeff</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(
