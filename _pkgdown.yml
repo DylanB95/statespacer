@@ -20,6 +20,13 @@ reference:
   - StateSpaceFit
   - StateSpaceForecast
   - StateSpaceEval
+- title: Parameter Transformations
+  contents: 
+  - Cholesky
+  - CoeffARMA
+- title: Matrix utilities
+  contents:
+  - BlockMatrix
 
 navbar:
   type: inverse
