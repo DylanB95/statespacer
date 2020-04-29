@@ -17,7 +17,9 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<script src="../pkgdown.js"></script><!-- docsearch --><script src="../docsearch.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.3/docsearch.min.css" integrity="sha256-QOSRU/ra9ActyXkIBbiIB144aDBdtvXBcNc3OTNuX/Q=" crossorigin="anonymous">
+<link href="../docsearch.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="statespacer applied to UK Road Deaths">
 <meta property="og:description" content="A lot of time series exhibit some form of seasonality. In this vignette you  will learn how to deal with seasonality using the statespacer package.  Moreover, you will learn how to add explanatory variables to the State Space  model, and how to estimate multivariate models if there is more than one  dependent variable available. We also show you how to control the variance -  covariance matrices of the various components.
 ">
@@ -78,7 +80,13 @@
   </a>
 </li>
       </ul>
+<form class="navbar-form navbar-right hidden-xs hidden-sm" role="search">
+        <div class="form-group">
+          <input type="search" class="form-control" name="search-input" id="search-input" placeholder="Search..." aria-label="Search for..." autocomplete="off">
 </div>
+      </form>
+      
+    </div>
 <!--/.nav-collapse -->
   </div>
 <!--/.container -->
@@ -154,13 +162,13 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 11:56:46</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 20:12:51</span>
 <span class="co">#&gt; Parameter scaling:[1] 1</span>
 <span class="co">#&gt; initial  value -0.443442 </span>
 <span class="co">#&gt; final  value -0.735372 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 11:56:46</span>
-<span class="co">#&gt; Time difference of 0.580693960189819 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 20:12:51</span>
+<span class="co">#&gt; Time difference of 0.379782915115356 secs</span>
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span>
 
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span></pre></body></html></div>
@@ -206,7 +214,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 11:56:47</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 20:12:52</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -0.172423 </span>
 <span class="co">#&gt; iter  10 value -0.893962</span>
@@ -214,8 +222,8 @@
 <span class="co">#&gt; iter  30 value -0.915515</span>
 <span class="co">#&gt; final  value -0.915517 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 11:56:54</span>
-<span class="co">#&gt; Time difference of 7.26095294952393 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 20:12:59</span>
+<span class="co">#&gt; Time difference of 7.74766612052917 secs</span>
 
 <span class="co"># The estimated variance of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
@@ -304,7 +312,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>))))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 11:56:56</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 20:13:02</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value 0.389588 </span>
 <span class="co">#&gt; iter  10 value -1.583528</span>
@@ -312,8 +320,8 @@
 <span class="co">#&gt; iter  30 value -1.676530</span>
 <span class="co">#&gt; final  value -1.676537 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 11:57:47</span>
-<span class="co">#&gt; Time difference of 50.2763631343842 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 20:13:50</span>
+<span class="co">#&gt; Time difference of 48.0788269042969 secs</span></pre></body></html></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The estimated variance - covariance matrix of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
@@ -398,7 +406,20 @@
 </div>
 
   
-
-
-  </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docsearch.js/2.6.1/docsearch.min.js" integrity="sha256-GKvGqXDznoRYHCwKXGnuchvKSwmx9SRMrZOTh2g4Sb0=" crossorigin="anonymous"></script><script>
+  docsearch({
+    
+    
+    apiKey: '7e05823736aed6581d25ab2a4c1524a0',
+    indexName: 'statespacer',
+    inputSelector: 'input#search-input.form-control',
+    transformData: function(hits) {
+      return hits.map(function (hit) {
+        hit.url = updateHitURL(hit);
+        return hit;
+      });
+    }
+  });
+</script>
+</body>
 </html>
