@@ -253,7 +253,7 @@
 <p>Most components use a variance - covariance matrix, which are constructed using the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition. The parameters supplied to build the variance - covariance matrix are ordered as follows: First, parameters are used for the Diagonal matrix <span class="math inline">\(D\)</span> and transformed by <span class="math inline">\(exp(2x)\)</span>. Second, the remaining parameters are assigned columnwise to the Loading matrix <span class="math inline">\(L\)</span>, so first the <span class="math inline">\(1_{st}\)</span> column, then the <span class="math inline">\(2_{nd}\)</span> column, and so on.</p>
 <p>The parameters are assigned to the components in the following order:</p>
 <ol style="list-style-type: decimal">
-<li>The variance - covariance matrix, <span class="math inline">\(H\)</span>, of the observation equation. Unless, the <span class="math inline">\(H\)</span> matrix is self-specified!</li>
+<li>The variance - covariance matrix, <span class="math inline">\(H\)</span>, of the observation equation. Unless the <span class="math inline">\(H\)</span> matrix is self-specified!</li>
 <li>The Local Level component.</li>
 <li>The Local Level component + Slope in that order.</li>
 <li>The BSM components, in the order of the specified <code>BSM_vec</code>.</li>

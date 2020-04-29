@@ -124,14 +124,14 @@
 <span class="co">#&gt; Warning in StateSpaceFit(y = y, local_level_ind = TRUE, initial = 0.5 * :</span>
 <span class="co">#&gt; Number of initial parameters is less than the required amount of parameters (2),</span>
 <span class="co">#&gt; recycling the initial parameters the required amount of times.</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 10:34:00</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-04-29 11:56:37</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1</span>
 <span class="co">#&gt; initial  value 6.623273 </span>
 <span class="co">#&gt; iter  10 value 6.334646</span>
 <span class="co">#&gt; final  value 6.334646 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 10:34:01</span>
-<span class="co">#&gt; Time difference of 0.36341404914856 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-04-29 11:56:37</span>
+<span class="co">#&gt; Time difference of 0.427754163742065 secs</span></pre></body></html></div>
 <p>We get a warning message about the number of initial parameters, as we didn’t specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don’t need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify <code>initial = rnorm(1000)</code>, and not have to worry about if enough parameters were supplied.</p>
 <p>Now, let’s check the estimated values of <span class="math inline">\(\sigma_\varepsilon^2\)</span> and <span class="math inline">\(\sigma_\eta^2\)</span>.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>, <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">Q</span>$<span class="no">level</span>)

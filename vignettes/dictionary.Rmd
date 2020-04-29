@@ -115,7 +115,7 @@ Most components use a variance - covariance matrix, which are constructed using 
 
 The parameters are assigned to the components in the following order:
 
-1. The variance - covariance matrix, $H$, of the observation equation. Unless, the $H$ matrix is self-specified!
+1. The variance - covariance matrix, $H$, of the observation equation. Unless the $H$ matrix is self-specified!
 1. The Local Level component.
 1. The Local Level component + Slope in that order.
 1. The BSM components, in the order of the specified `BSM_vec`.
