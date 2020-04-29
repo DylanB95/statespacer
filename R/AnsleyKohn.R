@@ -151,6 +151,13 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
   # Initialise list to return
   result <- list()
 
+  # Check if array contains square matrices
+  if(is.array(A)) {
+    if (dim(A)[1] != dim(A)[2]) {
+      stop("Matrices in `A` must be square matrices.")
+    }
+  }
+
   # Obtain partial autocorrelation matrices
   P <- PACMat(A)
 
