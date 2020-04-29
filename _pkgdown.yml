@@ -15,7 +15,7 @@ home:
   strip_header: false
 
 reference:
-- title: State Space model
+- title: State Space Model
   contents:
   - StateSpaceFit
   - StateSpaceForecast
@@ -24,7 +24,7 @@ reference:
   contents: 
   - Cholesky
   - CoeffARMA
-- title: Matrix utilities
+- title: Matrix Utilities
   contents:
   - BlockMatrix
 
