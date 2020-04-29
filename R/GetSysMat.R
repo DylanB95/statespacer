@@ -25,6 +25,7 @@ GetSysMat <- function(p,
                       level_addvar_list = NULL,
                       arima_list = NULL,
                       sarima_list = NULL,
+                      self_spec_list = NULL,
                       exclude_level = NULL,
                       exclude_slope = NULL,
                       exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
@@ -38,6 +39,19 @@ GetSysMat <- function(p,
                       format_cycle_list = lapply(exclude_cycle_list, FUN = function(x) NULL),
                       format_addvar = NULL,
                       format_level_addvar = NULL) {
+
+  # Default values for self_spec_list
+  if (!is.null(self_spec_list)) {
+    # Check if self_spec_list$H_spec is specified
+    if (is.null(self_spec_list$H_spec)) {
+      self_spec_list$H_spec <- FALSE
+      H_spec <- FALSE
+    } else {
+      H_spec <- self_spec_list$H_spec
+    }
+  } else {
+    H_spec <- FALSE
+  }
 
   # Keeping track of the number of state parameters m
   m <- 0
@@ -83,6 +97,9 @@ GetSysMat <- function(p,
   # Initialising list to store the padded versions of the Z system matrix
   Z_padded_list <- list()
 
+  # Initialising list to store components of H
+  H_list <- NULL
+
   # Initialising lists to store lambda and rho parameters of the cycles
   lambda_list <- NULL
   rho_list <- NULL
@@ -107,67 +124,52 @@ GetSysMat <- function(p,
   P_inf <- NULL
   P_star <- NULL
 
-  # Dimensions of the matrices start at 2, is overwritten if a component
-  # has dimension 3
-  Zdim <- 2
-  Tdim <- 2
-  Rdim <- 2
-  Qdim <- 2
-
   #### Residuals ####
-  Z_kal <- cbind(Z_kal, diag(1, p, p))
-  T_kal <- BlockMatrix(T_kal, matrix(0, p, p))
-  R_kal <- BlockMatrix(R_kal, diag(1, p, p))
+  if (!H_spec) {
 
-  # How many parameters are needed for H matrix?
-  if (is.null(H_format)) {
-    H_format <- diag(1, p, p)
-  }
-  # Only entries in lower triangle of matrix count
-  H_format[upper.tri(H_format)] <- 0
-  param_num_list$H <- sum(H_format != 0 & lower.tri(H_format, diag = TRUE))
-  if (param_num_list$H > 0) {
-    param_indices$H <- 1:param_num_list$H
-  } else {
-    param_indices$H <- 0
-  }
-  param_num <- param_num + param_num_list$H
-
-  H_list <- list()
-  if (update_part) {
-    if (param_num_list$H > 0) {
-      update <- Cholesky(
-        param = param[param_indices$H],
-        format = H_format,
-        decompositions = TRUE
-      )
-      H_list <- list(
-        H = update$cov_mat,
-        loading_matrix = update$loading_matrix,
-        diagonal_matrix = update$diagonal_matrix,
-        correlation_matrix = update$correlation_matrix,
-        stdev_matrix = update$stdev_matrix
-      )
-      H <- H_list$H
-      Q_kal <- BlockMatrix(Q_kal, H)
-      P_star <- BlockMatrix(P_star, H)
+    # How many parameters are needed for H matrix?
+    if (is.null(H_format)) {
+      H_format <- diag(1, p, p)
     }
-  }
-  if (param_num_list$H == 0) {
-    H <- matrix(0, p, p)
-    H_list <- list(H = H)
-    Q_kal <- BlockMatrix(Q_kal, H)
-    P_star <- BlockMatrix(P_star, H)
-  }
+    # Only entries in lower triangle of matrix count
+    H_format[upper.tri(H_format)] <- 0
+    param_num_list$H <- sum(H_format != 0 & lower.tri(H_format, diag = TRUE))
+    if (param_num_list$H > 0) {
+      param_indices$H <- 1:param_num_list$H
+    } else {
+      param_indices$H <- 0
+    }
+    param_num <- param_num + param_num_list$H
 
-  a <- rbind(a, matrix(0, p, 1))
-  P_inf <- BlockMatrix(P_inf, matrix(0, p, p))
+    # Components of H
+    H_list <- list()
+    if (update_part) {
+      if (param_num_list$H > 0) {
+        update <- Cholesky(
+          param = param[param_indices$H],
+          format = H_format,
+          decompositions = TRUE
+        )
+        H_list <- list(
+          H = update$cov_mat,
+          loading_matrix = update$loading_matrix,
+          diagonal_matrix = update$diagonal_matrix,
+          correlation_matrix = update$correlation_matrix,
+          stdev_matrix = update$stdev_matrix
+        )
+        H <- H_list$H
+      }
+    }
+    if (param_num_list$H == 0) {
+      H <- matrix(0, p, p)
+      H_list <- list(H = H)
+    }
 
+    # Updating indices for the first parameter to use for the next component
+    index_par <- index_par + param_num_list$H
+  }
   # Indices of the residuals in the state vector
   residuals_state <- 1:p
-
-  # Updating indices for the first parameter to use for the next component
-  index_par <- index_par + param_num_list$H
 
   #### Local Level ####
   if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
@@ -546,17 +548,7 @@ GetSysMat <- function(p,
 
     # Storing system matrices
     Z_list$addvar <- update$Z
-    Zdim <- 3
-    Z_kal <- array(
-      apply(
-        update$Z, 3,
-        function(x) {cbind(
-          Z_kal,
-          matrix(x, p, k)
-        )}
-      ),
-      dim = c(p, sum(dim(Z_kal)[2], k), N)
-    )
+    Z_kal <- CombineZ(Z_kal, update$Z)
     T_list$addvar <- update$Tmat
     T_kal <- BlockMatrix(T_kal, update$Tmat)
     R_list$addvar <- update$R
@@ -567,16 +559,7 @@ GetSysMat <- function(p,
     P_inf <- BlockMatrix(P_inf, update$P_inf)
     Pstar_list$addvar <- update$P_star
     P_star <- BlockMatrix(P_star, update$P_star)
-    Z_padded_list$addvar <- array(
-      apply(
-        update$Z, 3,
-        function(x) {cbind(
-          zero_mat,
-          matrix(x, p, k)
-        )}
-      ),
-      dim = c(p, sum(dim(zero_mat)[2], k), N)
-    )
+    Z_padded_list$addvar <- CombineZ(zero_mat, update$Z)
     if (param_num_list$addvar == 0 | update_part) {
       Q_list$addvar <- update$Q
       Q_kal <- BlockMatrix(Q_kal, update$Q)
@@ -694,29 +677,9 @@ GetSysMat <- function(p,
 
     # Storing system matrices
     Z_list$level <- update$Z
-    if (Zdim < 3) {
-      Z_kal <- cbind(Z_kal, update$Z)
-    } else {
-      Z_kal <- array(
-        apply(
-          Z_kal, 3,
-          function(x) {cbind(
-            matrix(x, p, dim(Z_kal)[2]),
-            update$Z
-          )}
-        ),
-        dim = c(p, sum(dim(Z_kal)[2], k_level), N)
-      )
-    }
+    Z_kal <- CombineZ(Z_kal, update$Z)
     T_list$level <- update$Tmat
-    Tdim <- 3
-    T_kal <- array(
-      apply(
-        update$Tmat, 3,
-        function(x) BlockMatrix(T_kal, as.matrix(x))
-      ),
-      dim = c(sum(dim(T_kal)[1], k_level), sum(dim(T_kal)[2], k_level), N)
-    )
+    T_kal <- CombineTRQ(T_kal, update$Tmat)
     R_list$level <- update$R
     R_kal <- BlockMatrix(R_kal, update$R)
     a_list$level <- update$a1
@@ -877,29 +840,9 @@ GetSysMat <- function(p,
 
     # Storing system matrices
     Z_list$level <- update$Z
-    if (Zdim < 3) {
-      Z_kal <- cbind(Z_kal, update$Z)
-    } else {
-      Z_kal <- array(
-        apply(
-          Z_kal, 3,
-          function(x) {cbind(
-            matrix(x, p, dim(Z_kal)[2]),
-            update$Z
-          )}
-        ),
-        dim = c(p, sum(dim(Z_kal)[2], k_level), N)
-      )
-    }
+    Z_kal <- CombineZ(Z_kal, update$Z)
     T_list$level <- update$Tmat
-    Tdim <- 3
-    T_kal <- array(
-      apply(
-        update$Tmat, 3,
-        function(x) BlockMatrix(T_kal, as.matrix(x))
-      ),
-      dim = c(sum(dim(T_kal)[1], k_level), sum(dim(T_kal)[2], k_level), N)
-    )
+    T_kal <- CombineTRQ(T_kal, update$Tmat)
     R_list$level <- update$R
     R_kal <- BlockMatrix(R_kal, update$R)
     a_list$level <- update$a1
@@ -1013,20 +956,7 @@ GetSysMat <- function(p,
 
       # Storing system matrices
       Z_list[[paste0('Cycle', i)]] <- update$Z
-      if (Zdim < 3) {
-        Z_kal <- cbind(Z_kal, update$Z)
-      } else {
-        Z_kal <- array(
-          apply(
-            Z_kal, 3,
-            function(x) {cbind(
-              matrix(x, p, dim(Z_kal)[2]),
-              update$Z
-            )}
-          ),
-          dim = c(p, sum(dim(Z_kal)[2], 2 * n_cycle), N)
-        )
-      }
+      Z_kal <- CombineZ(Z_kal, update$Z)
       R_list[[paste0('Cycle', i)]] <- update$R
       R_kal <- BlockMatrix(R_kal, update$R)
       a_list[[paste0('Cycle', i)]] <- update$a1
@@ -1051,19 +981,7 @@ GetSysMat <- function(p,
       }
       if (update_part) {
         T_list[[paste0('Cycle', i)]] <- update$Tmat
-        if (Tdim < 3) {
-          T_kal <- BlockMatrix(T_kal, update$Tmat)
-        } else {
-          T_kal <- array(
-            apply(T_kal, 3,
-                  function(x) BlockMatrix(as.matrix(x), update$Tmat)
-            ),
-            dim = c(sum(dim(T_kal)[1], 2 * n_cycle),
-                    sum(dim(T_kal)[2], 2 * n_cycle),
-                    N
-            )
-          )
-        }
+        T_kal <- CombineTRQ(T_kal, update$Tmat)
         lambda_list[[paste0('Cycle', i)]] <- update$lambda
         if (damping_factor_ind[i]) {
           rho_list[[paste0('Cycle', i)]] <- update$rho
@@ -1138,20 +1056,7 @@ GetSysMat <- function(p,
 
       # Storing system matrices
       Z_list[[paste0('ARIMA', i)]] <- update$Z
-      if (Zdim < 3) {
-        Z_kal <- cbind(Z_kal, update$Z)
-      } else {
-        Z_kal <- array(
-          apply(
-            Z_kal, 3,
-            function(x) {cbind(
-              matrix(x, p, dim(Z_kal)[2]),
-              update$Z
-            )}
-          ),
-          dim = c(p, sum(dim(Z_kal)[2], state_num), N)
-        )
-      }
+      Z_kal <- CombineZ(Z_kal, update$Z)
       a_list[[paste0('ARIMA', i)]] <- update$a1
       a <- rbind(a, update$a1)
       Pinf_list[[paste0('ARIMA', i)]] <- update$P_inf
@@ -1167,20 +1072,7 @@ GetSysMat <- function(p,
         R_list[[paste0('ARIMA', i)]] <- update$R
         R_kal <- BlockMatrix(R_kal, update$R)
         T_list[[paste0('ARIMA', i)]] <- update$Tmat
-        if (Tdim < 3) {
-          T_kal <- BlockMatrix(T_kal, update$Tmat)
-        } else {
-          T_kal <- array(
-            apply(T_kal, 3,
-                  function(x) BlockMatrix(as.matrix(x), update$Tmat)
-            ),
-            dim = c(
-              sum(dim(T_kal)[1], state_num),
-              sum(dim(T_kal)[2], state_num),
-              N
-            )
-          )
-        }
+        T_kal <- CombineTRQ(T_kal, update$Tmat)
         Q_list[[paste0('ARIMA', i)]] <- update$Q
         Q_kal <- BlockMatrix(Q_kal, update$Q)
         L_list[[paste0('ARIMA', i)]] <- update$loading_matrix
@@ -1274,20 +1166,7 @@ GetSysMat <- function(p,
 
       # Storing system matrices
       Z_list[[paste0('SARIMA', i)]] <- update$Z
-      if (Zdim < 3) {
-        Z_kal <- cbind(Z_kal, update$Z)
-      } else {
-        Z_kal <- array(
-          apply(
-            Z_kal, 3,
-            function(x) {cbind(
-              matrix(x, p, dim(Z_kal)[2]),
-              update$Z
-            )}
-          ),
-          dim = c(p, sum(dim(Z_kal)[2], state_num), N)
-        )
-      }
+      Z_kal <- CombineZ(Z_kal, update$Z)
       a_list[[paste0('SARIMA', i)]] <- update$a1
       a <- rbind(a, update$a1)
       Pinf_list[[paste0('SARIMA', i)]] <- update$P_inf
@@ -1303,20 +1182,7 @@ GetSysMat <- function(p,
         R_list[[paste0('SARIMA', i)]] <- update$R
         R_kal <- BlockMatrix(R_kal, update$R)
         T_list[[paste0('SARIMA', i)]] <- update$Tmat
-        if (Tdim < 3) {
-          T_kal <- BlockMatrix(T_kal, update$Tmat)
-        } else {
-          T_kal <- array(
-            apply(T_kal, 3,
-                  function(x) BlockMatrix(as.matrix(x), update$Tmat)
-            ),
-            dim = c(
-              sum(dim(T_kal)[1], state_num),
-              sum(dim(T_kal)[2], state_num),
-              N
-            )
-          )
-        }
+        T_kal <- CombineTRQ(T_kal, update$Tmat)
         Q_list[[paste0('SARIMA', i)]] <- update$Q
         Q_kal <- BlockMatrix(Q_kal, update$Q)
         L_list[[paste0('SARIMA', i)]] <- update$loading_matrix
@@ -1355,6 +1221,7 @@ GetSysMat <- function(p,
                         level_addvar_list = level_addvar_list,
                         arima_list = arima_list,
                         sarima_list = sarima_list,
+                        self_spec_list = self_spec_list,
                         exclude_level = exclude_level,
                         exclude_slope = exclude_slope,
                         exclude_BSM_list = exclude_BSM_list,
