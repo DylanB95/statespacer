@@ -42,6 +42,7 @@ GetSysMat <- function(p,
 
   # Default values for self_spec_list
   if (!is.null(self_spec_list)) {
+
     # Check if self_spec_list$H_spec is specified
     if (is.null(self_spec_list$H_spec)) {
       self_spec_list$H_spec <- FALSE
@@ -49,6 +50,51 @@ GetSysMat <- function(p,
     } else {
       H_spec <- self_spec_list$H_spec
     }
+
+    # Check if self_spec_list$state_num is specified
+    if (is.null(self_spec_list$state_num)) {
+      stop("`self_spec_list$state_num` must be specified!")
+    }
+
+    # Check if self_spec_list$a1 is specified
+    if (is.null(self_spec_list$a1)) {
+      stop("`self_spec_list$a1` must be specified!")
+    }
+
+    # Check if self_spec_list$P_inf is specified
+    if (is.null(self_spec_list$P_inf)) {
+      stop("`self_spec_list$P_inf` must be specified!")
+    }
+
+    # Check if self_spec_list$sys_mat_fun is specified
+    if (is.null(self_spec_list$sys_mat_fun)) {
+      if (!is.null(self_spec_list$param_num)) {
+        if (self_spec_list$param_num > 0) {
+          stop(
+            paste(
+              "`self_spec_list$sys_mat_fun` was not specified while",
+              "`self_spec_list$param_num` is greater than 0."
+            )
+          )
+        }
+      }
+      self_spec_list$param_num <- 0
+    } else if (is.null(self_spec_list$param_num)) {
+      stop(
+        paste(
+          "`self_spec_list$param_num` must be specified if",
+          "`self_spec_list$sys_mat_fun` is specified."
+        )
+      )
+    } else if (self_spec_list$param_num <= 0) {
+      stop(
+        paste(
+          "`self_spec_list$param_num` must be greater than 0 if",
+          "`self_spec_list$sys_mat_fun` is specified."
+        )
+      )
+    }
+
   } else {
     H_spec <- FALSE
   }
@@ -112,6 +158,9 @@ GetSysMat <- function(p,
   sar_list <- NULL
   sma_list <- NULL
 
+  # Initialising vector of transformed parameters for self_spec component
+  self_spec <- NULL
+
   # Initialising list to store state indices of coefficients
   coeff_list <- list()
 
@@ -143,24 +192,21 @@ GetSysMat <- function(p,
 
     # Components of H
     H_list <- list()
-    if (update_part) {
-      if (param_num_list$H > 0) {
-        update <- Cholesky(
-          param = param[param_indices$H],
-          format = H_format,
-          decompositions = TRUE
-        )
-        H_list <- list(
-          H = update$cov_mat,
-          loading_matrix = update$loading_matrix,
-          diagonal_matrix = update$diagonal_matrix,
-          correlation_matrix = update$correlation_matrix,
-          stdev_matrix = update$stdev_matrix
-        )
-        H <- H_list$H
-      }
-    }
-    if (param_num_list$H == 0) {
+    if (update_part & param_num_list$H > 0) {
+      update <- Cholesky(
+        param = param[param_indices$H],
+        format = H_format,
+        decompositions = TRUE
+      )
+      H_list <- list(
+        H = update$cov_mat,
+        loading_matrix = update$loading_matrix,
+        diagonal_matrix = update$diagonal_matrix,
+        correlation_matrix = update$correlation_matrix,
+        stdev_matrix = update$stdev_matrix
+      )
+      H <- H_list$H
+    } else if (param_num_list$H == 0) {
       H <- matrix(0, p, p)
       H_list <- list(H = H)
     }
@@ -1211,6 +1257,148 @@ GetSysMat <- function(p,
     }
   }
 
+  #### Self Specified ####
+  if (!is.null(self_spec_list)) {
+
+    # Constructing matrix with 0s using former m dimension
+    zero_mat <- matrix(0, p, m)
+
+    # Saving former m
+    m_old <- m
+
+    # Updating m
+    m <- m + self_spec_list$state_num
+
+    # Label of the state parameters
+    state_label <- c(
+      state_label,
+      rep("Self Specified", self_spec_list$state_num)
+    )
+
+    # How many parameters in param vector are meant for the component?
+    param_num_list$self_spec <- self_spec_list$param_num
+
+    # Last index of parameter that should be used for the component
+    index_par2 <- index_par + param_num_list$self_spec - 1
+
+    # Indices of parameters that should be used for the component
+    if (index_par2 >= index_par) {
+      param_indices$self_spec <- index_par:index_par2
+    } else {
+      param_indices$self_spec <- 0
+    }
+    # Keeping track of how many parameters the State Space model uses
+    param_num <- param_num + param_num_list$self_spec
+
+    # Calling the function to obtain system matrices that depend on parameters
+    if (update_part & !is.null(self_spec_list$sys_mat_fun)) {
+      input <- list(param = param[param_indices$self_spec])
+      if (!is.null(self_spec_list$sys_mat_input)) {
+        input <- c(input, self_spec_list$sys_mat_input)
+      }
+      update <- do.call(self_spec_list$sys_mat_fun, input)
+    }
+
+    # Updating indices for the first parameter to use for the next component
+    index_par <- index_par2 + 1
+
+    # Storing system matrices that do not depend on the parameters
+    if (!is.null(self_spec_list$Z)) {
+      Z_list$self_spec <- self_spec_list$Z
+      Z_kal <- CombineZ(Z_kal, Z_list$self_spec)
+      Z_padded_list$self_spec <- CombineZ(zero_mat, Z_list$self_spec)
+    }
+    if (!is.null(self_spec_list$Tmat)) {
+      T_list$self_spec <- self_spec_list$Tmat
+      if (update_part) {
+        T_kal <- CombineTRQ(T_kal, T_list$self_spec)
+      }
+    }
+    if (!is.null(self_spec_list$R)) {
+      R_list$self_spec <- self_spec_list$R
+      if (update_part) {
+        R_kal <- CombineTRQ(R_kal, R_list$self_spec)
+      }
+    }
+    if (!is.null(self_spec_list$Q)) {
+      Q_list$self_spec <- self_spec_list$Q
+      if (update_part) {
+        Q_kal <- CombineTRQ(Q_kal, Q_list$self_spec)
+      }
+    }
+    a_list$self_spec <- self_spec_list$a1
+    a <- rbind(a, a_list$self_spec)
+    Pinf_list$self_spec <- self_spec_list$P_inf
+    P_inf <- BlockMatrix(P_inf, Pinf_list$self_spec)
+    if (!is.null(self_spec_list$P_star)) {
+      Pstar_list$self_spec <- self_spec_list$P_star
+      if (update_part) {
+        P_star <- BlockMatrix(P_star, Pstar_list$self_spec)
+      }
+    }
+
+    # Storing system matrices that depend on the parameters
+    if (update_part & !is.null(self_spec_list$sys_mat_fun)) {
+      if (!is.null(update$Z)) {
+        Z_list$self_spec <- update$Z
+        Z_kal <- CombineZ(Z_kal, Z_list$self_spec)
+        Z_padded_list$self_spec <- CombineZ(zero_mat, Z_list$self_spec)
+      }
+      if (!is.null(update$Tmat)) {
+        T_list$self_spec <- update$Tmat
+        T_kal <- CombineTRQ(T_kal, T_list$self_spec)
+      }
+      if (!is.null(update$R)) {
+        R_list$self_spec <- update$R
+        R_kal <- CombineTRQ(R_kal, R_list$self_spec)
+      }
+      if (!is.null(update$Q)) {
+        Q_list$self_spec <- update$Q
+        Q_kal <- CombineTRQ(Q_kal, Q_list$self_spec)
+      }
+      if (!is.null(update$P_star)) {
+        Pstar_list$self_spec <- update$P_star
+        P_star <- BlockMatrix(P_star, Pstar_list$self_spec)
+      }
+    }
+
+    # Specified transformed parameters
+    if (update_part & !is.null(self_spec_list$transform_fun)) {
+      input <- list(param = param[param_indices$self_spec])
+      if (!is.null(self_spec_list$transform_input)) {
+        input <- c(input, self_spec_list$transform_input)
+      }
+      self_spec <- do.call(self_spec_list$transform_fun, input)
+    }
+  }
+
+  #### Residuals ####
+  Z_kal <- CombineZ(diag(1, p, p), Z_kal)
+  T_kal <- CombineTRQ(matrix(0, p, p), T_kal)
+  R_kal <- CombineTRQ(diag(1, p, p), R_kal)
+  a <- rbind(matrix(0, p, 1), a)
+  P_inf <- BlockMatrix(matrix(0, p, p), P_inf)
+  if (!H_spec) {
+    if ((update_part & param_num_list$H > 0) | param_num_list$H == 0) {
+      Q_kal <- CombineTRQ(H, Q_kal)
+      P_star <- BlockMatrix(H, P_star)
+    }
+  } else if (!is.null(self_spec_list$H)) {
+    Q_kal <- CombineTRQ(self_spec_list$H, Q_kal)
+    if (is.matrix(self_spec_list$H)) {
+      P_star <- BlockMatrix(self_spec_list$H, P_star)
+    } else {
+      P_star <- BlockMatrix(as.matrix(self_spec_list$H[,,1]), P_star)
+    }
+  } else if (update_part) {
+    Q_kal <- CombineTRQ(update$H, Q_kal)
+    if (is.matrix(update$H)) {
+      P_star <- BlockMatrix(update$H, P_star)
+    } else {
+      P_star <- BlockMatrix(as.matrix(update$H[,,1]), P_star)
+    }
+  }
+
   # Input arguments that specify the state space model
   function_call <- list(H_format = H_format,
                         local_level_ind = local_level_ind,
@@ -1283,6 +1471,8 @@ GetSysMat <- function(p,
   }
   result$addvar_state <- coeff_list$addvar_state
   result$level_addvar_state <- coeff_list$level_addvar_state
+  result$self_spec <- self_spec
+  result$H_spec <- H_spec
 
   # Return the result
   return(result)
