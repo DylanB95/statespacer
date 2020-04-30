@@ -264,9 +264,9 @@ StateSpaceForecast <- function(fit,
   if (fit$function_call$local_level_ind & !fit$function_call$slope_ind &
       is.null(level_addvar_list_fc)) {
     tempZ <- matrix(0, p, m)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
@@ -275,9 +275,9 @@ StateSpaceForecast <- function(fit,
   # Local Level + Slope
   if (fit$function_call$slope_ind & is.null(level_addvar_list_fc)) {
     tempZ <- matrix(0, p, m)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
@@ -287,9 +287,9 @@ StateSpaceForecast <- function(fit,
   if (length(fit$function_call$BSM_vec) > 0) {
     for (s in fit$function_call$BSM_vec) {
       tempZ <- matrix(0, p, m)
+      tempZ[1:length(Z_padded[[paste0('BSM', s)]])] <- Z_padded[[paste0('BSM', s)]]
       result[[paste0('BSM', s)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
-        tempZ[1:length(Z_padded[[paste0('BSM', s)]])] <- Z_padded[[paste0('BSM', s)]]
         result[[paste0('BSM', s)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('BSM', s)]] <- tempZ
@@ -310,9 +310,9 @@ StateSpaceForecast <- function(fit,
   # level_addvar
   if (!is.null(level_addvar_list_fc) & !fit$function_call$slope_ind) {
     tempZ <- matrix(0, p, m)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
@@ -321,9 +321,9 @@ StateSpaceForecast <- function(fit,
   # slope_addvar
   if (!is.null(level_addvar_list_fc) & fit$function_call$slope_ind) {
     tempZ <- matrix(0, p, m)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     result$level <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       result$level[i,] <- tempZ %*% matrix(a_fc[i,])
     }
     Z_padded$level <- tempZ
@@ -333,9 +333,9 @@ StateSpaceForecast <- function(fit,
   if (fit$function_call$cycle_ind) {
     for (j in seq_along(fit$function_call$format_cycle_list)) {
       tempZ <- matrix(0, p, m)
+      tempZ[1:length(Z_padded[[paste0('Cycle', j)]])] <- Z_padded[[paste0('Cycle', j)]]
       result[[paste0('Cycle', j)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
-        tempZ[1:length(Z_padded[[paste0('Cycle', j)]])] <- Z_padded[[paste0('Cycle', j)]]
         result[[paste0('Cycle', j)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('Cycle', j)]] <- tempZ
@@ -346,9 +346,9 @@ StateSpaceForecast <- function(fit,
   if (!is.null(fit$function_call$arima_list)) {
     for (j in seq_along(fit$function_call$arima_list)) {
       tempZ <- matrix(0, p, m)
+      tempZ[1:length(Z_padded[[paste0('ARIMA', j)]])] <- Z_padded[[paste0('ARIMA', j)]]
       result[[paste0('ARIMA', j)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
-        tempZ[1:length(Z_padded[[paste0('ARIMA', j)]])] <- Z_padded[[paste0('ARIMA', j)]]
         result[[paste0('ARIMA', j)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('ARIMA', j)]] <- tempZ
@@ -359,9 +359,9 @@ StateSpaceForecast <- function(fit,
   if (!is.null(fit$function_call$sarima_list)) {
     for (j in seq_along(fit$function_call$sarima_list)) {
       tempZ <- matrix(0, p, m)
+      tempZ[1:length(Z_padded[[paste0('SARIMA', j)]])] <- Z_padded[[paste0('SARIMA', j)]]
       result[[paste0('SARIMA', j)]] <- matrix(0, forecast_period, p)
       for (i in 1:forecast_period) {
-        tempZ[1:length(Z_padded[[paste0('SARIMA', j)]])] <- Z_padded[[paste0('SARIMA', j)]]
         result[[paste0('SARIMA', j)]][i,] <- tempZ %*% matrix(a_fc[i,])
       }
       Z_padded[[paste0('SARIMA', j)]] <- tempZ
@@ -372,13 +372,13 @@ StateSpaceForecast <- function(fit,
   if (!is.null(fit$function_call$self_spec_list)) {
     if (is.matrix(Z_padded$self_spec)) {
       tempZ <- matrix(0, p, m)
+      tempZ[1:length(Z_padded$self_spec)] <- Z_padded$self_spec
     } else {
       tempZ <- array(0, dim = c(p, m, forecast_period))
     }
     result$self_spec <- matrix(0, forecast_period, p)
     for (i in 1:forecast_period) {
       if (is.matrix(Z_padded$self_spec)) {
-        tempZ[1:length(Z_padded$self_spec)] <- Z_padded$self_spec
         result$self_spec[i,] <- tempZ %*% matrix(a_fc[i,])
       } else {
         tempZ[,,i][1:length(Z_padded$self_spec[,,i])] <- Z_padded$self_spec[,,i]
