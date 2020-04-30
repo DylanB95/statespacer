@@ -22,6 +22,7 @@ TransformParam <- function(param = NULL,
                            level_addvar_list = NULL,
                            arima_list = NULL,
                            sarima_list = NULL,
+                           self_spec_list = NULL,
                            exclude_level = NULL,
                            exclude_slope = NULL,
                            exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
@@ -49,6 +50,7 @@ TransformParam <- function(param = NULL,
                        level_addvar_list = level_addvar_list,
                        arima_list = arima_list,
                        sarima_list = sarima_list,
+                       self_spec_list = self_spec_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
@@ -153,6 +155,11 @@ TransformParam <- function(param = NULL,
         result <- c(result, i)
       }
     }
+  }
+
+  # Self Specified transformed parameters
+  if (!is.null(sys_mat$self_spec)) {
+    result <- c(result, self_spec)
   }
 
   return(result)
@@ -351,6 +358,13 @@ StructParam <- function(param = NULL,
     }
     names(SMA) <- names(sys_mat$SMA)
     result$SMA <- SMA
+  }
+
+  # Self Specified transformed parameters
+  if (!is.null(sys_mat$self_spec)) {
+    indices <- 1:length(sys_mat$self_spec)
+    result$self_spec <- param[indices]
+    param <- param[-indices]
   }
 
   return(result)

@@ -1384,18 +1384,22 @@ GetSysMat <- function(p,
       P_star <- BlockMatrix(H, P_star)
     }
   } else if (!is.null(self_spec_list$H)) {
-    Q_kal <- CombineTRQ(self_spec_list$H, Q_kal)
-    if (is.matrix(self_spec_list$H)) {
-      P_star <- BlockMatrix(self_spec_list$H, P_star)
+    H <- self_spec_list$H
+    H_list <- list(H = H)
+    Q_kal <- CombineTRQ(H, Q_kal)
+    if (is.matrix(H)) {
+      P_star <- BlockMatrix(H, P_star)
     } else {
-      P_star <- BlockMatrix(as.matrix(self_spec_list$H[,,1]), P_star)
+      P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
     }
   } else if (update_part) {
-    Q_kal <- CombineTRQ(update$H, Q_kal)
-    if (is.matrix(update$H)) {
-      P_star <- BlockMatrix(update$H, P_star)
+    H <- update$H
+    H_list <- list(H = H)
+    Q_kal <- CombineTRQ(H, Q_kal)
+    if (is.matrix(H)) {
+      P_star <- BlockMatrix(H, P_star)
     } else {
-      P_star <- BlockMatrix(as.matrix(update$H[,,1]), P_star)
+      P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
     }
   }
 
