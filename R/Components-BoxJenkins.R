@@ -3,13 +3,13 @@
 #' Constructs the system matrices of an ARIMA component.
 #'
 #' @param arima_spec Specification of the ARIMA part, should be a vector of
-#'   length 3 with the following format: c(AR, I, MA).
+#'   length 3 with the following format: `c(AR, I, MA)`.
 #' @param exclude_arima The dependent variables that should not get an ARIMA component.
-#' @param T1 Fixed part of Tmat, only used when fixed_part = FALSE
-#' @param T2 Fixed part of Tmat, only used when fixed_part = FALSE
-#' @param T3 Fixed part of Tmat, only used when fixed_part = FALSE
-#' @param R1 Fixed part of R, only used when fixed_part = FALSE
-#' @param R2 Fixed part of R, only used when fixed_part = FALSE
+#' @param T1 Fixed part of Tmat, only used when `fixed_part = FALSE`.
+#' @param T2 Fixed part of Tmat, only used when `fixed_part = FALSE`.
+#' @param T3 Fixed part of Tmat, only used when `fixed_part = FALSE`.
+#' @param R1 Fixed part of R, only used when `fixed_part = FALSE`.
+#' @param R2 Fixed part of R, only used when `fixed_part = FALSE`.
 #' @inheritParams LocalLevel
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceEval
@@ -268,11 +268,11 @@ ARIMA <- function(p = 1,
 #' @param sarima_spec Specification of the SARIMA part, should be a list of
 #'   4 named vectors. Vectors should be named: "s", "ar", "i", "ma".
 #' @param exclude_sarima The dependent variables that should not get a SARIMA component.
-#' @param T1 Fixed part of Tmat, only used when fixed_part = FALSE
-#' @param T2 Fixed part of Tmat, only used when fixed_part = FALSE
-#' @param T3 Fixed part of Tmat, only used when fixed_part = FALSE
-#' @param R1 Fixed part of R, only used when fixed_part = FALSE
-#' @param R2 Fixed part of R, only used when fixed_part = FALSE
+#' @param T1 Fixed part of Tmat, only used when `fixed_part = FALSE`.
+#' @param T2 Fixed part of Tmat, only used when `fixed_part = FALSE`.
+#' @param T3 Fixed part of Tmat, only used when `fixed_part = FALSE`.
+#' @param R1 Fixed part of R, only used when `fixed_part = FALSE`.
+#' @param R2 Fixed part of R, only used when `fixed_part = FALSE`.
 #' @inheritParams LocalLevel
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceEval

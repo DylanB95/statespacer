@@ -32,8 +32,8 @@ PACMat <- function(A) {
 #' subset of the space of coefficient matrices that correspond to a
 #' stationary process.
 #'
-#' @param P An array of partial autocorrelation matrices in the multivariate case,
-#'   or a vector of partial autocorrelations in the univariate case.
+#' @param P An array of partial autocorrelation matrices in the multivariate
+#'   case, or a vector of partial autocorrelations in the univariate case.
 #'
 #' @return
 #' Multivariate case:
@@ -123,8 +123,8 @@ TransformPAC <- function(P) {
 #' * An array of coefficient matrices for the MA part.
 #'
 #' If univariate, a list containing:
-#'   * A vector of coefficients for the AR part.
-#'   * A vector of coefficients for the MA part.
+#' * A vector of coefficients for the AR part.
+#' * A vector of coefficients for the MA part.
 #'
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
 #'

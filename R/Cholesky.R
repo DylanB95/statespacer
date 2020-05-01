@@ -22,11 +22,11 @@
 #' @return
 #' A valid variance - covariance matrix.
 #' If `decompositions = TRUE` then it returns a list containing:
-#' * cov_mat: The variance - covariance matrix.
-#' * loading_matrix: The loading matrix of the Cholesky decomposition.
-#' * diagonal_matrix: The diagonal matrix of the Cholesky decomposition.
-#' * correlation_matrix: Matrix containing the correlations.
-#' * stdev_matrix: Matrix containing the standard deviations on the diagonal.
+#' * `cov_mat`: The variance - covariance matrix.
+#' * `loading_matrix`: The loading matrix of the Cholesky decomposition.
+#' * `diagonal_matrix`: The diagonal matrix of the Cholesky decomposition.
+#' * `correlation_matrix`: Matrix containing the correlations.
+#' * `stdev_matrix`: Matrix containing the standard deviations on the diagonal.
 #'
 #' @examples
 #' format <- diag(1, 2, 2)

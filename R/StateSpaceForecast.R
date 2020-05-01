@@ -7,14 +7,14 @@
 #' @param addvar_list_fc A list containing the explanatory variables for each
 #'   of the dependent variables. The list should contain p (number of dependent
 #'   variables) elements. Each element of the list should be a
-#'   forecast_period x k_p matrix, with k_p being the number of explanatory
+#'   `forecast_period` x k_p matrix, with k_p being the number of explanatory
 #'   variables for the pth dependent variable. If no explanatory variables
 #'   should be added for one of the dependent variables, then set the
 #'   corresponding element to `NULL`.
 #' @param level_addvar_list_fc A list containing the explanatory variables
 #'   for each of the dependent variables. The list should contain p
 #'   (number of dependent variables) elements. Each element of the list should
-#'   be a forecast_period x k_p matrix, with k_p being the number of
+#'   be a `forecast_period` x k_p matrix, with k_p being the number of
 #'   explanatory variables for the pth dependent variable. If no explanatory
 #'   variables should be added for one of the dependent variables, then set
 #'   the corresponding element to `NULL`.
@@ -172,38 +172,31 @@ StateSpaceForecast <- function(fit,
   Q_full <- sys_mat$Q_kal
   H_full <- sys_mat$H$H
 
-  # Dimensions of the system matrices
-  Zdim <- length(dim(Z_full))
-  Tdim <- length(dim(T_full))
-  Rdim <- length(dim(R_full))
-  Qdim <- length(dim(Q_full))
-  Hdim <- length(dim(H_full))
-
   # Forecasting for t = 1 to forecast_period
   for (i in 1:forecast_period) {
 
     # System matrices for timepoint
-    if (Zdim < 3) {
+    if (is.matrix(Z_full)) {
       Z_fc <- Z_full
     } else {
       Z_fc <- matrix(Z_full[,,i], nrow = p)
     }
-    if (Tdim < 3) {
+    if (is.matrix(T_full)) {
       T_fc <- T_full
     } else {
       T_fc <- as.matrix(T_full[,,i])
     }
-    if (Rdim < 3) {
+    if (is.matrix(R_full)) {
       R_fc <- R_full
     } else {
       R_fc <- matrix(R_full[,,i], nrow = m)
     }
-    if (Qdim < 3) {
+    if (is.matrix(Q_full)) {
       Q_fc <- Q_full
     } else {
       Q_fc <- as.matrix(Q_full[,,i])
     }
-    if (Hdim < 3) {
+    if (is.matrix(H_full)) {
       H_fc <- H_full
     } else {
       H_fc <- as.matrix(H_full[,,i])

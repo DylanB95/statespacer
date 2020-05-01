@@ -10,16 +10,16 @@
 #'
 #' @return
 #' A list containing:
-#' * function_call: A list containing the input to the function.
-#' * system_matrices: A list containing the system matrices of
+#' * `function_call`: A list containing the input to the function.
+#' * `system_matrices`: A list containing the system matrices of
 #'   the State Space model.
-#' * predicted: A list containing the predicted components of
+#' * `predicted`: A list containing the predicted components of
 #'   the State Space model.
-#' * filtered: A list containing the filtered components of
+#' * `filtered`: A list containing the filtered components of
 #'   the State Space model.
-#' * smoothed: A list containing the smoothed components of
+#' * `smoothed`: A list containing the smoothed components of
 #'   the State Space model.
-#' * diagnostics: A list containing items useful for diagnostical tests.
+#' * `diagnostics`: A list containing items useful for diagnostical tests.
 #'
 #' For extensive details about the object returned,
 #' see \code{vignette("dictionary", package = "statespacer")}.
@@ -144,12 +144,6 @@ StateSpaceEval <- function(param,
   P_inf <- sys_mat$P_inf_kal
   P_star <- sys_mat$P_star_kal
 
-  # Dimensions of the system matrices
-  Zdim <- length(dim(Z_kal))
-  Tdim <- length(dim(T_kal))
-  Rdim <- length(dim(R_kal))
-  Qdim <- length(dim(Q_kal))
-
   # Uncertainty of initial 'guess' of state vector
   kappa <- 1e7
 
@@ -219,17 +213,17 @@ StateSpaceEval <- function(param,
 
       # T, R, and Q matrices only needed when a transition to
       # the next timepoint is made
-      if (Tdim < 3) {
+      if (is.matrix(T_kal)) {
         T_input <- T_kal
       } else {
         T_input <- as.matrix(T_kal[,,t])
       }
-      if (Rdim < 3) {
+      if (is.matrix(R_kal)) {
         R_input <- R_kal
       } else {
         R_input <- matrix(R_kal[,,t], nrow = m)
       }
-      if (Qdim < 3) {
+      if (is.matrix(Q_kal)) {
         Q_input <- Q_kal
       } else {
         Q_input <- as.matrix(Q_kal[,,t])
@@ -242,7 +236,7 @@ StateSpaceEval <- function(param,
       Q_input <- NULL
     }
 
-    if (Zdim < 3) {
+    if (is.matrix(Z_kal)) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
       Z_input <- matrix(Z_kal[row,,t], nrow = 1)
@@ -306,7 +300,7 @@ StateSpaceEval <- function(param,
           P_fil[,,t] <- filter_output$P_star_fil
         }
 
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
@@ -375,7 +369,7 @@ StateSpaceEval <- function(param,
         a_fil[t,] <- filter_output$a_fil
         P_fil[,,t] <- filter_output$P_fil
 
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
@@ -506,21 +500,21 @@ StateSpaceEval <- function(param,
 
       # T, R, and Q matrices only needed when a transition to the
       # next timepoint is made
-      if (Tdim < 3) {
+      if (is.matrix(T_kal)) {
         T_input <- T_kal
       } else {
         if (t > 1) {
           T_input <- as.matrix(T_kal[,,t - 1])
         }
       }
-      if (Rdim < 3) {
+      if (is.matrix(R_kal)) {
         R_input <- R_kal
       } else {
         if (t > 1) {
           R_input <- matrix(R_kal[,,t - 1], nrow = m)
         }
       }
-      if (Qdim < 3) {
+      if (is.matrix(Q_kal)) {
         Q_input <- Q_kal
       } else {
         if (t > 1) {
@@ -531,7 +525,7 @@ StateSpaceEval <- function(param,
       timestep <- FALSE
     }
 
-    if (Zdim < 3) {
+    if (is.matrix(Z_kal)) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
       Z_input <- matrix(Z_kal[row,,t], nrow = 1)
@@ -590,7 +584,7 @@ StateSpaceEval <- function(param,
 
         # Smoothing error e and corresponding variance D
         # Plus T-statistic for the observation equation
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
@@ -704,7 +698,7 @@ StateSpaceEval <- function(param,
 
         # Smoothing error e and corresponding variance D
         # Plus T-statistic for the observation equation
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
