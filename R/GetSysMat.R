@@ -6,6 +6,8 @@
 #' @param p Number of dependent variables in the model.
 #' @param update_part Boolean indicating whether the system matrices should be
 #'   constructed that depend on the parameters.
+#' @param add_residuals Boolean indicating whether the system matrices of the
+#'   residuals should be added to the full system matrices.
 #' @inheritParams StateSpaceFit
 #' @inheritParams StateSpaceEval
 #'
@@ -16,6 +18,7 @@
 GetSysMat <- function(p,
                       param = NULL,
                       update_part = TRUE,
+                      add_residuals = TRUE,
                       H_format = NULL,
                       local_level_ind = FALSE,
                       slope_ind = FALSE,
@@ -1373,33 +1376,41 @@ GetSysMat <- function(p,
   }
 
   #### Residuals ####
-  Z_kal <- CombineZ(diag(1, p, p), Z_kal)
-  T_kal <- CombineTRQ(matrix(0, p, p), T_kal)
-  R_kal <- CombineTRQ(diag(1, p, p), R_kal)
-  a <- rbind(matrix(0, p, 1), a)
-  P_inf <- BlockMatrix(matrix(0, p, p), P_inf)
+  if (add_residuals) {
+    Z_kal <- CombineZ(diag(1, p, p), Z_kal)
+    T_kal <- CombineTRQ(matrix(0, p, p), T_kal)
+    R_kal <- CombineTRQ(diag(1, p, p), R_kal)
+    a <- rbind(matrix(0, p, 1), a)
+    P_inf <- BlockMatrix(matrix(0, p, p), P_inf)
+  }
   if (!H_spec) {
     if ((update_part & param_num_list$H > 0) | param_num_list$H == 0) {
-      Q_kal <- CombineTRQ(H, Q_kal)
-      P_star <- BlockMatrix(H, P_star)
+      if (add_residuals) {
+        Q_kal <- CombineTRQ(H, Q_kal)
+        P_star <- BlockMatrix(H, P_star)
+      }
     }
   } else if (!is.null(self_spec_list$H)) {
     H <- self_spec_list$H
     H_list <- list(H = H)
-    Q_kal <- CombineTRQ(H, Q_kal)
-    if (is.matrix(H)) {
-      P_star <- BlockMatrix(H, P_star)
-    } else {
-      P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
+    if (add_residuals) {
+      Q_kal <- CombineTRQ(H, Q_kal)
+      if (is.matrix(H)) {
+        P_star <- BlockMatrix(H, P_star)
+      } else {
+        P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
+      }
     }
   } else if (update_part) {
     H <- update$H
     H_list <- list(H = H)
-    Q_kal <- CombineTRQ(H, Q_kal)
-    if (is.matrix(H)) {
-      P_star <- BlockMatrix(H, P_star)
-    } else {
-      P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
+    if (add_residuals) {
+      Q_kal <- CombineTRQ(H, Q_kal)
+      if (is.matrix(H)) {
+        P_star <- BlockMatrix(H, P_star)
+      } else {
+        P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
+      }
     }
   }
 

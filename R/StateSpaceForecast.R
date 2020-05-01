@@ -136,6 +136,7 @@ StateSpaceForecast <- function(fit,
   sys_mat <- GetSysMat(p = p,
                        param = param,
                        update_part = TRUE,
+                       add_residuals = FALSE,
                        H_format = fit$function_call$H_format,
                        local_level_ind = fit$function_call$local_level_ind,
                        slope_ind = fit$function_call$slope_ind,
@@ -177,43 +178,6 @@ StateSpaceForecast <- function(fit,
   Rdim <- length(dim(R_full))
   Qdim <- length(dim(Q_full))
   Hdim <- length(dim(H_full))
-
-  # Number of disturbances in the state equation
-  r <- dim(R_full)[2] - p
-
-  # Removing residuals from system matrices
-  if (Zdim < 3) {
-    Z_full <- Z_full[,-sys_mat$residuals_state, drop = FALSE]
-  } else {
-    Z_full <- Z_full[,-sys_mat$residuals_state,, drop = FALSE]
-  }
-  if (Tdim < 3) {
-    T_full <- T_full[-sys_mat$residuals_state,
-                     -sys_mat$residuals_state,
-                     drop = FALSE]
-  } else {
-    T_full <- T_full[-sys_mat$residuals_state,
-                     -sys_mat$residuals_state,,
-                     drop = FALSE]
-  }
-  if (Rdim < 3) {
-    R_full <- R_full[-sys_mat$residuals_state,
-                     -sys_mat$residuals_state,
-                     drop = FALSE]
-  } else {
-    R_full <- R_full[-sys_mat$residuals_state,
-                     -sys_mat$residuals_state,,
-                     drop = FALSE]
-  }
-  if (Qdim < 3) {
-    Q_full <- Q_full[-sys_mat$residuals_state,
-                   -sys_mat$residuals_state,
-                   drop = FALSE]
-  } else {
-    Q_full <- Q_full[-sys_mat$residuals_state,
-                     -sys_mat$residuals_state,,
-                     drop = FALSE]
-  }
 
   # Forecasting for t = 1 to forecast_period
   for (i in 1:forecast_period) {
