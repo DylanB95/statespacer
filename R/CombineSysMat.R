@@ -12,6 +12,14 @@
 #' @noRd
 CombineZ <- function(Z1, Z2) {
 
+  # Check if one of the arguments is NULL
+  if (is.null(Z1)) {
+    return(Z2)
+  }
+  if (is.null(Z2)) {
+    return(Z1)
+  }
+
   # Check if Z1 and Z2 are matrices
   is_mat_Z1 <- is.matrix(Z1)
   is_mat_Z2 <- is.matrix(Z2)
@@ -89,6 +97,14 @@ CombineZ <- function(Z1, Z2) {
 #'
 #' @noRd
 CombineTRQ <- function(S1, S2) {
+
+  # Check if one of the arguments is NULL
+  if (is.null(S1)) {
+    return(S2)
+  }
+  if (is.null(S2)) {
+    return(S1)
+  }
 
   # Check if S1 and S2 are matrices
   is_mat_S1 <- is.matrix(S1)
