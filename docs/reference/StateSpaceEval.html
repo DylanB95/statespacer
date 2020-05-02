@@ -169,6 +169,7 @@ specified by the user.</p>
   <span class='kw'>level_addvar_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>arima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>sarima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>self_spec_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>exclude_level</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>exclude_slope</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>exclude_BSM_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>BSM_vec</span>, <span class='kw'>FUN</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fl'>0</span>),
@@ -244,7 +245,7 @@ element to <code>NULL</code>.</p></td>
     <tr>
       <th>arima_list</th>
       <td><p>Specifications of the ARIMA components, should be a list
-containing vectors of length 3 with the following format: c(AR, I, MA).
+containing vectors of length 3 with the following format: <code><a href='https://rdrr.io/r/base/c.html'>c(AR, I, MA)</a></code>.
 Should be a list to allow different ARIMA models for different sets of
 dependent variables. Note: The AR and MA coefficients are
 constrained such that the AR component is stationary, and the MA
@@ -265,6 +266,13 @@ See Ansley and Kohn (1986)
  for details about
 the transformation used. Note: For multivariate models, the order of "s"
 matters, as matrix multiplication is not commutative!</p></td>
+    </tr>
+    <tr>
+      <th>self_spec_list</th>
+      <td><p>A list containing the specification of the self
+specified component. See the Details section of <code><a href='StateSpaceFit.html'>StateSpaceFit()</a></code> for
+extensive details about the format that must be followed for this
+argument.</p></td>
     </tr>
     <tr>
       <th>exclude_level</th>
@@ -350,16 +358,16 @@ loglikelihood should be returned.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list containing:</p><ul>
-<li><p>function_call: A list containing the input to the function.</p></li>
-<li><p>system_matrices: A list containing the system matrices of
+<li><p><code>function_call</code>: A list containing the input to the function.</p></li>
+<li><p><code>system_matrices</code>: A list containing the system matrices of
 the State Space model.</p></li>
-<li><p>predicted: A list containing the predicted components of
+<li><p><code>predicted</code>: A list containing the predicted components of
 the State Space model.</p></li>
-<li><p>filtered: A list containing the filtered components of
+<li><p><code>filtered</code>: A list containing the filtered components of
 the State Space model.</p></li>
-<li><p>smoothed: A list containing the smoothed components of
+<li><p><code>smoothed</code>: A list containing the smoothed components of
 the State Space model.</p></li>
-<li><p>diagnostics: A list containing items useful for diagnostical tests.</p></li>
+<li><p><code>diagnostics</code>: A list containing items useful for diagnostical tests.</p></li>
 </ul>
 
 <p>For extensive details about the object returned,

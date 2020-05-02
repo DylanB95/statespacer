@@ -159,6 +159,7 @@
   <span class='no'>fit</span>,
   <span class='kw'>addvar_list_fc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>level_addvar_list_fc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>self_spec_list_fc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>forecast_period</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )</pre>
 
@@ -175,7 +176,7 @@ returned by <code><a href='StateSpaceFit.html'>StateSpaceFit</a></code> or <code
       <td><p>A list containing the explanatory variables for each
 of the dependent variables. The list should contain p (number of dependent
 variables) elements. Each element of the list should be a
-forecast_period x k_p matrix, with k_p being the number of explanatory
+<code>forecast_period</code> x k_p matrix, with k_p being the number of explanatory
 variables for the pth dependent variable. If no explanatory variables
 should be added for one of the dependent variables, then set the
 corresponding element to <code>NULL</code>.</p></td>
@@ -185,10 +186,19 @@ corresponding element to <code>NULL</code>.</p></td>
       <td><p>A list containing the explanatory variables
 for each of the dependent variables. The list should contain p
 (number of dependent variables) elements. Each element of the list should
-be a forecast_period x k_p matrix, with k_p being the number of
+be a <code>forecast_period</code> x k_p matrix, with k_p being the number of
 explanatory variables for the pth dependent variable. If no explanatory
 variables should be added for one of the dependent variables, then set
 the corresponding element to <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
+      <th>self_spec_list_fc</th>
+      <td><p>A list containing the specification of the self
+specified component. Does not have to be specified if it does not differ
+from <code>self_spec_list</code> as passed on to <code><a href='StateSpaceFit.html'>StateSpaceFit()</a></code> or
+<code><a href='StateSpaceEval.html'>StateSpaceEval()</a></code>. If some system matrices are time-varying then you
+should specify this argument. See <code><a href='StateSpaceFit.html'>StateSpaceFit()</a></code> for details about the
+format that must be followed for this argument.</p></td>
     </tr>
     <tr>
       <th>forecast_period</th>
@@ -211,11 +221,11 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='StateSpaceFit.html'>StateSpaceFit</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-29 20:12:26</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='StateSpaceFit.html'>StateSpaceFit</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-05-02 12:39:52</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
 #&gt; initial  value 2.443183 
 #&gt; iter  10 value 1.775548
 #&gt; final  value 1.775527 
-#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-29 20:12:26</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.47171688079834 secs</span></div><div class='input'>
+#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-05-02 12:39:53</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.473728179931641 secs</span></div><div class='input'>
 <span class='co'># Obtain forecasts for 10 steps ahead using the fitted model</span>
 <span class='no'>fc</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceForecast</span>(<span class='no'>fit</span>, <span class='kw'>forecast_period</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 

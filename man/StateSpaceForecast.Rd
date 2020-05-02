@@ -8,6 +8,7 @@ StateSpaceForecast(
   fit,
   addvar_list_fc = NULL,
   level_addvar_list_fc = NULL,
+  self_spec_list_fc = NULL,
   forecast_period = 1
 )
 }
@@ -18,7 +19,7 @@ returned by \code{\link{StateSpaceFit}} or \code{\link{StateSpaceEval}}.}
 \item{addvar_list_fc}{A list containing the explanatory variables for each
 of the dependent variables. The list should contain p (number of dependent
 variables) elements. Each element of the list should be a
-forecast_period x k_p matrix, with k_p being the number of explanatory
+\code{forecast_period} x k_p matrix, with k_p being the number of explanatory
 variables for the pth dependent variable. If no explanatory variables
 should be added for one of the dependent variables, then set the
 corresponding element to \code{NULL}.}
@@ -26,10 +27,17 @@ corresponding element to \code{NULL}.}
 \item{level_addvar_list_fc}{A list containing the explanatory variables
 for each of the dependent variables. The list should contain p
 (number of dependent variables) elements. Each element of the list should
-be a forecast_period x k_p matrix, with k_p being the number of
+be a \code{forecast_period} x k_p matrix, with k_p being the number of
 explanatory variables for the pth dependent variable. If no explanatory
 variables should be added for one of the dependent variables, then set
 the corresponding element to \code{NULL}.}
+
+\item{self_spec_list_fc}{A list containing the specification of the self
+specified component. Does not have to be specified if it does not differ
+from \code{self_spec_list} as passed on to \code{StateSpaceFit()} or
+\code{StateSpaceEval()}. If some system matrices are time-varying then you
+should specify this argument. See \code{StateSpaceFit()} for details about the
+format that must be followed for this argument.}
 
 \item{forecast_period}{Number of time steps to forecast ahead.}
 }

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • statespacer</title>
+<title>Construct a Valid Variance - Covariance Matrix — Cholesky • statespacer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -54,7 +54,9 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Construct a Valid Variance - Covariance Matrix — Cholesky" />
+<meta property="og:description" content="Constructs a valid variance - covariance matrix by using the Cholesky LDL
+decomposition." />
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png" />
 
 
@@ -74,7 +76,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -143,98 +145,91 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Construct a Valid Variance - Covariance Matrix</h1>
+    <small class="dont-index">Source: <a href='https://github.com/DylanB95/statespacer/blob/master/R/Cholesky.R'><code>R/Cholesky.R</code></a></small>
+    <div class="hidden name"><code>Cholesky.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Constructs a valid variance - covariance matrix by using the Cholesky LDL
+decomposition.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>Cholesky</span>(<span class='kw'>param</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>decompositions</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-state-space-model" class="hasAnchor"><a href="#section-state-space-model" class="anchor"></a>State Space Model</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="StateSpaceFit.html">StateSpaceFit()</a></code> </p>
-        </td>
-        <td><p>State Space Model Fitting</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="StateSpaceForecast.html">StateSpaceForecast()</a></code> </p>
-        </td>
-        <td><p>State Space Model Forecasting</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="StateSpaceEval.html">StateSpaceEval()</a></code> </p>
-        </td>
-        <td><p>State Space Model Evaluation at Specified Parameters</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-parameter-transformations" class="hasAnchor"><a href="#section-parameter-transformations" class="anchor"></a>Parameter Transformations</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="Cholesky.html">Cholesky()</a></code> </p>
-        </td>
-        <td><p>Construct a Valid Variance - Covariance Matrix</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="CoeffARMA.html">CoeffARMA()</a></code> </p>
-        </td>
-        <td><p>Transform arbitrary matrices into ARMA coefficient matrices</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-matrix-utilities" class="hasAnchor"><a href="#section-matrix-utilities" class="anchor"></a>Matrix Utilities</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="BlockMatrix.html">BlockMatrix()</a></code> </p>
-        </td>
-        <td><p>Combine Matrices into a Block Diagonal Matrix</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>param</th>
+      <td><p>Vector containing the parameters used to construct the
+variance - covariance matrix.</p></td>
+    </tr>
+    <tr>
+      <th>format</th>
+      <td><p>Matrix representing the format for the Loading matrix L
+and Diagonal matrix D. The lower triangular part of the format is used
+as the format for the Loading matrix L. The diagonal of the format is
+used as the format for the Diagonal matrix D. Must be a matrix.</p></td>
+    </tr>
+    <tr>
+      <th>decompositions</th>
+      <td><p>Boolean indicating whether the loading and diagonal
+matrix of the Cholesky decomposition, and the correlation matrix and
+standard deviations should be returned.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A valid variance - covariance matrix.
+If <code>decompositions = TRUE</code> then it returns a list containing:</p><ul>
+<li><p><code>cov_mat</code>: The variance - covariance matrix.</p></li>
+<li><p><code>loading_matrix</code>: The loading matrix of the Cholesky decomposition.</p></li>
+<li><p><code>diagonal_matrix</code>: The diagonal matrix of the Cholesky decomposition.</p></li>
+<li><p><code>correlation_matrix</code>: Matrix containing the correlations.</p></li>
+<li><p><code>stdev_matrix</code>: Matrix containing the standard deviations on the diagonal.</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>format</code> is used to specify which elements of the loading and diagonal
+matrix should be non-zero. The elements of <code>param</code> are then distributed
+along the non-zero elements of the loading and diagonal matrix.
+The parameters for the diagonal matrix are transformed using <code><a href='https://rdrr.io/r/base/Log.html'>exp(2 * x)</a></code>.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>format</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/diag.html'>diag</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>2</span>)
+<span class='no'>format</span>[<span class='fl'>2</span>, <span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>
+<span class='fu'>Cholesky</span>(<span class='kw'>param</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>1</span>), <span class='kw'>format</span> <span class='kw'>=</span> <span class='no'>format</span>, <span class='kw'>decompositions</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; $cov_mat
+#&gt;          [,1]       [,2]
+#&gt; [1,] 54.59815   54.59815
+#&gt; [2,] 54.59815 3035.55614
+#&gt; 
+#&gt; $loading_matrix
+#&gt;      [,1] [,2]
+#&gt; [1,]    1    0
+#&gt; [2,]    1    1
+#&gt; 
+#&gt; $diagonal_matrix
+#&gt;          [,1]     [,2]
+#&gt; [1,] 54.59815    0.000
+#&gt; [2,]  0.00000 2980.958
+#&gt; 
+#&gt; $correlation_matrix
+#&gt;           [,1]      [,2]
+#&gt; [1,] 1.0000000 0.1341127
+#&gt; [2,] 0.1341127 1.0000000
+#&gt; 
+#&gt; $stdev_matrix
+#&gt;          [,1]     [,2]
+#&gt; [1,] 7.389056  0.00000
+#&gt; [2,] 0.000000 55.09588
+#&gt; </div><div class='input'>
+</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

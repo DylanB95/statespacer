@@ -166,6 +166,7 @@
   <span class='kw'>level_addvar_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>arima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>sarima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>self_spec_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>exclude_level</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>exclude_slope</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>exclude_BSM_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>BSM_vec</span>, <span class='kw'>FUN</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fl'>0</span>),
@@ -181,7 +182,8 @@
   <span class='kw'>format_level_addvar</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"BFGS"</span>,
   <span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>()
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  <span class='kw'>collapse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -239,7 +241,7 @@ element to <code>NULL</code>.</p></td>
     <tr>
       <th>arima_list</th>
       <td><p>Specifications of the ARIMA components, should be a list
-containing vectors of length 3 with the following format: c(AR, I, MA).
+containing vectors of length 3 with the following format: <code><a href='https://rdrr.io/r/base/c.html'>c(AR, I, MA)</a></code>.
 Should be a list to allow different ARIMA models for different sets of
 dependent variables. Note: The AR and MA coefficients are
 constrained such that the AR component is stationary, and the MA
@@ -260,6 +262,13 @@ See Ansley and Kohn (1986)
  for details about
 the transformation used. Note: For multivariate models, the order of "s"
 matters, as matrix multiplication is not commutative!</p></td>
+    </tr>
+    <tr>
+      <th>self_spec_list</th>
+      <td><p>A list containing the specification of the self
+specified component. See the Details section of <code>StateSpaceFit()</code> for
+extensive details about the format that must be followed for this
+argument.</p></td>
     </tr>
     <tr>
       <th>exclude_level</th>
@@ -350,42 +359,85 @@ vector or just one number.</p></td>
       <td><p>A list of control parameters for the
 <code><a href='https://rdrr.io/r/stats/optim.html'>optim</a></code> or <code><a href='https://rdrr.io/pkg/optimx/man/optimr.html'>optimr</a></code> function.</p></td>
     </tr>
+    <tr>
+      <th>collapse</th>
+      <td><p>Boolean indicating whether the observation vector should be
+collapsed. Should only be set to <code>TRUE</code> if the dimensionality of the
+observation vector exceeds the dimensionality of the state vector.
+If this is the case, computational gains can be achieved by collapsing
+the observation vector.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list containing:</p><ul>
-<li><p>function_call: A list containing the input to the function.</p></li>
-<li><p>system_matrices: A list containing the system matrices of
+<li><p><code>function_call</code>: A list containing the input to the function.</p></li>
+<li><p><code>system_matrices</code>: A list containing the system matrices of
 the State Space model.</p></li>
-<li><p>predicted: A list containing the predicted components of
+<li><p><code>predicted</code>: A list containing the predicted components of
 the State Space model.</p></li>
-<li><p>filtered: A list containing the filtered components of
+<li><p><code>filtered</code>: A list containing the filtered components of
 the State Space model.</p></li>
-<li><p>smoothed: A list containing the smoothed components of
+<li><p><code>smoothed</code>: A list containing the smoothed components of
 the State Space model.</p></li>
-<li><p>diagnostics: A list containing items useful for diagnostical tests.</p></li>
-<li><p>optim: A list containing the variables that are returned by the
+<li><p><code>diagnostics</code>: A list containing items useful for diagnostical tests.</p></li>
+<li><p><code>optim</code>: A list containing the variables that are returned by the
 <code><a href='https://rdrr.io/r/stats/optim.html'>optim</a></code> or <code><a href='https://rdrr.io/pkg/optimx/man/optimr.html'>optimr</a></code> function.</p></li>
-<li><p>loglik_fun: Function that returns the loglikelihood of the
+<li><p><code>loglik_fun</code>: Function that returns the loglikelihood of the
 specified State Space model, as a function of its parameters.</p></li>
-<li><p>standard_errors: A list containing the standard errors of
+<li><p><code>standard_errors</code>: A list containing the standard errors of
 the parameters of the State Space model.</p></li>
 </ul>
 
 <p>For extensive details about the object returned,
-see <code><a href='../articles/dictionary.html'>vignette("dictionary", package = "statespacer")</a></code>.</p>
+see <code><a href='../articles/dictionary.html'>vignette("dictionary", "statespacer")</a></code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>To fit the specified State Space model, it might be beneficial to scale
-the dependent variables or pay careful attention to the initial values.
-If an error occurs, try to scale the dependents by a bigger number, or
-try different initial values. Initial values should not be too big, as
-some parameters use the transformation exp(2x) to ensure non-negative
-values, they should also not be too small as some variances might be
-relatively close to 0, relative to the magnitude of y.
-Note: after fitting the model, remember to scale the estimates back!
-Variances should be multiplied by the square of the scaling number!</p>
+    <p>To fit the specified State Space model, one occasionally has to pay careful
+attention to the initial values supplied. See
+<code><a href='../articles/dictionary.html'>vignette("dictionary", "statespacer")</a></code> for details.
+Initial values should not be too large, as some parameters use the
+transformation exp(2x) to ensure non-negative values, they should also not
+be too small as some variances might become relatively too close to 0,
+relative to the magnitude of y.</p>
+<p><code>self_spec_list</code> provides a means to incorporate a self-specified component
+into the State Space model. This argument can only contain any of the
+following items, of which some are mandatory:</p><ul>
+<li><p><code>H_spec</code>: Boolean indicating whether the H matrix is self-specified.
+Should be <code>TRUE</code>, if you want to specify the H matrix yourself.</p></li>
+<li><p><code>state_num</code> (mandatory): The number of state parameters introduced by the
+self-specified component.</p></li>
+<li><p><code>param_num</code>: The number of parameters needed by the self-specified
+component. Must be specified and greater than 0 if parameters are needed.</p></li>
+<li><p><code>sys_mat_fun</code>: A function returning a list of system matrices that are
+constructed using the parameters. Must have <code>param</code> as an argument. The
+items in the list returned should have any of the following names: Z,
+Tmat, R, Q, P_star, H. Note: Only the system matrices that depend on the
+parameters should be returned by the function!</p></li>
+<li><p><code>sys_mat_input</code>: A list containing additional arguments to <code>sys_mat_fun</code>.</p></li>
+<li><p><code>Z</code>: The Z system matrix if it does not depend on the parameters.</p></li>
+<li><p><code>Tmat</code>: The T system matrix if it does not depend on the parameters.</p></li>
+<li><p><code>R</code>: The R system matrix if it does not depend on the parameters.</p></li>
+<li><p><code>Q</code>: The Q system matrix if it does not depend on the parameters.</p></li>
+<li><p><code>a1</code> (mandatory): The initial guess of the state vector.</p></li>
+<li><p><code>P_inf</code> (mandatory): The initial diffuse part of the variance - covariance
+matrix of the initial state vector.</p></li>
+<li><p><code>P_star</code>: The initial non-diffuse part of the variance - covariance
+matrix of the initial state vector if it does not depend on the
+parameters.</p></li>
+<li><p><code>H</code>: The H system matrix if it does not depend on the parameters.</p></li>
+<li><p><code>transform_fun</code>: Function that returns transformed parameters for which
+standard errors have to be computed.</p></li>
+<li><p><code>transform_input</code>: A list containing additional arguments to <code>transform_fun.</code></p></li>
+</ul>
+
+<p>Note: System matrices should only be specified once and need to be
+specified once! That is, system matrices that are returned by <code>sys_mat_fun</code>
+should not be specified directly, and vice versa. So, system matrices need
+to be either specified directly, or be returned by <code>sys_mat_fun</code>. This will
+not be checked, so be aware of erroneous output if you do not follow the
+guidelines of specifying <code>self_spec_list</code>.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Durbin J, Koopman SJ (2012).
@@ -399,11 +451,11 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceFit</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-04-29 20:12:25</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceFit</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-05-02 12:39:50</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
 #&gt; initial  value 2.443183 
 #&gt; iter  10 value 1.775548
 #&gt; final  value 1.775527 
-#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-04-29 20:12:25</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.47317099571228 secs</span></div><div class='input'>
+#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-05-02 12:39:51</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.433752059936523 secs</span></div><div class='input'>
 <span class='co'># Plots the filtered estimates</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'p'</span>,
      <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>), <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'l'</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> +

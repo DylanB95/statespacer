@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • statespacer</title>
+<title>Transform arbitrary matrices into ARMA coefficient matrices — CoeffARMA • statespacer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -54,7 +54,12 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Transform arbitrary matrices into ARMA coefficient matrices — CoeffARMA" />
+<meta property="og:description" content="Creates coefficient matrices for which the characteristic polynomial
+corresponds to a stationary process.
+See Ansley and Kohn (1986)
+ for details about
+the transformation used." />
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png" />
 
 
@@ -74,7 +79,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -143,98 +148,73 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Transform arbitrary matrices into ARMA coefficient matrices</h1>
+    <small class="dont-index">Source: <a href='https://github.com/DylanB95/statespacer/blob/master/R/AnsleyKohn.R'><code>R/AnsleyKohn.R</code></a></small>
+    <div class="hidden name"><code>CoeffARMA.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Creates coefficient matrices for which the characteristic polynomial
+corresponds to a stationary process.
+See Ansley and Kohn (1986)
+ for details about
+the transformation used.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>CoeffARMA</span>(<span class='no'>A</span>, <span class='kw'>variance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>ar</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>ma</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-state-space-model" class="hasAnchor"><a href="#section-state-space-model" class="anchor"></a>State Space Model</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="StateSpaceFit.html">StateSpaceFit()</a></code> </p>
-        </td>
-        <td><p>State Space Model Fitting</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="StateSpaceForecast.html">StateSpaceForecast()</a></code> </p>
-        </td>
-        <td><p>State Space Model Forecasting</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="StateSpaceEval.html">StateSpaceEval()</a></code> </p>
-        </td>
-        <td><p>State Space Model Evaluation at Specified Parameters</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-parameter-transformations" class="hasAnchor"><a href="#section-parameter-transformations" class="anchor"></a>Parameter Transformations</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="Cholesky.html">Cholesky()</a></code> </p>
-        </td>
-        <td><p>Construct a Valid Variance - Covariance Matrix</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="CoeffARMA.html">CoeffARMA()</a></code> </p>
-        </td>
-        <td><p>Transform arbitrary matrices into ARMA coefficient matrices</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-matrix-utilities" class="hasAnchor"><a href="#section-matrix-utilities" class="anchor"></a>Matrix Utilities</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="BlockMatrix.html">BlockMatrix()</a></code> </p>
-        </td>
-        <td><p>Combine Matrices into a Block Diagonal Matrix</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>A</th>
+      <td><p>An array of arbitrary square matrices in the multivariate case,
+or a vector of arbitrary numbers in the univariate case.</p></td>
+    </tr>
+    <tr>
+      <th>variance</th>
+      <td><p>A variance - covariance matrix.
+Note: <code>variance</code> not needed for the univariate case!</p></td>
+    </tr>
+    <tr>
+      <th>ar</th>
+      <td><p>The order of the AR part.</p></td>
+    </tr>
+    <tr>
+      <th>ma</th>
+      <td><p>The order of the MA part.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>If multivariate, a list containing:</p><ul>
+<li><p>An array of coefficient matrices for the AR part.</p></li>
+<li><p>An array of coefficient matrices for the MA part.</p></li>
+</ul>
+
+<p>If univariate, a list containing:</p><ul>
+<li><p>A vector of coefficients for the AR part.</p></li>
+<li><p>A vector of coefficients for the MA part.</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Ansley CF, Kohn R (1986).
+&#8220;A note on reparameterizing a vector autoregressive moving average model to enforce stationarity.&#8221;
+<em>Journal of Statistical Computation and Simulation</em>, <b>24</b>(2), 99--106.</p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>CoeffARMA</span>(<span class='kw'>A</span> <span class='kw'>=</span> <span class='kw pkg'>stats</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>2</span>), <span class='kw'>ar</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>ma</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt; $ar
+#&gt; [1] -0.08404053
+#&gt; 
+#&gt; $ma
+#&gt; [1] 0.4846462
+#&gt; </div><div class='input'>
+</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
