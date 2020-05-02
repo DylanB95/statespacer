@@ -1398,7 +1398,7 @@ GetSysMat <- function(p,
       if (is.matrix(H)) {
         P_star <- BlockMatrix(H, P_star)
       } else {
-        P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
+        P_star <- BlockMatrix(H[,,1], P_star)
       }
     }
   } else if (update_part) {
@@ -1409,7 +1409,7 @@ GetSysMat <- function(p,
       if (is.matrix(H)) {
         P_star <- BlockMatrix(H, P_star)
       } else {
-        P_star <- BlockMatrix(as.matrix(H[,,1]), P_star)
+        P_star <- BlockMatrix(H[,,1], P_star)
       }
     }
   }

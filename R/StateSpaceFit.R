@@ -250,6 +250,7 @@ StateSpaceFit <- function(y,
 
   # p = Number of dependent variables
   p <- dim(y)[2]
+  p2 <- p
 
   # Construct the system matrices that do not require any parameters
   sys_mat <- GetSysMat(p = p,
@@ -312,6 +313,7 @@ StateSpaceFit <- function(y,
 
   # Number of state parameters
   m <- dim(sys_mat$a_kal)[1]
+  m2 <- m
 
   if (collapse) {
     sys_mat$a_kal <- rbind(matrix(0, m, 1), sys_mat$a_kal)
@@ -319,6 +321,7 @@ StateSpaceFit <- function(y,
     Z_kal_tf <- cbind(diag(1, m, m), diag(1, m, m))
     sys_mat$T_kal <- CombineTRQ(matrix(0, m, m), sys_mat$T_kal)
     sys_mat$R_kal <- CombineTRQ(diag(1, m, m), sys_mat$R_kal)
+    p <- m
     m <- m + m
   }
 
@@ -349,6 +352,10 @@ StateSpaceFit <- function(y,
   R_kal <- sys_mat$R_kal
   P_star <- sys_mat$P_star_kal
 
+  # Initialise for collapsing
+  y_kal <- y
+  loglik_add <- 0
+
   ### Function that returns the LogLikelihood ###
   LogLikelihood <- function(param) {
 
@@ -357,7 +364,7 @@ StateSpaceFit <- function(y,
     # Local Level
     if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
       if (param_num_list$level > 0) {
-        update <- LocalLevel(p = p,
+        update <- LocalLevel(p = p2,
                              exclude_level =  exclude_level,
                              fixed_part = FALSE,
                              update_part = TRUE,
@@ -374,7 +381,7 @@ StateSpaceFit <- function(y,
     # Local Level + Slope
     if (slope_ind & is.null(level_addvar_list)) {
       if ((param_num_list$level + param_num_list$slope) > 0) {
-        update <- Slope(p = p,
+        update <- Slope(p = p2,
                         exclude_level = exclude_level,
                         exclude_slope = exclude_slope,
                         fixed_part = FALSE,
@@ -402,7 +409,7 @@ StateSpaceFit <- function(y,
       for (i in seq_along(BSM_vec)) {
         s <- BSM_vec[i]
         if (param_num_list[[paste0('BSM', s)]] > 0) {
-          update <- BSM(p = p,
+          update <- BSM(p = p2,
                         s = s,
                         exclude_BSM = exclude_BSM_list[[i]],
                         fixed_part = FALSE,
@@ -421,7 +428,7 @@ StateSpaceFit <- function(y,
     # Explanatory Variables
     if (!is.null(addvar_list)) {
       if (param_num_list$addvar > 0) {
-        update <- AddVar(p = p,
+        update <- AddVar(p = p2,
                          addvar_list = addvar_list,
                          fixed_part = FALSE,
                          update_part = TRUE,
@@ -438,7 +445,7 @@ StateSpaceFit <- function(y,
     # Local Level + Explanatory Variables
     if (!is.null(level_addvar_list) & !slope_ind) {
       if ((param_num_list$level + param_num_list$level_addvar) > 0) {
-        update <- LevelAddVar(p = p,
+        update <- LevelAddVar(p = p2,
                               exclude_level = exclude_level,
                               level_addvar_list = level_addvar_list,
                               fixed_part = FALSE,
@@ -466,7 +473,7 @@ StateSpaceFit <- function(y,
       if ((param_num_list$level +
            param_num_list$slope +
            param_num_list$level_addvar) > 0) {
-        update <- SlopeAddVar(p = p,
+        update <- SlopeAddVar(p = p2,
                               exclude_level = exclude_level,
                               exclude_slope = exclude_slope,
                               level_addvar_list = level_addvar_list,
@@ -499,7 +506,7 @@ StateSpaceFit <- function(y,
     # Cycle
     if (cycle_ind) {
       for (i in seq_along(format_cycle_list)) {
-        update <- Cycle(p = p,
+        update <- Cycle(p = p2,
                         exclude_cycle = exclude_cycle_list[[i]],
                         damping_factor_ind = damping_factor_ind[i],
                         fixed_part = FALSE,
@@ -523,7 +530,7 @@ StateSpaceFit <- function(y,
     # ARIMA
     if (!is.null(arima_list)) {
       for (i in seq_along(arima_list)) {
-        update <- ARIMA(p = p,
+        update <- ARIMA(p = p2,
                         arima_spec = arima_list[[i]],
                         exclude_arima = exclude_arima_list[[i]],
                         fixed_part = FALSE,
@@ -551,7 +558,7 @@ StateSpaceFit <- function(y,
     # SARIMA
     if (!is.null(sarima_list)) {
       for (i in seq_along(sarima_list)) {
-        update <- SARIMA(p = p,
+        update <- SARIMA(p = p2,
                          sarima_spec = sarima_list[[i]],
                          exclude_sarima = exclude_sarima_list[[i]],
                          fixed_part = FALSE,
@@ -618,25 +625,113 @@ StateSpaceFit <- function(y,
       if (!is.null(self_spec_list$P_star)) {
         P_star <- BlockMatrix(P_star, self_spec_list$P_star)
       }
-
     }
 
     # H Matrix
-    if (param_num_list$H > 0) {
-      H <- Cholesky(
-        param = param[param_indices$H],
-        format = H_format,
-        decompositions = FALSE
-      )
-
-      # Add H matrix to Q matrix
+    if (!sys_mat$H_spec) {
+      if (param_num_list$H > 0) {
+        H <- Cholesky(
+          param = param[param_indices$H],
+          format = H_format,
+          decompositions = FALSE
+        )
+        if (!collapse) {
+          P_star <- BlockMatrix(H, P_star)
+        }
+      }
+    } else if (is.null(self_spec_list$H)) {
+      H <- update$H
+      if (!collapse) {
+        if (is.matrix(H)) {
+          P_star <- BlockMatrix(H, P_star)
+        } else {
+          P_star <- BlockMatrix(H[,,1], P_star)
+        }
+      }
+    }
+    if (!collapse) {
       Q_kal <- CombineTRQ(H, Q_kal)
+    }
 
-      # Add H matrix to P_star matrix
-      P_star <- CombineTRQ(H, P_star)
+    # Collapse observation vector
+    if (collapse) {
+      if (is.matrix(H) & is.matrix(Z_kal)) {
+        Hinv <- solve(H)
+        ZtHinv <- t(Z_kal) %*% Hinv
+        A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
+        y_kal <- y %*% t(A_star)
+        H_star <- A_star %*% H %*% t(A_star)
+        P_star <- BlockMatrix(H_star, P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
 
-    } else {
-      Q_kal <- CombineTRQ(H, Q_kal)
+        # loglikelihood contribution
+        for (i in 1:N) {
+          e <- y[i,] - Z_kal %*% y_kal[i,]
+          loglik_add <- loglik_add -
+            0.5 * (p2 - m2) * log(2 * pi) -
+            0.5 * t(e) %*% Hinv %*% e
+        }
+        loglik_add <- loglik_add + N * 0.5 * log(det(H_star) / det(H))
+      } else if (is.matrix(H) & !is.matrix(Z_kal)) {
+        y_kal <- matrix(0, N, m2)
+        H_star <- array(0, dim = c(m2, m2, N))
+        Hinv <- solve(H)
+        detH <- det(H)
+        for (i in 1:N) {
+          Z_t <- matrix(Z_kal[,,i], nrow = p2)
+          ZtHinv <- t(Z_t) %*% Hinv
+          A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
+          y_kal[i,] <- A_star %*% y[i,]
+          H_star[,,i] <- A_star %*% H %*% t(A_star)
+          e <- y[i,] - Z_t %*% y_kal[i,]
+          loglik_add <- loglik_add +
+            0.5 * log(det(H_star[,,i]) / detH) -
+            0.5 * (p2 - m2) * log(2 * pi) -
+            0.5 * t(e) %*% Hinv %*% e
+        }
+        P_star <- BlockMatrix(H_star[,,1], P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
+      } else if (!is.matrix(H) & is.matrix(Z_kal)) {
+        y_kal <- matrix(0, N, m2)
+        H_star <- array(0, dim = c(m2, m2, N))
+        for (i in 1:N) {
+          H_t <- as.matrix(H[,,i])
+          Hinv <- solve(H_t)
+          detH <- det(H_t)
+          ZtHinv <- t(Z_kal) %*% Hinv
+          A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
+          y_kal[i,] <- A_star %*% y[i,]
+          H_star[,,i] <- A_star %*% H_t %*% t(A_star)
+          e <- y[i,] - Z_kal %*% y_kal[i,]
+          loglik_add <- loglik_add +
+            0.5 * log(det(H_star[,,i]) / detH) -
+            0.5 * (p2 - m2) * log(2 * pi) -
+            0.5 * t(e) %*% Hinv %*% e
+        }
+        P_star <- BlockMatrix(H_star[,,1], P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
+      } else {
+        y_kal <- matrix(0, N, m2)
+        H_star <- array(0, dim = c(m2, m2, N))
+        for (i in 1:N) {
+          H_t <- as.matrix(H[,,i])
+          Hinv <- solve(H_t)
+          detH <- det(H_t)
+          Z_t <- matrix(Z_kal[,,i], nrow = p2)
+          ZtHinv <- t(Z_t) %*% Hinv
+          A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
+          y_kal[i,] <- A_star %*% y[i,]
+          H_star[,,i] <- A_star %*% H_t %*% t(A_star)
+          e <- y[i,] - Z_t %*% y_kal[i,]
+          loglik_add <- loglik_add +
+            0.5 * log(det(H_star[,,i]) / detH) -
+            0.5 * (p2 - m2) * log(2 * pi) -
+            0.5 * t(e) %*% Hinv %*% e
+        }
+        P_star <- BlockMatrix(H_star[,,1], P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
+      }
+      Z_kal <- Z_kal_tf
     }
 
     # Initialise P_star
@@ -689,7 +784,7 @@ StateSpaceFit <- function(y,
       if (initialisation) {
 
         # Calling the Kalman Filter with exact initialisation
-        filter_output <- KalmanEI(y = y[t, row],
+        filter_output <- KalmanEI(y = y_kal[t, row],
                                   a = matrix(a[i,]),
                                   P_inf = as.matrix(P_inf[,,i]),
                                   P_star = as.matrix(P_star[,,i]),
@@ -712,7 +807,7 @@ StateSpaceFit <- function(y,
       } else {
 
         # Calling the Kalman Filter
-        filter_output <- KalmanUT(y = y[t, row],
+        filter_output <- KalmanUT(y = y_kal[t, row],
                                   a = matrix(a[i,]),
                                   P = as.matrix(P_star[,,i]),
                                   Z = Z_input,
@@ -734,7 +829,7 @@ StateSpaceFit <- function(y,
 
     # Return the negative average loglikelihood
     # Note: The average is computed as sum / N, using mean would divide by N*p
-    return(-sum(loglik, na.rm = TRUE) / N)
+    return(-sum(loglik, na.rm = TRUE) / N - loglik_add / N)
   }
 
   # Checking the number of initial parameters specified
@@ -780,7 +875,10 @@ StateSpaceFit <- function(y,
   # (Adjusted) Input parameters that were passed on to StateSpaceFit
   function_call <- c(list(y = y),
                      sys_mat$function_call,
-                     list(method = method, initial = initial, control = control)
+                     list(method = method,
+                          initial = initial,
+                          control = control,
+                          collapse = collapse)
   )
 
   # List that will be returned by the function

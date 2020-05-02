@@ -22,7 +22,7 @@ BlockMatrix <- function(A = NULL, ...) {
 
   # Initialise first matrix
   new <- A
-  if (!is.null(new)) {
+  if (!is.null(new) & !is.matrix(new)) {
     new <- as.matrix(new)
   }
 
@@ -42,7 +42,9 @@ BlockMatrix <- function(A = NULL, ...) {
     if (any(dim(block) == 0)) {
       next
     }
-    block <- as.matrix(block)
+    if (!is.matrix(block)) {
+      block <- as.matrix(block)
+    }
 
     # Store the matrix before adding a block to it
     old <- new
