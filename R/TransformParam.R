@@ -160,7 +160,7 @@ TransformParam <- function(param = NULL,
 
   # Self Specified transformed parameters
   if (!is.null(sys_mat$self_spec)) {
-    result <- c(result, self_spec)
+    result <- c(result, sys_mat$self_spec)
   }
 
   return(result)
