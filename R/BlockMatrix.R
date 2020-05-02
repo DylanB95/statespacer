@@ -7,7 +7,7 @@
 #'
 #' @details
 #' `BlockMatrix()` tries to coerce its arguments to a matrix,
-#' using \code{\link[base]{as.matrix}}.
+#' using \code{\link[base:matrix]{as.matrix}}.
 #'
 #' @return Block diagonal matrix consisting of the specified matrices.
 #'
