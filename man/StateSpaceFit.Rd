@@ -192,6 +192,9 @@ transformation exp(2x) to ensure non-negative values, they should also not
 be too small as some variances might become relatively too close to 0,
 relative to the magnitude of y.
 
+If a component is specified without a \code{format}, then the format defaults to a
+diagonal \code{format}.
+
 \code{self_spec_list} provides a means to incorporate a self-specified component
 into the State Space model. This argument can only contain any of the
 following items, of which some are mandatory:
@@ -212,12 +215,13 @@ parameters should be returned by the function!
 \item \code{Tmat}: The T system matrix if it does not depend on the parameters.
 \item \code{R}: The R system matrix if it does not depend on the parameters.
 \item \code{Q}: The Q system matrix if it does not depend on the parameters.
-\item \code{a1} (mandatory): The initial guess of the state vector.
+\item \code{a1} (mandatory): The initial guess of the state vector. Must be a matrix
+with one column.
 \item \code{P_inf} (mandatory): The initial diffuse part of the variance - covariance
-matrix of the initial state vector.
+matrix of the initial state vector. Must be a matrix.
 \item \code{P_star}: The initial non-diffuse part of the variance - covariance
 matrix of the initial state vector if it does not depend on the
-parameters.
+parameters. Must be a matrix.
 \item \code{H}: The H system matrix if it does not depend on the parameters.
 \item \code{transform_fun}: Function that returns transformed parameters for which
 standard errors have to be computed.
@@ -229,7 +233,9 @@ specified once! That is, system matrices that are returned by \code{sys_mat_fun}
 should not be specified directly, and vice versa. So, system matrices need
 to be either specified directly, or be returned by \code{sys_mat_fun}. This will
 not be checked, so be aware of erroneous output if you do not follow the
-guidelines of specifying \code{self_spec_list}.
+guidelines of specifying \code{self_spec_list}. If time-varying system matrices
+are required, return an array for the time-varying system matrix instead of
+a matrix.
 }
 \examples{
 # Fits a local level model for the Nile data

@@ -120,7 +120,6 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
   # Return the list
   return(result)
 }
-#####################################################################
 
 #' Kalman Filter with Exact Initialisation
 #'

@@ -104,6 +104,9 @@
 #' be too small as some variances might become relatively too close to 0,
 #' relative to the magnitude of y.
 #'
+#' If a component is specified without a `format`, then the format defaults to a
+#' diagonal `format`.
+#'
 #' `self_spec_list` provides a means to incorporate a self-specified component
 #' into the State Space model. This argument can only contain any of the
 #' following items, of which some are mandatory:
@@ -123,12 +126,13 @@
 #' * `Tmat`: The T system matrix if it does not depend on the parameters.
 #' * `R`: The R system matrix if it does not depend on the parameters.
 #' * `Q`: The Q system matrix if it does not depend on the parameters.
-#' * `a1` (mandatory): The initial guess of the state vector.
+#' * `a1` (mandatory): The initial guess of the state vector. Must be a matrix
+#'   with one column.
 #' * `P_inf` (mandatory): The initial diffuse part of the variance - covariance
-#'   matrix of the initial state vector.
+#'   matrix of the initial state vector. Must be a matrix.
 #' * `P_star`: The initial non-diffuse part of the variance - covariance
 #'   matrix of the initial state vector if it does not depend on the
-#'   parameters.
+#'   parameters. Must be a matrix.
 #' * `H`: The H system matrix if it does not depend on the parameters.
 #' * `transform_fun`: Function that returns transformed parameters for which
 #'   standard errors have to be computed.
@@ -139,7 +143,9 @@
 #' should not be specified directly, and vice versa. So, system matrices need
 #' to be either specified directly, or be returned by `sys_mat_fun`. This will
 #' not be checked, so be aware of erroneous output if you do not follow the
-#' guidelines of specifying `self_spec_list`.
+#' guidelines of specifying `self_spec_list`. If time-varying system matrices
+#' are required, return an array for the time-varying system matrix instead of
+#' a matrix.
 #'
 #' @return
 #' A list containing:
@@ -316,6 +322,19 @@ StateSpaceFit <- function(y,
   m2 <- m
 
   if (collapse) {
+
+    # Check if dimensionality of the observation vector is larger than
+    # the dimensionality of the state vector
+    if (p <= m) {
+      stop(
+        paste(
+          "`collapse = TRUE` can only be set if the dimensionality of the",
+          "observation vector is larger than the dimensionality of the",
+          "state vector. Please set `collapse = FALSE`."
+        )
+      )
+    }
+
     sys_mat$a_kal <- rbind(matrix(0, m, 1), sys_mat$a_kal)
     sys_mat$P_inf_kal <- BlockMatrix(matrix(0, m, m), sys_mat$P_inf_kal)
     Z_kal_tf <- cbind(diag(1, m, m), diag(1, m, m))
@@ -655,23 +674,25 @@ StateSpaceFit <- function(y,
 
     # Collapse observation vector
     if (collapse) {
+      y_temp <- y
+      y_temp[is.na(y)] <- 0
       if (is.matrix(H) & is.matrix(Z_kal)) {
         Hinv <- solve(H)
         ZtHinv <- t(Z_kal) %*% Hinv
         A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
-        y_kal <- y %*% t(A_star)
+        y_kal <- y_temp %*% t(A_star)
         H_star <- A_star %*% H %*% t(A_star)
         P_star <- BlockMatrix(H_star, P_star)
         Q_kal <- CombineTRQ(H_star, Q_kal)
 
         # loglikelihood contribution
         for (i in 1:N) {
-          e <- y[i,] - Z_kal %*% y_kal[i,]
-          loglik_add <- loglik_add -
-            0.5 * (p2 - m2) * log(2 * pi) -
-            0.5 * t(e) %*% Hinv %*% e
+          e <- y_temp[i,] - Z_kal %*% y_kal[i,]
+          loglik_add <- loglik_add - 0.5 * t(e) %*% Hinv %*% e
         }
-        loglik_add <- loglik_add + N * 0.5 * log(det(H_star) / det(H))
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add + N * 0.5 * log(det(H_star) / det(H)) -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
       } else if (is.matrix(H) & !is.matrix(Z_kal)) {
         y_kal <- matrix(0, N, m2)
         H_star <- array(0, dim = c(m2, m2, N))
@@ -681,14 +702,16 @@ StateSpaceFit <- function(y,
           Z_t <- matrix(Z_kal[,,i], nrow = p2)
           ZtHinv <- t(Z_t) %*% Hinv
           A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
-          y_kal[i,] <- A_star %*% y[i,]
+          y_kal[i,] <- A_star %*% y_temp[i,]
           H_star[,,i] <- A_star %*% H %*% t(A_star)
-          e <- y[i,] - Z_t %*% y_kal[i,]
+          e <- y_temp[i,] - Z_t %*% y_kal[i,]
           loglik_add <- loglik_add +
             0.5 * log(det(H_star[,,i]) / detH) -
-            0.5 * (p2 - m2) * log(2 * pi) -
             0.5 * t(e) %*% Hinv %*% e
         }
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
         P_star <- BlockMatrix(H_star[,,1], P_star)
         Q_kal <- CombineTRQ(H_star, Q_kal)
       } else if (!is.matrix(H) & is.matrix(Z_kal)) {
@@ -700,14 +723,16 @@ StateSpaceFit <- function(y,
           detH <- det(H_t)
           ZtHinv <- t(Z_kal) %*% Hinv
           A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
-          y_kal[i,] <- A_star %*% y[i,]
+          y_kal[i,] <- A_star %*% y_temp[i,]
           H_star[,,i] <- A_star %*% H_t %*% t(A_star)
-          e <- y[i,] - Z_kal %*% y_kal[i,]
+          e <- y_temp[i,] - Z_kal %*% y_kal[i,]
           loglik_add <- loglik_add +
             0.5 * log(det(H_star[,,i]) / detH) -
-            0.5 * (p2 - m2) * log(2 * pi) -
             0.5 * t(e) %*% Hinv %*% e
         }
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
         P_star <- BlockMatrix(H_star[,,1], P_star)
         Q_kal <- CombineTRQ(H_star, Q_kal)
       } else {
@@ -720,14 +745,16 @@ StateSpaceFit <- function(y,
           Z_t <- matrix(Z_kal[,,i], nrow = p2)
           ZtHinv <- t(Z_t) %*% Hinv
           A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
-          y_kal[i,] <- A_star %*% y[i,]
+          y_kal[i,] <- A_star %*% y_temp[i,]
           H_star[,,i] <- A_star %*% H_t %*% t(A_star)
-          e <- y[i,] - Z_t %*% y_kal[i,]
+          e <- y_temp[i,] - Z_t %*% y_kal[i,]
           loglik_add <- loglik_add +
             0.5 * log(det(H_star[,,i]) / detH) -
-            0.5 * (p2 - m2) * log(2 * pi) -
             0.5 * t(e) %*% Hinv %*% e
         }
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
         P_star <- BlockMatrix(H_star[,,1], P_star)
         Q_kal <- CombineTRQ(H_star, Q_kal)
       }

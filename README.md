@@ -42,6 +42,7 @@ This package supports numerous state space components:
   - Explanatory Variables in the Local Level + Slope
   - ARIMA
   - SARIMA
+  - Moreover, you can specify a component yourself\!
 
 These components can be used for both univariate, as multivariate
 models. The components can be combined in order to get more extensive
@@ -56,7 +57,8 @@ estimated, like common levels, common slopes, etc.
 
 The package employs a univariate treatment, and an exact initialisation
 for diffuse elements, to estimate the state parameters and compute the
-loglikelihood.
+loglikelihood. Collapsing large observation vectors is supported as
+well.
 
 ## Installation
 

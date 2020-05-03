@@ -1012,6 +1012,7 @@ StateSpaceEval <- function(param,
   system_matrices$MA <- sys_mat$MA
   system_matrices$SAR <- sys_mat$SAR
   system_matrices$SMA <- sys_mat$SMA
+  system_matrices$self_spec <- sys_mat$self_spec
   system_matrices$a1 <- sys_mat$a1
   system_matrices$P_inf <- sys_mat$P_inf
   system_matrices$P_star <- sys_mat$P_star

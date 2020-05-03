@@ -401,6 +401,8 @@ Initial values should not be too large, as some parameters use the
 transformation exp(2x) to ensure non-negative values, they should also not
 be too small as some variances might become relatively too close to 0,
 relative to the magnitude of y.</p>
+<p>If a component is specified without a <code>format</code>, then the format defaults to a
+diagonal <code>format</code>.</p>
 <p><code>self_spec_list</code> provides a means to incorporate a self-specified component
 into the State Space model. This argument can only contain any of the
 following items, of which some are mandatory:</p><ul>
@@ -420,12 +422,13 @@ parameters should be returned by the function!</p></li>
 <li><p><code>Tmat</code>: The T system matrix if it does not depend on the parameters.</p></li>
 <li><p><code>R</code>: The R system matrix if it does not depend on the parameters.</p></li>
 <li><p><code>Q</code>: The Q system matrix if it does not depend on the parameters.</p></li>
-<li><p><code>a1</code> (mandatory): The initial guess of the state vector.</p></li>
+<li><p><code>a1</code> (mandatory): The initial guess of the state vector. Must be a matrix
+with one column.</p></li>
 <li><p><code>P_inf</code> (mandatory): The initial diffuse part of the variance - covariance
-matrix of the initial state vector.</p></li>
+matrix of the initial state vector. Must be a matrix.</p></li>
 <li><p><code>P_star</code>: The initial non-diffuse part of the variance - covariance
 matrix of the initial state vector if it does not depend on the
-parameters.</p></li>
+parameters. Must be a matrix.</p></li>
 <li><p><code>H</code>: The H system matrix if it does not depend on the parameters.</p></li>
 <li><p><code>transform_fun</code>: Function that returns transformed parameters for which
 standard errors have to be computed.</p></li>
@@ -437,7 +440,9 @@ specified once! That is, system matrices that are returned by <code>sys_mat_fun<
 should not be specified directly, and vice versa. So, system matrices need
 to be either specified directly, or be returned by <code>sys_mat_fun</code>. This will
 not be checked, so be aware of erroneous output if you do not follow the
-guidelines of specifying <code>self_spec_list</code>.</p>
+guidelines of specifying <code>self_spec_list</code>. If time-varying system matrices
+are required, return an array for the time-varying system matrix instead of
+a matrix.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Durbin J, Koopman SJ (2012).
@@ -451,11 +456,11 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceFit</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-05-02 12:39:50</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>StateSpaceFit</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Number of initial parameters is less than the required amount of parameters (2), recycling the initial parameters the required amount of times.</span></div><div class='output co'>#&gt; <span class='message'>Starting the optimisation procedure at: 2020-05-04 00:38:39</span></div><div class='output co'>#&gt; Parameter scaling:[1] 1 1
 #&gt; initial  value 2.443183 
 #&gt; iter  10 value 1.775548
 #&gt; final  value 1.775527 
-#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-05-02 12:39:51</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.433752059936523 secs</span></div><div class='input'>
+#&gt; converged</div><div class='output co'>#&gt; <span class='message'>Finished the optimisation procedure at: 2020-05-04 00:38:40</span></div><div class='output co'>#&gt; <span class='message'>Time difference of 0.734577894210815 secs</span></div><div class='input'>
 <span class='co'># Plots the filtered estimates</span>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'p'</span>,
      <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>), <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>'l'</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> +

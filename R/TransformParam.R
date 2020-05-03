@@ -188,7 +188,11 @@ StructParam <- function(param = NULL,
     H <- list()
     for (i in sys_mat$H) {
       indices <- 1:length(i)
-      param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      if (is.matrix(i)) {
+        param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      } else {
+        param_mat <- array(param[indices], dim = dim(i))
+      }
       param <- param[-indices]
       H <- c(H, list(param_mat))
     }
@@ -201,7 +205,11 @@ StructParam <- function(param = NULL,
     Q <- list()
     for (i in sys_mat$Q) {
       indices <- 1:length(i)
-      param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      if (is.matrix(i)) {
+        param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      } else {
+        param_mat <- array(param[indices], dim = dim(i))
+      }
       param <- param[-indices]
       Q <- c(Q, list(param_mat))
     }
@@ -366,6 +374,11 @@ StructParam <- function(param = NULL,
     indices <- 1:length(sys_mat$self_spec)
     result$self_spec <- param[indices]
     param <- param[-indices]
+  }
+
+  # Check if all parameters have been used
+  if (length(param) != 0) {
+    stop("Not all parameters have been used in assigning standard errors!")
   }
 
   return(result)
