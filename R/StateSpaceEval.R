@@ -997,11 +997,11 @@ StateSpaceEval <- function(param,
   ####################################################################################################
 
   # Filling system_matrices
-  system_matrices$H <- sys_mat$H
+  system_matrices[["H"]] <- sys_mat[["H"]]
   system_matrices$Z <- sys_mat$Z
   system_matrices$T <- sys_mat$Tmat
   system_matrices$R <- sys_mat$R
-  system_matrices$Q <- sys_mat$Q
+  system_matrices[["Q"]] <- sys_mat[["Q"]]
   system_matrices$Q_loading_matrix <- sys_mat$Q_loading_matrix
   system_matrices$Q_diagonal_matrix <- sys_mat$Q_diagonal_matrix
   system_matrices$Q_correlation_matrix <- sys_mat$Q_correlation_matrix

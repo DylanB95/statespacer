@@ -362,10 +362,10 @@ StateSpaceFit <- function(y,
   # System matrices of components
   T_list <- sys_mat$Tmat
   R_list <- sys_mat$R
-  Q_list <- sys_mat$Q
+  Q_list <- sys_mat[["Q"]]
   Q_list2 <- sys_mat$Q2
   temp_list <- sys_mat$temp_list
-  H <- sys_mat$H$H
+  H <- sys_mat[["H"]][["H"]]
   Z_kal <- sys_mat$Z_kal
   T_kal <- sys_mat$T_kal
   R_kal <- sys_mat$R_kal
@@ -391,7 +391,7 @@ StateSpaceFit <- function(y,
                              format_level = format_level,
                              decompositions = FALSE
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
       } else {
         Q_kal <- BlockMatrix(Q_kal, Q_list$level)
       }
@@ -437,7 +437,7 @@ StateSpaceFit <- function(y,
                         format_BSM = format_BSM_list[[i]],
                         decompositions = FALSE
           )
-          Q_kal <- BlockMatrix(Q_kal, update$Q)
+          Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         } else {
           Q_kal <- BlockMatrix(Q_kal, Q_list2[[paste0('BSM', s)]])
         }
@@ -455,7 +455,7 @@ StateSpaceFit <- function(y,
                          format_addvar = format_addvar,
                          decompositions = FALSE
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
       } else {
         Q_kal <- BlockMatrix(Q_kal, Q_list$addvar)
       }
@@ -535,7 +535,7 @@ StateSpaceFit <- function(y,
                         decompositions = FALSE
         )
         if (param_num_list[[paste0('Cycle', i)]] > (1 + damping_factor_ind[i])) {
-          Q_kal <- BlockMatrix(Q_kal, update$Q)
+          Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
           if (damping_factor_ind[i]) {
             P_star <- BlockMatrix(P_star, update$P_star)
           }
@@ -562,7 +562,7 @@ StateSpaceFit <- function(y,
                         R1 = temp_list[[paste0('ARIMA', i)]]$R1,
                         R2 = temp_list[[paste0('ARIMA', i)]]$R2
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         P_star <- BlockMatrix(P_star, update$P_star)
         if (arima_list[[i]][1] == 0 & arima_list[[i]][3] == 0) {
           T_kal <- CombineTRQ(T_kal, T_list[[paste0('ARIMA', i)]])
@@ -590,7 +590,7 @@ StateSpaceFit <- function(y,
                          R1 = temp_list[[paste0('SARIMA', i)]]$R1,
                          R2 = temp_list[[paste0('SARIMA', i)]]$R2
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         P_star <- BlockMatrix(P_star, update$P_star)
         if (sum(sarima_list[[i]]$ar) == 0 & sum(sarima_list[[i]]$ma) == 0) {
           T_kal <- CombineTRQ(T_kal, T_list[[paste0('SARIMA', i)]])
@@ -623,8 +623,8 @@ StateSpaceFit <- function(y,
         if (!is.null(update$R)) {
           R_kal <- CombineTRQ(R_kal, update$R)
         }
-        if (!is.null(update$Q)) {
-          Q_kal <- CombineTRQ(Q_kal, update$Q)
+        if (!is.null(update[["Q"]])) {
+          Q_kal <- CombineTRQ(Q_kal, update[["Q"]])
         }
         if (!is.null(update$P_star)) {
           P_star <- BlockMatrix(P_star, update$P_star)
@@ -658,8 +658,8 @@ StateSpaceFit <- function(y,
           P_star <- BlockMatrix(H, P_star)
         }
       }
-    } else if (is.null(self_spec_list$H)) {
-      H <- update$H
+    } else if (is.null(self_spec_list[["H"]])) {
+      H <- update[["H"]]
       if (!collapse) {
         if (is.matrix(H)) {
           P_star <- BlockMatrix(H, P_star)

@@ -71,15 +71,15 @@ TransformParam <- function(param = NULL,
   result <- c()
 
   # H
-  if (!is.null(sys_mat$H)) {
-    for (i in sys_mat$H) {
+  if (!is.null(sys_mat[["H"]])) {
+    for (i in sys_mat[["H"]]) {
       result <- c(result, i)
     }
   }
 
   # Q
-  if (!is.null(sys_mat$Q)) {
-    for (i in sys_mat$Q) {
+  if (!is.null(sys_mat[["Q"]])) {
+    for (i in sys_mat[["Q"]]) {
       result <- c(result, i)
     }
   }
@@ -184,9 +184,9 @@ StructParam <- function(param = NULL,
   result <- list()
 
   # H
-  if (!is.null(sys_mat$H)) {
+  if (!is.null(sys_mat[["H"]])) {
     H <- list()
-    for (i in sys_mat$H) {
+    for (i in sys_mat[["H"]]) {
       indices <- 1:length(i)
       if (is.matrix(i)) {
         param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
@@ -196,14 +196,14 @@ StructParam <- function(param = NULL,
       param <- param[-indices]
       H <- c(H, list(param_mat))
     }
-    names(H) <- names(sys_mat$H)
-    result$H <- H
+    names(H) <- names(sys_mat[["H"]])
+    result[["H"]] <- H
   }
 
   # Q
-  if (!is.null(sys_mat$Q)) {
+  if (!is.null(sys_mat[["Q"]])) {
     Q <- list()
-    for (i in sys_mat$Q) {
+    for (i in sys_mat[["Q"]]) {
       indices <- 1:length(i)
       if (is.matrix(i)) {
         param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
@@ -213,8 +213,8 @@ StructParam <- function(param = NULL,
       param <- param[-indices]
       Q <- c(Q, list(param_mat))
     }
-    names(Q) <- names(sys_mat$Q)
-    result$Q <- Q
+    names(Q) <- names(sys_mat[["Q"]])
+    result[["Q"]] <- Q
   }
 
   # Q_loading_matrix

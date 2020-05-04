@@ -170,7 +170,7 @@ StateSpaceForecast <- function(fit,
   T_full <- sys_mat$T_kal
   R_full <- sys_mat$R_kal
   Q_full <- sys_mat$Q_kal
-  H_full <- sys_mat$H$H
+  H_full <- sys_mat[["H"]][["H"]]
 
   # Forecasting for t = 1 to forecast_period
   for (i in 1:forecast_period) {

@@ -295,8 +295,8 @@ GetSysMat <- function(p,
     P_star <- BlockMatrix(P_star, update$P_star)
     Z_padded_list$level <- cbind(zero_mat, update$Z)
     if (param_num_list$level == 0 | update_part) {
-      Q_list$level <- update$Q
-      Q_kal <- BlockMatrix(Q_kal, update$Q)
+      Q_list$level <- update[["Q"]]
+      Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
       L_list$level <- update$loading_matrix
       D_list$level <- update$diagonal_matrix
       corr_list$level <- update$correlation_matrix
@@ -509,8 +509,8 @@ GetSysMat <- function(p,
       Z_padded_list[[paste0('BSM', s)]] <- cbind(zero_mat, update$Z)
       if (param_num_list[[paste0('BSM', s)]] == 0 | update_part) {
         Q_list[[paste0('BSM', s)]] <- update$Q_BSM
-        Q_list2[[paste0('BSM', s)]] <- update$Q
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_list2[[paste0('BSM', s)]] <- update[["Q"]]
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         L_list[[paste0('BSM', s)]] <- update$loading_matrix
         D_list[[paste0('BSM', s)]] <- update$diagonal_matrix
         corr_list[[paste0('BSM', s)]] <- update$correlation_matrix
@@ -610,8 +610,8 @@ GetSysMat <- function(p,
     P_star <- BlockMatrix(P_star, update$P_star)
     Z_padded_list$addvar <- CombineZ(zero_mat, update$Z)
     if (param_num_list$addvar == 0 | update_part) {
-      Q_list$addvar <- update$Q
-      Q_kal <- BlockMatrix(Q_kal, update$Q)
+      Q_list$addvar <- update[["Q"]]
+      Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
       L_list$addvar <- update$loading_matrix
       D_list$addvar <- update$diagonal_matrix
       corr_list$addvar <- update$correlation_matrix
@@ -1016,8 +1016,8 @@ GetSysMat <- function(p,
       if (param_num_list[[paste0('Cycle', i)]] == (1 + damping_factor_ind[i]) |
           update_part) {
         Q_list[[paste0('Cycle', i)]] <- update$Q_cycle
-        Q_list2[[paste0('Cycle', i)]] <- update$Q
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_list2[[paste0('Cycle', i)]] <- update[["Q"]]
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         L_list[[paste0('Cycle', i)]] <- update$loading_matrix
         D_list[[paste0('Cycle', i)]] <- update$diagonal_matrix
         corr_list[[paste0('Cycle', i)]] <- update$correlation_matrix
@@ -1122,8 +1122,8 @@ GetSysMat <- function(p,
         R_kal <- BlockMatrix(R_kal, update$R)
         T_list[[paste0('ARIMA', i)]] <- update$Tmat
         T_kal <- CombineTRQ(T_kal, update$Tmat)
-        Q_list[[paste0('ARIMA', i)]] <- update$Q
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_list[[paste0('ARIMA', i)]] <- update[["Q"]]
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         L_list[[paste0('ARIMA', i)]] <- update$loading_matrix
         D_list[[paste0('ARIMA', i)]] <- update$diagonal_matrix
         corr_list[[paste0('ARIMA', i)]] <- update$correlation_matrix
@@ -1232,8 +1232,8 @@ GetSysMat <- function(p,
         R_kal <- BlockMatrix(R_kal, update$R)
         T_list[[paste0('SARIMA', i)]] <- update$Tmat
         T_kal <- CombineTRQ(T_kal, update$Tmat)
-        Q_list[[paste0('SARIMA', i)]] <- update$Q
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_list[[paste0('SARIMA', i)]] <- update[["Q"]]
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         L_list[[paste0('SARIMA', i)]] <- update$loading_matrix
         D_list[[paste0('SARIMA', i)]] <- update$diagonal_matrix
         corr_list[[paste0('SARIMA', i)]] <- update$correlation_matrix
@@ -1323,8 +1323,8 @@ GetSysMat <- function(p,
         R_kal <- CombineTRQ(R_kal, R_list$self_spec)
       }
     }
-    if (!is.null(self_spec_list$Q)) {
-      Q_list$self_spec <- self_spec_list$Q
+    if (!is.null(self_spec_list[["Q"]])) {
+      Q_list$self_spec <- self_spec_list[["Q"]]
       if (update_part) {
         Q_kal <- CombineTRQ(Q_kal, Q_list$self_spec)
       }
@@ -1355,8 +1355,8 @@ GetSysMat <- function(p,
         R_list$self_spec <- update$R
         R_kal <- CombineTRQ(R_kal, R_list$self_spec)
       }
-      if (!is.null(update$Q)) {
-        Q_list$self_spec <- update$Q
+      if (!is.null(update[["Q"]])) {
+        Q_list$self_spec <- update[["Q"]]
         Q_kal <- CombineTRQ(Q_kal, Q_list$self_spec)
       }
       if (!is.null(update$P_star)) {
@@ -1390,8 +1390,8 @@ GetSysMat <- function(p,
         P_star <- BlockMatrix(H, P_star)
       }
     }
-  } else if (!is.null(self_spec_list$H)) {
-    H <- self_spec_list$H
+  } else if (!is.null(self_spec_list[["H"]])) {
+    H <- self_spec_list[["H"]]
     H_list <- list(H = H)
     if (add_residuals) {
       Q_kal <- CombineTRQ(H, Q_kal)
@@ -1402,7 +1402,7 @@ GetSysMat <- function(p,
       }
     }
   } else if (update_part) {
-    H <- update$H
+    H <- update[["H"]]
     H_list <- list(H = H)
     if (add_residuals) {
       Q_kal <- CombineTRQ(H, Q_kal)
