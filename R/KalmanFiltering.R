@@ -71,9 +71,9 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
   Fmat <- c(Z %*% PtZ)
 
   # Check if Fmat is nearly 0
-  if (Fmat < 1e-7) {
+  if (Fmat < 1e-7 & timestep) {
 
-    # No new information available
+    # No new information available in this step
     a_new <- a
     P_new <- P
     loglik <- NA
@@ -204,9 +204,9 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
   if (F_inf < 1e-7) {
 
     # Check if F_star is nearly 0
-    if (F_star < 1e-7) {
+    if (F_star < 1e-7 & timestep) {
 
-      # No new information available
+      # No new information available in this step
       a_new <- a
       P_inf_new <- P_inf
       P_star_new <- P_star

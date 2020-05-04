@@ -119,14 +119,14 @@
 #' * `sys_mat_fun`: A function returning a list of system matrices that are
 #'   constructed using the parameters. Must have `param` as an argument. The
 #'   items in the list returned should have any of the following names: Z,
-#'   Tmat, R, Q, P_star, H. Note: Only the system matrices that depend on the
-#'   parameters should be returned by the function!
+#'   Tmat, R, Q, a1, P_star, H. Note: Only the system matrices that depend on
+#'   the parameters should be returned by the function!
 #' * `sys_mat_input`: A list containing additional arguments to `sys_mat_fun`.
 #' * `Z`: The Z system matrix if it does not depend on the parameters.
 #' * `Tmat`: The T system matrix if it does not depend on the parameters.
 #' * `R`: The R system matrix if it does not depend on the parameters.
 #' * `Q`: The Q system matrix if it does not depend on the parameters.
-#' * `a1` (mandatory): The initial guess of the state vector. Must be a matrix
+#' * `a1`: The initial guess of the state vector. Must be a matrix
 #'   with one column.
 #' * `P_inf` (mandatory): The initial diffuse part of the variance - covariance
 #'   matrix of the initial state vector. Must be a matrix.
@@ -318,7 +318,7 @@ StateSpaceFit <- function(y,
   param_num_list <- sys_mat$param_num_list
 
   # Number of state parameters
-  m <- dim(sys_mat$a_kal)[1]
+  m <- length(sys_mat$state_label)
   m2 <- m
 
   if (collapse) {
@@ -344,11 +344,14 @@ StateSpaceFit <- function(y,
     m <- m + m
   }
 
-  # Initialising state vector
-  a <- t(matrix(sys_mat$a_kal, m, N * p)) # N*p x m
-
   # Check if P_inf is already 0
   initialisation <- !all(abs(sys_mat$P_inf_kal) < 1e-7)
+
+  # Initialising state vector
+  a <- sys_mat$a_kal
+  if (length(a) == m) {
+    a <- t(matrix(a, m, N * p)) # N*p x m
+  }
 
   # Initialise P_inf
   P_inf <- array(sys_mat$P_inf_kal, dim = c(m, m, N * p)) # m x m x N*p
@@ -625,6 +628,10 @@ StateSpaceFit <- function(y,
         }
         if (!is.null(update[["Q"]])) {
           Q_kal <- CombineTRQ(Q_kal, update[["Q"]])
+        }
+        if (!is.null(update$a1)) {
+          a <- rbind(a, update$a1)
+          a <- t(matrix(a, m, N * p))
         }
         if (!is.null(update$P_star)) {
           P_star <- BlockMatrix(P_star, update$P_star)
@@ -931,7 +938,7 @@ StateSpaceFit <- function(y,
 
     # Jacobian of the transformed parameters
     jacobian <- do.call(numDeriv::jacobian,
-                        c(list(func = TransformParam, x = fit$par, p = p),
+                        c(list(func = TransformParam, x = fit$par, p = p2),
                           sys_mat$function_call
                         )
     )

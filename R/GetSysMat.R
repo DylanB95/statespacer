@@ -59,11 +59,6 @@ GetSysMat <- function(p,
       stop("`self_spec_list$state_num` must be specified!")
     }
 
-    # Check if self_spec_list$a1 is specified
-    if (is.null(self_spec_list$a1)) {
-      stop("`self_spec_list$a1` must be specified!")
-    }
-
     # Check if self_spec_list$P_inf is specified
     if (is.null(self_spec_list$P_inf)) {
       stop("`self_spec_list$P_inf` must be specified!")
@@ -1329,8 +1324,10 @@ GetSysMat <- function(p,
         Q_kal <- CombineTRQ(Q_kal, Q_list$self_spec)
       }
     }
-    a_list$self_spec <- self_spec_list$a1
-    a <- rbind(a, a_list$self_spec)
+    if (!is.null(self_spec_list$a1)) {
+      a_list$self_spec <- self_spec_list$a1
+      a <- rbind(a, a_list$self_spec)
+    }
     Pinf_list$self_spec <- self_spec_list$P_inf
     P_inf <- BlockMatrix(P_inf, Pinf_list$self_spec)
     if (!is.null(self_spec_list$P_star)) {
@@ -1358,6 +1355,10 @@ GetSysMat <- function(p,
       if (!is.null(update[["Q"]])) {
         Q_list$self_spec <- update[["Q"]]
         Q_kal <- CombineTRQ(Q_kal, Q_list$self_spec)
+      }
+      if (!is.null(update$a1)) {
+        a_list$self_spec <- update$a1
+        a <- rbind(a, a_list$self_spec)
       }
       if (!is.null(update$P_star)) {
         Pstar_list$self_spec <- update$P_star
