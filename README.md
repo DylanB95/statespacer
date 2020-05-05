@@ -9,12 +9,12 @@
 
 ## Overview
 
-statespacer is a package for state space modelling in R. It provides
-functions that make estimating models in State Space form a breeze. This
-package implements state-of-the-art algorithms developed by various time
-series practitioners such as J. Durbin and S.J. Koopman. Details about
-the algorithms can be found in their book, “Time Series Analysis by
-State Space Methods”.
+statespacer is a package for state space modelling and forecasting in R.
+It provides functions that make estimating models in State Space form a
+breeze. This package implements state-of-the-art algorithms developed by
+various time series practitioners such as J. Durbin and S.J. Koopman.
+Details about the algorithms can be found in their book, “Time Series
+Analysis by State Space Methods”.
 
 If you are new to statespacer, check out `vignette("intro",
 "statespacer")` for a quick start to the statespacer package\! Also
@@ -34,8 +34,7 @@ This package supports numerous state space components:
   - The Local Level + Slope
   - Smoothing Splines
   - Trigonometric Seasonality, BSM
-  - Cycles
-  - Business Cycles
+  - (Business) Cycles
   - Explanatory Variables
   - Explanatory Variables with time-varying coefficients
   - Explanatory Variables in the Local Level
@@ -44,7 +43,7 @@ This package supports numerous state space components:
   - SARIMA
   - Moreover, you can specify a component yourself\!
 
-These components can be used for both univariate, as multivariate
+These components can be used for both univariate, and multivariate
 models. The components can be combined in order to get more extensive
 models. Moreover, the user can control the format of the variance -
 covariance matrices of each of the components. This way, one could
@@ -58,7 +57,8 @@ estimated, like common levels, common slopes, etc.
 The package employs a univariate treatment, and an exact initialisation
 for diffuse elements, to estimate the state parameters and compute the
 loglikelihood. Collapsing large observation vectors is supported as
-well.
+well. Moreover, missing observations are readily dealt with by putting
+the models in State Space form\!
 
 ## Installation
 

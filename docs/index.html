@@ -71,6 +71,9 @@
     <li>
       <a href="articles/boxjenkins.html">Fitting ARIMA models with statespacer</a>
     </li>
+    <li>
+      <a href="articles/selfspec.html">Specify it yourself!</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -106,7 +109,7 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p>statespacer is a package for state space modelling in R. It provides functions that make estimating models in State Space form a breeze. This package implements state-of-the-art algorithms developed by various time series practitioners such as J. Durbin and S.J. Koopman. Details about the algorithms can be found in their book, “Time Series Analysis by State Space Methods”.</p>
+<p>statespacer is a package for state space modelling and forecasting in R. It provides functions that make estimating models in State Space form a breeze. This package implements state-of-the-art algorithms developed by various time series practitioners such as J. Durbin and S.J. Koopman. Details about the algorithms can be found in their book, “Time Series Analysis by State Space Methods”.</p>
 <p>If you are new to statespacer, check out <code><a href="articles/intro.html">vignette("intro", "statespacer")</a></code> for a quick start to the statespacer package! Also check out the references for the following functions:</p>
 <ul>
 <li>
@@ -126,8 +129,7 @@
 <li>The Local Level + Slope</li>
 <li>Smoothing Splines</li>
 <li>Trigonometric Seasonality, BSM</li>
-<li>Cycles</li>
-<li>Business Cycles</li>
+<li>(Business) Cycles</li>
 <li>Explanatory Variables</li>
 <li>Explanatory Variables with time-varying coefficients</li>
 <li>Explanatory Variables in the Local Level</li>
@@ -136,12 +138,12 @@
 <li>SARIMA</li>
 <li>Moreover, you can specify a component yourself!</li>
 </ul>
-<p>These components can be used for both univariate, as multivariate models. The components can be combined in order to get more extensive models. Moreover, the user can control the format of the variance - covariance matrices of each of the components. This way, one could specify the components to be deterministic instead of stochastic. In the multivariate case, one could impose rank restrictions on the variance - covariance matrices such that commonalities in the components are estimated, like common levels, common slopes, etc.</p>
+<p>These components can be used for both univariate, and multivariate models. The components can be combined in order to get more extensive models. Moreover, the user can control the format of the variance - covariance matrices of each of the components. This way, one could specify the components to be deterministic instead of stochastic. In the multivariate case, one could impose rank restrictions on the variance - covariance matrices such that commonalities in the components are estimated, like common levels, common slopes, etc.</p>
 </div>
 <div id="fitting-procedure" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-procedure" class="anchor"></a>Fitting Procedure</h2>
-<p>The package employs a univariate treatment, and an exact initialisation for diffuse elements, to estimate the state parameters and compute the loglikelihood. Collapsing large observation vectors is supported as well.</p>
+<p>The package employs a univariate treatment, and an exact initialisation for diffuse elements, to estimate the state parameters and compute the loglikelihood. Collapsing large observation vectors is supported as well. Moreover, missing observations are readily dealt with by putting the models in State Space form!</p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">

@@ -25,3 +25,6 @@ using \code{\link[base:matrix]{as.matrix}}.
 BlockMatrix(diag(ceiling(50 * stats::runif(5))), matrix(1:8, 4, 2), c(14,8))
 
 }
+\author{
+Dylan Beijers, \email{dylanbeijers@gmail.com}
+}

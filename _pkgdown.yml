@@ -51,6 +51,8 @@ navbar:
         href: articles/seatbelt.html
       - text: Fitting ARIMA models with statespacer
         href: articles/boxjenkins.html
+      - text: Specify it yourself!
+        href: articles/selfspec.html
 
 authors:
   Dylan Beijers:

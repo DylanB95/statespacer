@@ -46,3 +46,6 @@ format[2, 1] <- 1
 Cholesky(param = c(2,4,1), format = format, decompositions = TRUE)
 
 }
+\author{
+Dylan Beijers, \email{dylanbeijers@gmail.com}
+}

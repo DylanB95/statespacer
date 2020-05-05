@@ -202,22 +202,22 @@ following items, of which some are mandatory:
 \item \code{H_spec}: Boolean indicating whether the H matrix is self-specified.
 Should be \code{TRUE}, if you want to specify the H matrix yourself.
 \item \code{state_num} (mandatory): The number of state parameters introduced by the
-self-specified component.
+self-specified component. Must be 0 if only \code{H} is self-specified.
 \item \code{param_num}: The number of parameters needed by the self-specified
 component. Must be specified and greater than 0 if parameters are needed.
 \item \code{sys_mat_fun}: A function returning a list of system matrices that are
 constructed using the parameters. Must have \code{param} as an argument. The
 items in the list returned should have any of the following names: Z,
-Tmat, R, Q, P_star, H. Note: Only the system matrices that depend on the
-parameters should be returned by the function!
+Tmat, R, Q, a1, P_star, H. Note: Only the system matrices that depend on
+the parameters should be returned by the function!
 \item \code{sys_mat_input}: A list containing additional arguments to \code{sys_mat_fun}.
 \item \code{Z}: The Z system matrix if it does not depend on the parameters.
 \item \code{Tmat}: The T system matrix if it does not depend on the parameters.
 \item \code{R}: The R system matrix if it does not depend on the parameters.
 \item \code{Q}: The Q system matrix if it does not depend on the parameters.
-\item \code{a1} (mandatory): The initial guess of the state vector. Must be a matrix
+\item \code{a1}: The initial guess of the state vector. Must be a matrix
 with one column.
-\item \code{P_inf} (mandatory): The initial diffuse part of the variance - covariance
+\item \code{P_inf}: The initial diffuse part of the variance - covariance
 matrix of the initial state vector. Must be a matrix.
 \item \code{P_star}: The initial non-diffuse part of the variance - covariance
 matrix of the initial state vector if it does not depend on the
@@ -225,17 +225,24 @@ parameters. Must be a matrix.
 \item \code{H}: The H system matrix if it does not depend on the parameters.
 \item \code{transform_fun}: Function that returns transformed parameters for which
 standard errors have to be computed.
-\item \code{transform_input}: A list containing additional arguments to \code{transform_fun.}
+\item \code{transform_input}: A list containing additional arguments to
+\code{transform_fun.}
+\item \code{state_only}: The indices of the self specified state that do not play a
+role in the observation equations, but only in the state equations. Should
+only be used if you want to use \code{collapse = TRUE} and have some state
+parameters that do not play a role in the observation equations. Does not
+have to be specified for \code{collapse = FALSE}.
 }
 
 Note: System matrices should only be specified once and need to be
 specified once! That is, system matrices that are returned by \code{sys_mat_fun}
 should not be specified directly, and vice versa. So, system matrices need
-to be either specified directly, or be returned by \code{sys_mat_fun}. This will
-not be checked, so be aware of erroneous output if you do not follow the
-guidelines of specifying \code{self_spec_list}. If time-varying system matrices
-are required, return an array for the time-varying system matrix instead of
-a matrix.
+to be either specified directly, or be returned by \code{sys_mat_fun}. An
+exception holds for the case where you \strong{only} want to specify \code{H}
+yourself. This will not be checked, so be aware of erroneous output if you
+do not follow the guidelines of specifying \code{self_spec_list}. If time-varying
+system matrices are required, return an array for the time-varying system
+matrix instead of a matrix.
 }
 \examples{
 # Fits a local level model for the Nile data

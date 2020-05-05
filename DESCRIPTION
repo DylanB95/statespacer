@@ -27,5 +27,6 @@ Suggests:
     knitr,
     numDeriv (>= 2016.8-1.1),
     optimx (>= 2020-4.2),
-    rmarkdown
+    rmarkdown,
+    YieldCurve (>= 4.1)
 VignetteBuilder: knitr
