@@ -1,0 +1,19 @@
+---
+title: "Specify it yourself!"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Specify it yourself!}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(statespacer)
+```

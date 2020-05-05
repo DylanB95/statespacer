@@ -10,21 +10,22 @@
 #'
 #' @return
 #' A list containing:
-#' * function_call: A list containing the input to the function.
-#' * system_matrices: A list containing the system matrices of
+#' * `function_call`: A list containing the input to the function.
+#' * `system_matrices`: A list containing the system matrices of
 #'   the State Space model.
-#' * predicted: A list containing the predicted components of
+#' * `predicted`: A list containing the predicted components of
 #'   the State Space model.
-#' * filtered: A list containing the filtered components of
+#' * `filtered`: A list containing the filtered components of
 #'   the State Space model.
-#' * smoothed: A list containing the smoothed components of
+#' * `smoothed`: A list containing the smoothed components of
 #'   the State Space model.
-#' * diagnostics: A list containing items useful for diagnostical tests.
+#' * `diagnostics`: A list containing items useful for diagnostical tests.
 #'
 #' For extensive details about the object returned,
 #' see \code{vignette("dictionary", package = "statespacer")}.
 #'
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
+#'
 #' @references
 #' \insertRef{durbin2012time}{statespacer}
 #'
@@ -48,6 +49,7 @@ StateSpaceEval <- function(param,
                            level_addvar_list = NULL,
                            arima_list = NULL,
                            sarima_list = NULL,
+                           self_spec_list = NULL,
                            exclude_level = NULL,
                            exclude_slope = NULL,
                            exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
@@ -80,6 +82,7 @@ StateSpaceEval <- function(param,
   sys_mat <- GetSysMat(p = p,
                        param = param,
                        update_part = TRUE,
+                       add_residuals = TRUE,
                        H_format = H_format,
                        local_level_ind = local_level_ind,
                        slope_ind = slope_ind,
@@ -89,6 +92,7 @@ StateSpaceEval <- function(param,
                        level_addvar_list = level_addvar_list,
                        arima_list = arima_list,
                        sarima_list = sarima_list,
+                       self_spec_list = self_spec_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
@@ -114,6 +118,7 @@ StateSpaceEval <- function(param,
   level_addvar_list <- sys_mat$function_call$level_addvar_list
   arima_list <- sys_mat$function_call$arima_list
   sarima_list <- sys_mat$function_call$sarima_list
+  self_spec_list <- sys_mat$function_call$self_spec_list
   exclude_level <- sys_mat$function_call$exclude_level
   exclude_slope <- sys_mat$function_call$exclude_slope
   exclude_BSM_list <- sys_mat$function_call$exclude_BSM_list
@@ -139,11 +144,6 @@ StateSpaceEval <- function(param,
   a <- sys_mat$a_kal
   P_inf <- sys_mat$P_inf_kal
   P_star <- sys_mat$P_star_kal
-  H <- sys_mat$H$H
-
-  # Dimensions of the system matrices
-  Zdim <- length(dim(Z_kal))
-  Tdim <- length(dim(T_kal))
 
   # Uncertainty of initial 'guess' of state vector
   kappa <- 1e7
@@ -168,7 +168,7 @@ StateSpaceEval <- function(param,
   P_inf <- array(P_inf, dim = c(m, m, N * p)) # m x m x N*p
   P_inf[,,2:(N*p)] <- 0
   P_star <- array(P_star, dim = c(m, m, N * p)) # m x m x N*p
-  a_pred <- t(matrix(a, m, N)) # N x m
+  a_pred <- t(matrix(sys_mat$a_kal, m, N)) # N x m
   P_pred <- array(P, dim = c(m, m, N)) # m x m x N
   a_fil <- a_pred # N x m
   P_fil <- P_pred # m x m x N
@@ -214,13 +214,21 @@ StateSpaceEval <- function(param,
 
       # T, R, and Q matrices only needed when a transition to
       # the next timepoint is made
-      if (Tdim < 3) {
+      if (is.matrix(T_kal)) {
         T_input <- T_kal
       } else {
         T_input <- as.matrix(T_kal[,,t])
       }
-      R_input <- R_kal
-      Q_input <- Q_kal
+      if (is.matrix(R_kal)) {
+        R_input <- R_kal
+      } else {
+        R_input <- matrix(R_kal[,,t], nrow = m)
+      }
+      if (is.matrix(Q_kal)) {
+        Q_input <- Q_kal
+      } else {
+        Q_input <- as.matrix(Q_kal[,,t])
+      }
 
     } else {
       timestep <- FALSE
@@ -229,7 +237,7 @@ StateSpaceEval <- function(param,
       Q_input <- NULL
     }
 
-    if (Zdim < 3) {
+    if (is.matrix(Z_kal)) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
       Z_input <- matrix(Z_kal[row,,t], nrow = 1)
@@ -293,7 +301,7 @@ StateSpaceEval <- function(param,
           P_fil[,,t] <- filter_output$P_star_fil
         }
 
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
@@ -362,7 +370,7 @@ StateSpaceEval <- function(param,
         a_fil[t,] <- filter_output$a_fil
         P_fil[,,t] <- filter_output$P_fil
 
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
@@ -493,20 +501,32 @@ StateSpaceEval <- function(param,
 
       # T, R, and Q matrices only needed when a transition to the
       # next timepoint is made
-      if (Tdim < 3) {
+      if (is.matrix(T_kal)) {
         T_input <- T_kal
       } else {
         if (t > 1) {
           T_input <- as.matrix(T_kal[,,t - 1])
         }
       }
-      R_input <- R_kal
-      Q_input <- Q_kal
+      if (is.matrix(R_kal)) {
+        R_input <- R_kal
+      } else {
+        if (t > 1) {
+          R_input <- matrix(R_kal[,,t - 1], nrow = m)
+        }
+      }
+      if (is.matrix(Q_kal)) {
+        Q_input <- Q_kal
+      } else {
+        if (t > 1) {
+          Q_input <- as.matrix(Q_kal[,,t - 1])
+        }
+      }
     } else {
       timestep <- FALSE
     }
 
-    if (Zdim < 3) {
+    if (is.matrix(Z_kal)) {
       Z_input <- Z_kal[row,, drop = FALSE]
     } else {
       Z_input <- matrix(Z_kal[row,,t], nrow = 1)
@@ -565,7 +585,7 @@ StateSpaceEval <- function(param,
 
         # Smoothing error e and corresponding variance D
         # Plus T-statistic for the observation equation
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
@@ -679,7 +699,7 @@ StateSpaceEval <- function(param,
 
         # Smoothing error e and corresponding variance D
         # Plus T-statistic for the observation equation
-        if (Zdim < 3) {
+        if (is.matrix(Z_kal)) {
           Z_full <- Z_kal
         } else {
           Z_full <- matrix(Z_kal[,,t], nrow = p)
@@ -786,11 +806,11 @@ StateSpaceEval <- function(param,
   # Local Level
   if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
     smoothed$level <- matrix(0, N, p)
     for (i in 1:N) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       predicted$level[i,] <- tempZ %*% matrix(a_pred[i,])
       filtered$level[i,] <- tempZ %*% matrix(a_fil[i,])
       smoothed$level[i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -801,11 +821,11 @@ StateSpaceEval <- function(param,
   # Local Level + Slope
   if (slope_ind & is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
     smoothed$level <- matrix(0, N, p)
     for (i in 1:N) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       predicted$level[i,] <- tempZ %*% matrix(a_pred[i,])
       filtered$level[i,] <- tempZ %*% matrix(a_fil[i,])
       smoothed$level[i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -817,11 +837,11 @@ StateSpaceEval <- function(param,
   if (length(BSM_vec) > 0) {
     for (s in BSM_vec) {
       tempZ <- matrix(0, p, m - p)
+      tempZ[1:length(Z_padded[[paste0('BSM', s)]])] <- Z_padded[[paste0('BSM', s)]]
       predicted[[paste0('BSM', s)]] <- matrix(0, N, p)
       filtered[[paste0('BSM', s)]] <- matrix(0, N, p)
       smoothed[[paste0('BSM', s)]] <- matrix(0, N, p)
       for (i in 1:N) {
-        tempZ[1:length(Z_padded[[paste0('BSM', s)]])] <- Z_padded[[paste0('BSM', s)]]
         predicted[[paste0('BSM', s)]][i,] <- tempZ %*% matrix(a_pred[i,])
         filtered[[paste0('BSM', s)]][i,] <- tempZ %*% matrix(a_fil[i,])
         smoothed[[paste0('BSM', s)]][i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -856,11 +876,11 @@ StateSpaceEval <- function(param,
   # level_addvar
   if (!is.null(level_addvar_list) & !slope_ind) {
     tempZ <- matrix(0, p, m - p)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
     smoothed$level <- matrix(0, N, p)
     for (i in 1:N) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       predicted$level[i,] <- tempZ %*% matrix(a_pred[i,])
       filtered$level[i,] <- tempZ %*% matrix(a_fil[i,])
       smoothed$level[i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -879,11 +899,11 @@ StateSpaceEval <- function(param,
   # slope_addvar
   if (!is.null(level_addvar_list) & slope_ind) {
     tempZ <- matrix(0, p, m - p)
+    tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)
     filtered$level <- matrix(0, N, p)
     smoothed$level <- matrix(0, N, p)
     for (i in 1:N) {
-      tempZ[1:length(Z_padded$level)] <- Z_padded$level
       predicted$level[i,] <- tempZ %*% matrix(a_pred[i,])
       filtered$level[i,] <- tempZ %*% matrix(a_fil[i,])
       smoothed$level[i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -903,11 +923,11 @@ StateSpaceEval <- function(param,
   if (cycle_ind) {
     for (j in seq_along(format_cycle_list)) {
       tempZ <- matrix(0, p, m - p)
+      tempZ[1:length(Z_padded[[paste0('Cycle', j)]])] <- Z_padded[[paste0('Cycle', j)]]
       predicted[[paste0('Cycle', j)]] <- matrix(0, N, p)
       filtered[[paste0('Cycle', j)]] <- matrix(0, N, p)
       smoothed[[paste0('Cycle', j)]] <- matrix(0, N, p)
       for (i in 1:N) {
-        tempZ[1:length(Z_padded[[paste0('Cycle', j)]])] <- Z_padded[[paste0('Cycle', j)]]
         predicted[[paste0('Cycle', j)]][i,] <- tempZ %*% matrix(a_pred[i,])
         filtered[[paste0('Cycle', j)]][i,] <- tempZ %*% matrix(a_fil[i,])
         smoothed[[paste0('Cycle', j)]][i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -920,11 +940,11 @@ StateSpaceEval <- function(param,
   if (!is.null(arima_list)) {
     for (j in seq_along(arima_list)) {
       tempZ <- matrix(0, p, m - p)
+      tempZ[1:length(Z_padded[[paste0('ARIMA', j)]])] <- Z_padded[[paste0('ARIMA', j)]]
       predicted[[paste0('ARIMA', j)]] <- matrix(0, N, p)
       filtered[[paste0('ARIMA', j)]] <- matrix(0, N, p)
       smoothed[[paste0('ARIMA', j)]] <- matrix(0, N, p)
       for (i in 1:N) {
-        tempZ[1:length(Z_padded[[paste0('ARIMA', j)]])] <- Z_padded[[paste0('ARIMA', j)]]
         predicted[[paste0('ARIMA', j)]][i,] <- tempZ %*% matrix(a_pred[i,])
         filtered[[paste0('ARIMA', j)]][i,] <- tempZ %*% matrix(a_fil[i,])
         smoothed[[paste0('ARIMA', j)]][i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -937,11 +957,11 @@ StateSpaceEval <- function(param,
   if (!is.null(sarima_list)) {
     for (j in seq_along(sarima_list)) {
       tempZ <- matrix(0, p, m - p)
+      tempZ[1:length(Z_padded[[paste0('SARIMA', j)]])] <- Z_padded[[paste0('SARIMA', j)]]
       predicted[[paste0('SARIMA', j)]] <- matrix(0, N, p)
       filtered[[paste0('SARIMA', j)]] <- matrix(0, N, p)
       smoothed[[paste0('SARIMA', j)]] <- matrix(0, N, p)
       for (i in 1:N) {
-        tempZ[1:length(Z_padded[[paste0('SARIMA', j)]])] <- Z_padded[[paste0('SARIMA', j)]]
         predicted[[paste0('SARIMA', j)]][i,] <- tempZ %*% matrix(a_pred[i,])
         filtered[[paste0('SARIMA', j)]][i,] <- tempZ %*% matrix(a_fil[i,])
         smoothed[[paste0('SARIMA', j)]][i,] <- tempZ %*% matrix(a_smooth[i,])
@@ -949,14 +969,40 @@ StateSpaceEval <- function(param,
       Z_padded[[paste0('SARIMA', j)]] <- tempZ
     }
   }
+
+  # Self Specified
+  if (!is.null(self_spec_list)) {
+    if (is.matrix(Z_padded$self_spec)) {
+      tempZ <- matrix(0, p, m - p)
+      tempZ[1:length(Z_padded$self_spec)] <- Z_padded$self_spec
+    } else {
+      tempZ <- array(0, dim = c(p, m - p, N))
+    }
+    predicted$self_spec <- matrix(0, N, p)
+    filtered$self_spec <- matrix(0, N, p)
+    smoothed$self_spec <- matrix(0, N, p)
+    for (i in 1:N) {
+      if (is.matrix(Z_padded$self_spec)) {
+        predicted$self_spec[i,] <- tempZ %*% matrix(a_pred[i,])
+        filtered$self_spec[i,] <- tempZ %*% matrix(a_fil[i,])
+        smoothed$self_spec[i,] <- tempZ %*% matrix(a_smooth[i,])
+      } else {
+        tempZ[,,i][1:length(Z_padded$self_spec[,,i])] <- Z_padded$self_spec[,,i]
+        predicted$self_spec[i,] <- matrix(tempZ[,,i], nrow = p) %*% matrix(a_pred[i,])
+        filtered$self_spec[i,] <- matrix(tempZ[,,i], nrow = p) %*% matrix(a_fil[i,])
+        smoothed$self_spec[i,] <- matrix(tempZ[,,i], nrow = p) %*% matrix(a_smooth[i,])
+      }
+    }
+    Z_padded$self_spec <- tempZ
+  }
   ####################################################################################################
 
   # Filling system_matrices
-  system_matrices$H <- sys_mat$H
+  system_matrices[["H"]] <- sys_mat[["H"]]
   system_matrices$Z <- sys_mat$Z
   system_matrices$T <- sys_mat$Tmat
   system_matrices$R <- sys_mat$R
-  system_matrices$Q <- sys_mat$Q
+  system_matrices[["Q"]] <- sys_mat[["Q"]]
   system_matrices$Q_loading_matrix <- sys_mat$Q_loading_matrix
   system_matrices$Q_diagonal_matrix <- sys_mat$Q_diagonal_matrix
   system_matrices$Q_correlation_matrix <- sys_mat$Q_correlation_matrix
@@ -967,6 +1013,7 @@ StateSpaceEval <- function(param,
   system_matrices$MA <- sys_mat$MA
   system_matrices$SAR <- sys_mat$SAR
   system_matrices$SMA <- sys_mat$SMA
+  system_matrices$self_spec <- sys_mat$self_spec
   system_matrices$a1 <- sys_mat$a1
   system_matrices$P_inf <- sys_mat$P_inf
   system_matrices$P_star <- sys_mat$P_star

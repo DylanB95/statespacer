@@ -16,12 +16,12 @@
 #'
 #' @return
 #' A list containing:
-#' * a: The estimated state for the next step.
-#' * P: The corresponding variance - covariance matrix of the estimated state
+#' * `a`: The estimated state for the next step.
+#' * `P`: The corresponding variance - covariance matrix of the estimated state
 #'   for the next step.
-#' * loglik: The loglikelihood for the current step.
-#' * a_fil: The filtered state for the current step.
-#' * P_fil: The corresponding variance - covariance matrix of the filtered
+#' * `loglik`: The loglikelihood for the current step.
+#' * `a_fil`: The filtered state for the current step.
+#' * `P_fil`: The corresponding variance - covariance matrix of the filtered
 #'   state for the current step.
 #'
 #' @noRd
@@ -71,9 +71,9 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
   Fmat <- c(Z %*% PtZ)
 
   # Check if Fmat is nearly 0
-  if (Fmat < 1e-7) {
+  if (Fmat < 1e-7 & timestep) {
 
-    # No new information available
+    # No new information available in this step
     a_new <- a
     P_new <- P
     loglik <- NA
@@ -120,7 +120,6 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
   # Return the list
   return(result)
 }
-#####################################################################
 
 #' Kalman Filter with Exact Initialisation
 #'
@@ -136,17 +135,17 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
 #'
 #' @return
 #' A list containing:
-#' * a: The estimated state for the next step.
-#' * P_inf: The corresponding diffuse part of the variance - covariance
+#' * `a`: The estimated state for the next step.
+#' * `P_inf`: The corresponding diffuse part of the variance - covariance
 #'   matrix of the estimated state for the next step.
-#' * P_star: The corresponding stationary part of the variance - covariance
+#' * `P_star`: The corresponding stationary part of the variance - covariance
 #'   matrix of the estimated state for the next step.
-#' * loglik: The loglikelihood for the current step.
-#' * a_fil: The filtered state for the current step.
-#' * P_inf_fil: The corresponding diffuse part of the variance - covariance
+#' * `loglik`: The loglikelihood for the current step.
+#' * `a_fil`: The filtered state for the current step.
+#' * `P_inf_fil`: The corresponding diffuse part of the variance - covariance
 #'   matrix of the filtered state for the current step.
-#' * P_star_fil: The corresponding stationary part of the variance - covariance
-#'   matrix of the filtered state for the current step.
+#' * `P_star_fil`: The corresponding stationary part of the variance -
+#'   covariance matrix of the filtered state for the current step.
 #'
 #' @noRd
 KalmanEI <- function(y, a, P_inf, P_star, Z,
@@ -205,9 +204,9 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
   if (F_inf < 1e-7) {
 
     # Check if F_star is nearly 0
-    if (F_star < 1e-7) {
+    if (F_star < 1e-7 & timestep) {
 
-      # No new information available
+      # No new information available in this step
       a_new <- a
       P_inf_new <- P_inf
       P_star_new <- P_star

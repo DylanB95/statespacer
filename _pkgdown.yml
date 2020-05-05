@@ -18,11 +18,18 @@ home:
   strip_header: false
 
 reference:
-- title: State Space model
+- title: State Space Model
   contents:
   - StateSpaceFit
   - StateSpaceForecast
   - StateSpaceEval
+- title: Parameter Transformations
+  contents: 
+  - Cholesky
+  - CoeffARMA
+- title: Matrix Utilities
+  contents:
+  - BlockMatrix
 
 navbar:
   type: inverse

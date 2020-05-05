@@ -15,6 +15,7 @@ StateSpaceFit(
   level_addvar_list = NULL,
   arima_list = NULL,
   sarima_list = NULL,
+  self_spec_list = NULL,
   exclude_level = NULL,
   exclude_slope = NULL,
   exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
@@ -30,7 +31,8 @@ StateSpaceFit(
   format_level_addvar = NULL,
   method = "BFGS",
   initial = 0,
-  control = list()
+  control = list(),
+  collapse = FALSE
 )
 }
 \arguments{
@@ -68,7 +70,7 @@ added for one of the dependent variables, then set the corresponding
 element to \code{NULL}.}
 
 \item{arima_list}{Specifications of the ARIMA components, should be a list
-containing vectors of length 3 with the following format: c(AR, I, MA).
+containing vectors of length 3 with the following format: \code{c(AR, I, MA)}.
 Should be a list to allow different ARIMA models for different sets of
 dependent variables. Note: The AR and MA coefficients are
 constrained such that the AR component is stationary, and the MA
@@ -85,6 +87,11 @@ and the MA components are invertible.
 See \insertCite{ansley1986note;textual}{statespacer} for details about
 the transformation used. Note: For multivariate models, the order of "s"
 matters, as matrix multiplication is not commutative!}
+
+\item{self_spec_list}{A list containing the specification of the self
+specified component. See the Details section of \code{StateSpaceFit()} for
+extensive details about the format that must be followed for this
+argument.}
 
 \item{exclude_level}{Vector containing the dependent variables that should
 not get a local level.}
@@ -142,44 +149,93 @@ vector or just one number.}
 
 \item{control}{A list of control parameters for the
 \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.}
+
+\item{collapse}{Boolean indicating whether the observation vector should be
+collapsed. Should only be set to \code{TRUE} if the dimensionality of the
+observation vector exceeds the dimensionality of the state vector.
+If this is the case, computational gains can be achieved by collapsing
+the observation vector.}
 }
 \value{
 A list containing:
 \itemize{
-\item function_call: A list containing the input to the function.
-\item system_matrices: A list containing the system matrices of
+\item \code{function_call}: A list containing the input to the function.
+\item \code{system_matrices}: A list containing the system matrices of
 the State Space model.
-\item predicted: A list containing the predicted components of
+\item \code{predicted}: A list containing the predicted components of
 the State Space model.
-\item filtered: A list containing the filtered components of
+\item \code{filtered}: A list containing the filtered components of
 the State Space model.
-\item smoothed: A list containing the smoothed components of
+\item \code{smoothed}: A list containing the smoothed components of
 the State Space model.
-\item diagnostics: A list containing items useful for diagnostical tests.
-\item optim: A list containing the variables that are returned by the
+\item \code{diagnostics}: A list containing items useful for diagnostical tests.
+\item \code{optim}: A list containing the variables that are returned by the
 \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
-\item loglik_fun: Function that returns the loglikelihood of the
+\item \code{loglik_fun}: Function that returns the loglikelihood of the
 specified State Space model, as a function of its parameters.
-\item standard_errors: A list containing the standard errors of
+\item \code{standard_errors}: A list containing the standard errors of
 the parameters of the State Space model.
 }
 
 For extensive details about the object returned,
-see \code{vignette("dictionary", package = "statespacer")}.
+see \code{vignette("dictionary", "statespacer")}.
 }
 \description{
 Fits a State Space model as specified by the user.
 }
 \details{
-To fit the specified State Space model, it might be beneficial to scale
-the dependent variables or pay careful attention to the initial values.
-If an error occurs, try to scale the dependents by a bigger number, or
-try different initial values. Initial values should not be too big, as
-some parameters use the transformation exp(2x) to ensure non-negative
-values, they should also not be too small as some variances might be
-relatively close to 0, relative to the magnitude of y.
-Note: after fitting the model, remember to scale the estimates back!
-Variances should be multiplied by the square of the scaling number!
+To fit the specified State Space model, one occasionally has to pay careful
+attention to the initial values supplied. See
+\code{vignette("dictionary", "statespacer")} for details.
+Initial values should not be too large, as some parameters use the
+transformation exp(2x) to ensure non-negative values, they should also not
+be too small as some variances might become relatively too close to 0,
+relative to the magnitude of y.
+
+If a component is specified without a \code{format}, then the format defaults to a
+diagonal \code{format}.
+
+\code{self_spec_list} provides a means to incorporate a self-specified component
+into the State Space model. This argument can only contain any of the
+following items, of which some are mandatory:
+\itemize{
+\item \code{H_spec}: Boolean indicating whether the H matrix is self-specified.
+Should be \code{TRUE}, if you want to specify the H matrix yourself.
+\item \code{state_num} (mandatory): The number of state parameters introduced by the
+self-specified component.
+\item \code{param_num}: The number of parameters needed by the self-specified
+component. Must be specified and greater than 0 if parameters are needed.
+\item \code{sys_mat_fun}: A function returning a list of system matrices that are
+constructed using the parameters. Must have \code{param} as an argument. The
+items in the list returned should have any of the following names: Z,
+Tmat, R, Q, P_star, H. Note: Only the system matrices that depend on the
+parameters should be returned by the function!
+\item \code{sys_mat_input}: A list containing additional arguments to \code{sys_mat_fun}.
+\item \code{Z}: The Z system matrix if it does not depend on the parameters.
+\item \code{Tmat}: The T system matrix if it does not depend on the parameters.
+\item \code{R}: The R system matrix if it does not depend on the parameters.
+\item \code{Q}: The Q system matrix if it does not depend on the parameters.
+\item \code{a1} (mandatory): The initial guess of the state vector. Must be a matrix
+with one column.
+\item \code{P_inf} (mandatory): The initial diffuse part of the variance - covariance
+matrix of the initial state vector. Must be a matrix.
+\item \code{P_star}: The initial non-diffuse part of the variance - covariance
+matrix of the initial state vector if it does not depend on the
+parameters. Must be a matrix.
+\item \code{H}: The H system matrix if it does not depend on the parameters.
+\item \code{transform_fun}: Function that returns transformed parameters for which
+standard errors have to be computed.
+\item \code{transform_input}: A list containing additional arguments to \code{transform_fun.}
+}
+
+Note: System matrices should only be specified once and need to be
+specified once! That is, system matrices that are returned by \code{sys_mat_fun}
+should not be specified directly, and vice versa. So, system matrices need
+to be either specified directly, or be returned by \code{sys_mat_fun}. This will
+not be checked, so be aware of erroneous output if you do not follow the
+guidelines of specifying \code{self_spec_list}. If time-varying system matrices
+are required, return an array for the time-varying system matrix instead of
+a matrix.
 }
 \examples{
 # Fits a local level model for the Nile data

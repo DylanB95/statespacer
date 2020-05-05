@@ -16,6 +16,7 @@ StateSpaceEval(
   level_addvar_list = NULL,
   arima_list = NULL,
   sarima_list = NULL,
+  self_spec_list = NULL,
   exclude_level = NULL,
   exclude_slope = NULL,
   exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
@@ -69,7 +70,7 @@ added for one of the dependent variables, then set the corresponding
 element to \code{NULL}.}
 
 \item{arima_list}{Specifications of the ARIMA components, should be a list
-containing vectors of length 3 with the following format: c(AR, I, MA).
+containing vectors of length 3 with the following format: \code{c(AR, I, MA)}.
 Should be a list to allow different ARIMA models for different sets of
 dependent variables. Note: The AR and MA coefficients are
 constrained such that the AR component is stationary, and the MA
@@ -86,6 +87,11 @@ and the MA components are invertible.
 See \insertCite{ansley1986note;textual}{statespacer} for details about
 the transformation used. Note: For multivariate models, the order of "s"
 matters, as matrix multiplication is not commutative!}
+
+\item{self_spec_list}{A list containing the specification of the self
+specified component. See the Details section of \code{StateSpaceFit()} for
+extensive details about the format that must be followed for this
+argument.}
 
 \item{exclude_level}{Vector containing the dependent variables that should
 not get a local level.}
@@ -141,16 +147,16 @@ loglikelihood should be returned.}
 \value{
 A list containing:
 \itemize{
-\item function_call: A list containing the input to the function.
-\item system_matrices: A list containing the system matrices of
+\item \code{function_call}: A list containing the input to the function.
+\item \code{system_matrices}: A list containing the system matrices of
 the State Space model.
-\item predicted: A list containing the predicted components of
+\item \code{predicted}: A list containing the predicted components of
 the State Space model.
-\item filtered: A list containing the filtered components of
+\item \code{filtered}: A list containing the filtered components of
 the State Space model.
-\item smoothed: A list containing the smoothed components of
+\item \code{smoothed}: A list containing the smoothed components of
 the State Space model.
-\item diagnostics: A list containing items useful for diagnostical tests.
+\item \code{diagnostics}: A list containing items useful for diagnostical tests.
 }
 
 For extensive details about the object returned,

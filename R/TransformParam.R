@@ -22,6 +22,7 @@ TransformParam <- function(param = NULL,
                            level_addvar_list = NULL,
                            arima_list = NULL,
                            sarima_list = NULL,
+                           self_spec_list = NULL,
                            exclude_level = NULL,
                            exclude_slope = NULL,
                            exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
@@ -40,6 +41,7 @@ TransformParam <- function(param = NULL,
   sys_mat <- GetSysMat(p = p,
                        param = param,
                        update_part = TRUE,
+                       add_residuals = FALSE,
                        H_format = H_format,
                        local_level_ind = local_level_ind,
                        slope_ind = slope_ind,
@@ -49,6 +51,7 @@ TransformParam <- function(param = NULL,
                        level_addvar_list = level_addvar_list,
                        arima_list = arima_list,
                        sarima_list = sarima_list,
+                       self_spec_list = self_spec_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
@@ -68,15 +71,15 @@ TransformParam <- function(param = NULL,
   result <- c()
 
   # H
-  if (!is.null(sys_mat$H)) {
-    for (i in sys_mat$H) {
+  if (!is.null(sys_mat[["H"]])) {
+    for (i in sys_mat[["H"]]) {
       result <- c(result, i)
     }
   }
 
   # Q
-  if (!is.null(sys_mat$Q)) {
-    for (i in sys_mat$Q) {
+  if (!is.null(sys_mat[["Q"]])) {
+    for (i in sys_mat[["Q"]]) {
       result <- c(result, i)
     }
   }
@@ -155,6 +158,11 @@ TransformParam <- function(param = NULL,
     }
   }
 
+  # Self Specified transformed parameters
+  if (!is.null(sys_mat$self_spec)) {
+    result <- c(result, sys_mat$self_spec)
+  }
+
   return(result)
 }
 
@@ -176,29 +184,37 @@ StructParam <- function(param = NULL,
   result <- list()
 
   # H
-  if (!is.null(sys_mat$H)) {
+  if (!is.null(sys_mat[["H"]])) {
     H <- list()
-    for (i in sys_mat$H) {
+    for (i in sys_mat[["H"]]) {
       indices <- 1:length(i)
-      param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      if (is.matrix(i)) {
+        param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      } else {
+        param_mat <- array(param[indices], dim = dim(i))
+      }
       param <- param[-indices]
       H <- c(H, list(param_mat))
     }
-    names(H) <- names(sys_mat$H)
-    result$H <- H
+    names(H) <- names(sys_mat[["H"]])
+    result[["H"]] <- H
   }
 
   # Q
-  if (!is.null(sys_mat$Q)) {
+  if (!is.null(sys_mat[["Q"]])) {
     Q <- list()
-    for (i in sys_mat$Q) {
+    for (i in sys_mat[["Q"]]) {
       indices <- 1:length(i)
-      param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      if (is.matrix(i)) {
+        param_mat <- matrix(param[indices], dim(i)[1], dim(i)[2])
+      } else {
+        param_mat <- array(param[indices], dim = dim(i))
+      }
       param <- param[-indices]
       Q <- c(Q, list(param_mat))
     }
-    names(Q) <- names(sys_mat$Q)
-    result$Q <- Q
+    names(Q) <- names(sys_mat[["Q"]])
+    result[["Q"]] <- Q
   }
 
   # Q_loading_matrix
@@ -351,6 +367,18 @@ StructParam <- function(param = NULL,
     }
     names(SMA) <- names(sys_mat$SMA)
     result$SMA <- SMA
+  }
+
+  # Self Specified transformed parameters
+  if (!is.null(sys_mat$self_spec)) {
+    indices <- 1:length(sys_mat$self_spec)
+    result$self_spec <- param[indices]
+    param <- param[-indices]
+  }
+
+  # Check if all parameters have been used
+  if (length(param) != 0) {
+    stop("Not all parameters have been used in assigning standard errors!")
   }
 
   return(result)

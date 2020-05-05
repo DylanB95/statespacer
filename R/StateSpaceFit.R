@@ -28,7 +28,7 @@
 #'   added for one of the dependent variables, then set the corresponding
 #'   element to `NULL`.
 #' @param arima_list Specifications of the ARIMA components, should be a list
-#'   containing vectors of length 3 with the following format: c(AR, I, MA).
+#'   containing vectors of length 3 with the following format: `c(AR, I, MA)`.
 #'   Should be a list to allow different ARIMA models for different sets of
 #'   dependent variables. Note: The AR and MA coefficients are
 #'   constrained such that the AR component is stationary, and the MA
@@ -44,6 +44,10 @@
 #'   See \insertCite{ansley1986note;textual}{statespacer} for details about
 #'   the transformation used. Note: For multivariate models, the order of "s"
 #'   matters, as matrix multiplication is not commutative!
+#' @param self_spec_list A list containing the specification of the self
+#'   specified component. See the Details section of `StateSpaceFit()` for
+#'   extensive details about the format that must be followed for this
+#'   argument.
 #' @param exclude_level Vector containing the dependent variables that should
 #'   not get a local level.
 #' @param exclude_slope Vector containing the dependent variables that should
@@ -85,41 +89,95 @@
 #'   vector or just one number.
 #' @param control A list of control parameters for the
 #'   \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
+#' @param collapse Boolean indicating whether the observation vector should be
+#'   collapsed. Should only be set to `TRUE` if the dimensionality of the
+#'   observation vector exceeds the dimensionality of the state vector.
+#'   If this is the case, computational gains can be achieved by collapsing
+#'   the observation vector.
 #'
 #' @details
-#' To fit the specified State Space model, it might be beneficial to scale
-#' the dependent variables or pay careful attention to the initial values.
-#' If an error occurs, try to scale the dependents by a bigger number, or
-#' try different initial values. Initial values should not be too big, as
-#' some parameters use the transformation exp(2x) to ensure non-negative
-#' values, they should also not be too small as some variances might be
-#' relatively close to 0, relative to the magnitude of y.
-#' Note: after fitting the model, remember to scale the estimates back!
-#' Variances should be multiplied by the square of the scaling number!
+#' To fit the specified State Space model, one occasionally has to pay careful
+#' attention to the initial values supplied. See
+#' \code{vignette("dictionary", "statespacer")} for details.
+#' Initial values should not be too large, as some parameters use the
+#' transformation exp(2x) to ensure non-negative values, they should also not
+#' be too small as some variances might become relatively too close to 0,
+#' relative to the magnitude of y.
+#'
+#' If a component is specified without a `format`, then the format defaults to a
+#' diagonal `format`.
+#'
+#' `self_spec_list` provides a means to incorporate a self-specified component
+#' into the State Space model. This argument can only contain any of the
+#' following items, of which some are mandatory:
+#' * `H_spec`: Boolean indicating whether the H matrix is self-specified.
+#'   Should be `TRUE`, if you want to specify the H matrix yourself.
+#' * `state_num` (mandatory): The number of state parameters introduced by the
+#'   self-specified component. Must be 0 if only `H` is self-specified.
+#' * `param_num`: The number of parameters needed by the self-specified
+#'   component. Must be specified and greater than 0 if parameters are needed.
+#' * `sys_mat_fun`: A function returning a list of system matrices that are
+#'   constructed using the parameters. Must have `param` as an argument. The
+#'   items in the list returned should have any of the following names: Z,
+#'   Tmat, R, Q, a1, P_star, H. Note: Only the system matrices that depend on
+#'   the parameters should be returned by the function!
+#' * `sys_mat_input`: A list containing additional arguments to `sys_mat_fun`.
+#' * `Z`: The Z system matrix if it does not depend on the parameters.
+#' * `Tmat`: The T system matrix if it does not depend on the parameters.
+#' * `R`: The R system matrix if it does not depend on the parameters.
+#' * `Q`: The Q system matrix if it does not depend on the parameters.
+#' * `a1`: The initial guess of the state vector. Must be a matrix
+#'   with one column.
+#' * `P_inf`: The initial diffuse part of the variance - covariance
+#'   matrix of the initial state vector. Must be a matrix.
+#' * `P_star`: The initial non-diffuse part of the variance - covariance
+#'   matrix of the initial state vector if it does not depend on the
+#'   parameters. Must be a matrix.
+#' * `H`: The H system matrix if it does not depend on the parameters.
+#' * `transform_fun`: Function that returns transformed parameters for which
+#'   standard errors have to be computed.
+#' * `transform_input`: A list containing additional arguments to
+#'   `transform_fun.`
+#' * `state_only`: The indices of the self specified state that do not play a
+#'   role in the observation equations, but only in the state equations. Should
+#'   only be used if you want to use `collapse = TRUE` and have some state
+#'   parameters that do not play a role in the observation equations. Does not
+#'   have to be specified for `collapse = FALSE`.
+#'
+#' Note: System matrices should only be specified once and need to be
+#' specified once! That is, system matrices that are returned by `sys_mat_fun`
+#' should not be specified directly, and vice versa. So, system matrices need
+#' to be either specified directly, or be returned by `sys_mat_fun`. An
+#' exception holds for the case where you \strong{only} want to specify `H`
+#' yourself. This will not be checked, so be aware of erroneous output if you
+#' do not follow the guidelines of specifying `self_spec_list`. If time-varying
+#' system matrices are required, return an array for the time-varying system
+#' matrix instead of a matrix.
 #'
 #' @return
 #' A list containing:
-#' * function_call: A list containing the input to the function.
-#' * system_matrices: A list containing the system matrices of
+#' * `function_call`: A list containing the input to the function.
+#' * `system_matrices`: A list containing the system matrices of
 #'   the State Space model.
-#' * predicted: A list containing the predicted components of
+#' * `predicted`: A list containing the predicted components of
 #'   the State Space model.
-#' * filtered: A list containing the filtered components of
+#' * `filtered`: A list containing the filtered components of
 #'   the State Space model.
-#' * smoothed: A list containing the smoothed components of
+#' * `smoothed`: A list containing the smoothed components of
 #'   the State Space model.
-#' * diagnostics: A list containing items useful for diagnostical tests.
-#' * optim: A list containing the variables that are returned by the
+#' * `diagnostics`: A list containing items useful for diagnostical tests.
+#' * `optim`: A list containing the variables that are returned by the
 #'   \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
-#' * loglik_fun: Function that returns the loglikelihood of the
+#' * `loglik_fun`: Function that returns the loglikelihood of the
 #'   specified State Space model, as a function of its parameters.
-#' * standard_errors: A list containing the standard errors of
+#' * `standard_errors`: A list containing the standard errors of
 #'   the parameters of the State Space model.
 #'
 #' For extensive details about the object returned,
-#' see \code{vignette("dictionary", package = "statespacer")}.
+#' see \code{vignette("dictionary", "statespacer")}.
 #'
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
+#'
 #' @references
 #' \insertRef{durbin2012time}{statespacer}
 #'
@@ -164,6 +222,7 @@ StateSpaceFit <- function(y,
                           level_addvar_list = NULL,
                           arima_list = NULL,
                           sarima_list = NULL,
+                          self_spec_list = NULL,
                           exclude_level = NULL,
                           exclude_slope = NULL,
                           exclude_BSM_list = lapply(BSM_vec, FUN = function(x) 0),
@@ -179,7 +238,8 @@ StateSpaceFit <- function(y,
                           format_level_addvar = NULL,
                           method = "BFGS",
                           initial = 0,
-                          control = list()) {
+                          control = list(),
+                          collapse = FALSE) {
 
   # Check whether optimr is available
   # Note: Negative loglikelihood will be minimised,
@@ -204,11 +264,13 @@ StateSpaceFit <- function(y,
 
   # p = Number of dependent variables
   p <- dim(y)[2]
+  p2 <- p
 
   # Construct the system matrices that do not require any parameters
   sys_mat <- GetSysMat(p = p,
                        param = NULL,
                        update_part = FALSE,
+                       add_residuals = !collapse,
                        H_format = H_format,
                        local_level_ind = local_level_ind,
                        slope_ind = slope_ind,
@@ -218,6 +280,7 @@ StateSpaceFit <- function(y,
                        level_addvar_list = level_addvar_list,
                        arima_list = arima_list,
                        sarima_list = sarima_list,
+                       self_spec_list = self_spec_list,
                        exclude_level = exclude_level,
                        exclude_slope = exclude_slope,
                        exclude_BSM_list = exclude_BSM_list,
@@ -243,6 +306,7 @@ StateSpaceFit <- function(y,
   level_addvar_list <- sys_mat$function_call$level_addvar_list
   arima_list <- sys_mat$function_call$arima_list
   sarima_list <- sys_mat$function_call$sarima_list
+  self_spec_list <- sys_mat$function_call$self_spec_list
   exclude_level <- sys_mat$function_call$exclude_level
   exclude_slope <- sys_mat$function_call$exclude_slope
   exclude_BSM_list <- sys_mat$function_call$exclude_BSM_list
@@ -262,13 +326,43 @@ StateSpaceFit <- function(y,
   param_num_list <- sys_mat$param_num_list
 
   # Number of state parameters
-  m <- dim(sys_mat$a_kal)[1]
+  m <- length(sys_mat$state_label)
 
-  # Initialising state vector
-  a <- t(matrix(sys_mat$a_kal, m, N * p)) # N*p x m
+  if (collapse) {
+
+    # Parameters in the state that will not be used for collapsing
+    m2 <- m - length(self_spec_list$state_only)
+
+    # Check if dimensionality of the observation vector is larger than
+    # the dimensionality of the state vector
+    if (p <= m2) {
+      stop(
+        paste(
+          "`collapse = TRUE` can only be set if the dimensionality of the",
+          "observation vector is larger than the dimensionality of the",
+          "state vector. Please set `collapse = FALSE`."
+        )
+      )
+    }
+
+    sys_mat$a_kal <- rbind(matrix(0, m2, 1), sys_mat$a_kal)
+    sys_mat$P_inf_kal <- BlockMatrix(matrix(0, m2, m2), sys_mat$P_inf_kal)
+    Z_kal_tf <- cbind(diag(1, m2, m2), diag(1, m2, m2),
+                      matrix(0, m2, length(self_spec_list$state_only)))
+    sys_mat$T_kal <- CombineTRQ(matrix(0, m2, m2), sys_mat$T_kal)
+    sys_mat$R_kal <- CombineTRQ(diag(1, m2, m2), sys_mat$R_kal)
+    p <- m2
+  }
+  m <- m + p # Residuals in state
 
   # Check if P_inf is already 0
   initialisation <- !all(abs(sys_mat$P_inf_kal) < 1e-7)
+
+  # Initialising state vector
+  a <- sys_mat$a_kal
+  if (length(a) == m) {
+    a <- t(matrix(a, m, N * p)) # N*p x m
+  }
 
   # Initialise P_inf
   P_inf <- array(sys_mat$P_inf_kal, dim = c(m, m, N * p)) # m x m x N*p
@@ -282,46 +376,28 @@ StateSpaceFit <- function(y,
   # System matrices of components
   T_list <- sys_mat$Tmat
   R_list <- sys_mat$R
-  Q_list <- sys_mat$Q
+  Q_list <- sys_mat[["Q"]]
   Q_list2 <- sys_mat$Q2
   temp_list <- sys_mat$temp_list
-  H <- sys_mat$H$H
+  H <- sys_mat[["H"]][["H"]]
   Z_kal <- sys_mat$Z_kal
   T_kal <- sys_mat$T_kal
   R_kal <- sys_mat$R_kal
   P_star <- sys_mat$P_star_kal
 
-  # Dimensions of the system matrices
-  Zdim <- length(dim(Z_kal))
-  Tdim <- length(dim(T_kal))
+  # Initialise for collapsing
+  y_kal <- y
+  loglik_add <- 0
 
   ### Function that returns the LogLikelihood ###
   LogLikelihood <- function(param) {
-
-    # H Matrix
-    if (param_num_list$H > 0) {
-      H <- Cholesky(
-        param = param[param_indices$H],
-        format = H_format,
-        decompositions = FALSE
-      )
-
-      # Add H matrix to Q matrix
-      Q_kal <- BlockMatrix(Q_kal, H)
-
-      # Add H matrix to P_star matrix
-      P_star <- BlockMatrix(H, P_star)
-
-    } else {
-      Q_kal <- BlockMatrix(Q_kal, H)
-    }
 
     ## Constructing Q Matrix ##
 
     # Local Level
     if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
       if (param_num_list$level > 0) {
-        update <- LocalLevel(p = p,
+        update <- LocalLevel(p = p2,
                              exclude_level =  exclude_level,
                              fixed_part = FALSE,
                              update_part = TRUE,
@@ -329,7 +405,7 @@ StateSpaceFit <- function(y,
                              format_level = format_level,
                              decompositions = FALSE
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
       } else {
         Q_kal <- BlockMatrix(Q_kal, Q_list$level)
       }
@@ -338,7 +414,7 @@ StateSpaceFit <- function(y,
     # Local Level + Slope
     if (slope_ind & is.null(level_addvar_list)) {
       if ((param_num_list$level + param_num_list$slope) > 0) {
-        update <- Slope(p = p,
+        update <- Slope(p = p2,
                         exclude_level = exclude_level,
                         exclude_slope = exclude_slope,
                         fixed_part = FALSE,
@@ -366,7 +442,7 @@ StateSpaceFit <- function(y,
       for (i in seq_along(BSM_vec)) {
         s <- BSM_vec[i]
         if (param_num_list[[paste0('BSM', s)]] > 0) {
-          update <- BSM(p = p,
+          update <- BSM(p = p2,
                         s = s,
                         exclude_BSM = exclude_BSM_list[[i]],
                         fixed_part = FALSE,
@@ -375,7 +451,7 @@ StateSpaceFit <- function(y,
                         format_BSM = format_BSM_list[[i]],
                         decompositions = FALSE
           )
-          Q_kal <- BlockMatrix(Q_kal, update$Q)
+          Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         } else {
           Q_kal <- BlockMatrix(Q_kal, Q_list2[[paste0('BSM', s)]])
         }
@@ -385,7 +461,7 @@ StateSpaceFit <- function(y,
     # Explanatory Variables
     if (!is.null(addvar_list)) {
       if (param_num_list$addvar > 0) {
-        update <- AddVar(p = p,
+        update <- AddVar(p = p2,
                          addvar_list = addvar_list,
                          fixed_part = FALSE,
                          update_part = TRUE,
@@ -393,7 +469,7 @@ StateSpaceFit <- function(y,
                          format_addvar = format_addvar,
                          decompositions = FALSE
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
       } else {
         Q_kal <- BlockMatrix(Q_kal, Q_list$addvar)
       }
@@ -402,7 +478,7 @@ StateSpaceFit <- function(y,
     # Local Level + Explanatory Variables
     if (!is.null(level_addvar_list) & !slope_ind) {
       if ((param_num_list$level + param_num_list$level_addvar) > 0) {
-        update <- LevelAddVar(p = p,
+        update <- LevelAddVar(p = p2,
                               exclude_level = exclude_level,
                               level_addvar_list = level_addvar_list,
                               fixed_part = FALSE,
@@ -430,7 +506,7 @@ StateSpaceFit <- function(y,
       if ((param_num_list$level +
            param_num_list$slope +
            param_num_list$level_addvar) > 0) {
-        update <- SlopeAddVar(p = p,
+        update <- SlopeAddVar(p = p2,
                               exclude_level = exclude_level,
                               exclude_slope = exclude_slope,
                               level_addvar_list = level_addvar_list,
@@ -463,7 +539,7 @@ StateSpaceFit <- function(y,
     # Cycle
     if (cycle_ind) {
       for (i in seq_along(format_cycle_list)) {
-        update <- Cycle(p = p,
+        update <- Cycle(p = p2,
                         exclude_cycle = exclude_cycle_list[[i]],
                         damping_factor_ind = damping_factor_ind[i],
                         fixed_part = FALSE,
@@ -473,34 +549,21 @@ StateSpaceFit <- function(y,
                         decompositions = FALSE
         )
         if (param_num_list[[paste0('Cycle', i)]] > (1 + damping_factor_ind[i])) {
-          Q_kal <- BlockMatrix(Q_kal, update$Q)
+          Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
           if (damping_factor_ind[i]) {
             P_star <- BlockMatrix(P_star, update$P_star)
           }
         } else {
           Q_kal <- BlockMatrix(Q_kal, Q_list2[[paste0('Cycle', i)]])
         }
-        if (Tdim < 3) {
-          T_kal <- BlockMatrix(T_kal, update$Tmat)
-        } else {
-          T_kal <- array(
-            apply(
-              T_kal, 3,
-              function(x) BlockMatrix(as.matrix(x), update$Tmat)
-            ),
-            dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]),
-                    sum(dim(T_kal)[2], dim(update$Tmat)[2]),
-                    N
-            )
-          )
-        }
+        T_kal <- CombineTRQ(T_kal, update$Tmat)
       }
     }
 
     # ARIMA
     if (!is.null(arima_list)) {
       for (i in seq_along(arima_list)) {
-        update <- ARIMA(p = p,
+        update <- ARIMA(p = p2,
                         arima_spec = arima_list[[i]],
                         exclude_arima = exclude_arima_list[[i]],
                         fixed_part = FALSE,
@@ -513,38 +576,13 @@ StateSpaceFit <- function(y,
                         R1 = temp_list[[paste0('ARIMA', i)]]$R1,
                         R2 = temp_list[[paste0('ARIMA', i)]]$R2
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         P_star <- BlockMatrix(P_star, update$P_star)
         if (arima_list[[i]][1] == 0 & arima_list[[i]][3] == 0) {
-          if (Tdim < 3) {
-            T_kal <- BlockMatrix(T_kal, T_list[[paste0('ARIMA', i)]])
-          } else {
-            T_kal <- array(
-              apply(
-                T_kal, 3,
-                function(x) BlockMatrix(as.matrix(x), T_list[[paste0('ARIMA', i)]])
-              ),
-              dim = c(sum(dim(T_kal)[1], dim(T_list[[paste0('ARIMA', i)]])[1]),
-                      sum(dim(T_kal)[2], dim(T_list[[paste0('ARIMA', i)]])[2]),
-                      N
-              )
-            )
-          }
+          T_kal <- CombineTRQ(T_kal, T_list[[paste0('ARIMA', i)]])
           R_kal <- BlockMatrix(R_kal, R_list[[paste0('ARIMA', i)]])
         } else {
-          if (Tdim < 3) {
-            T_kal <- BlockMatrix(T_kal, update$Tmat)
-          } else {
-            T_kal <- array(
-              apply(
-                T_kal, 3,
-                function(x) BlockMatrix(as.matrix(x), update$Tmat)
-              ), dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]),
-                         sum(dim(T_kal)[2], dim(update$Tmat)[2]),
-                         N
-                       )
-            )
-          }
+          T_kal <- CombineTRQ(T_kal, update$Tmat)
           R_kal <- BlockMatrix(R_kal, update$R)
         }
       }
@@ -553,7 +591,7 @@ StateSpaceFit <- function(y,
     # SARIMA
     if (!is.null(sarima_list)) {
       for (i in seq_along(sarima_list)) {
-        update <- SARIMA(p = p,
+        update <- SARIMA(p = p2,
                          sarima_spec = sarima_list[[i]],
                          exclude_sarima = exclude_sarima_list[[i]],
                          fixed_part = FALSE,
@@ -566,42 +604,190 @@ StateSpaceFit <- function(y,
                          R1 = temp_list[[paste0('SARIMA', i)]]$R1,
                          R2 = temp_list[[paste0('SARIMA', i)]]$R2
         )
-        Q_kal <- BlockMatrix(Q_kal, update$Q)
+        Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         P_star <- BlockMatrix(P_star, update$P_star)
         if (sum(sarima_list[[i]]$ar) == 0 & sum(sarima_list[[i]]$ma) == 0) {
-          if (Tdim < 3) {
-            T_kal <- BlockMatrix(T_kal, T_list[[paste0('SARIMA', i)]])
-          } else {
-            T_kal <- array(
-              apply(
-                T_kal, 3,
-                function(x) BlockMatrix(as.matrix(x), T_list[[paste0('SARIMA', i)]])
-              ),
-              dim = c(sum(dim(T_kal)[1], dim(T_list[[paste0('SARIMA', i)]])[1]),
-                      sum(dim(T_kal)[2], dim(T_list[[paste0('SARIMA', i)]])[2]),
-                      N
-              )
-            )
-          }
+          T_kal <- CombineTRQ(T_kal, T_list[[paste0('SARIMA', i)]])
           R_kal <- BlockMatrix(R_kal, R_list[[paste0('SARIMA', i)]])
         } else {
-          if (Tdim < 3) {
-            T_kal <- BlockMatrix(T_kal, update$Tmat)
-          } else {
-            T_kal <- array(
-              apply(
-                T_kal, 3,
-                function(x) BlockMatrix(as.matrix(x), update$Tmat)
-              ),
-              dim = c(sum(dim(T_kal)[1], dim(update$Tmat)[1]),
-                      sum(dim(T_kal)[2], dim(update$Tmat)[2]),
-                      N
-              )
-            )
-          }
+          T_kal <- CombineTRQ(T_kal, update$Tmat)
           R_kal <- BlockMatrix(R_kal, update$R)
         }
       }
+    }
+
+    # Self Specified
+    if (!is.null(self_spec_list)) {
+
+      # System matrices that depend on parameters
+      if (!is.null(self_spec_list$sys_mat_fun)) {
+        input <- list(param = param[param_indices$self_spec])
+        if (!is.null(self_spec_list$sys_mat_input)) {
+          input <- c(input, self_spec_list$sys_mat_input)
+        }
+        update <- do.call(self_spec_list$sys_mat_fun, input)
+
+        # Adding to full system matrices
+        if (!is.null(update$Z)) {
+          Z_kal <- CombineZ(Z_kal, update$Z)
+        }
+        if (!is.null(update$Tmat)) {
+          T_kal <- CombineTRQ(T_kal, update$Tmat)
+        }
+        if (!is.null(update$R)) {
+          R_kal <- CombineTRQ(R_kal, update$R)
+        }
+        if (!is.null(update[["Q"]])) {
+          Q_kal <- CombineTRQ(Q_kal, update[["Q"]])
+        }
+        if (!is.null(update$a1)) {
+          a <- rbind(a, update$a1)
+          a <- t(matrix(a, m, N * p))
+        }
+        if (!is.null(update$P_star)) {
+          P_star <- BlockMatrix(P_star, update$P_star)
+        }
+      }
+
+      # System matrices that do not depend on parameters
+      if (!is.null(T_list$self_spec)) {
+        T_kal <- CombineTRQ(T_kal, T_list$self_spec)
+      }
+      if (!is.null(R_list$self_spec)) {
+        R_kal <- CombineTRQ(R_kal, R_list$self_spec)
+      }
+      if (!is.null(Q_list$self_spec)) {
+        Q_kal <- CombineTRQ(Q_kal, Q_list$self_spec)
+      }
+      if (!is.null(self_spec_list$P_star)) {
+        P_star <- BlockMatrix(P_star, self_spec_list$P_star)
+      }
+
+      # Check for state only parameters
+      if (!is.null(self_spec_list$state_only) & collapse) {
+        state_only_indices <- dim(a)[2] - p - self_spec_list$state_num +
+          self_spec_list$state_only
+        if (is.matrix(Z_kal)) {
+          Z_kal <- Z_kal[, -state_only_indices, drop = FALSE]
+        } else {
+          Z_kal <- Z_kal[, -state_only_indices,, drop = FALSE]
+        }
+      }
+    }
+
+    # H Matrix
+    if (!sys_mat$H_spec) {
+      if (param_num_list$H > 0) {
+        H <- Cholesky(
+          param = param[param_indices$H],
+          format = H_format,
+          decompositions = FALSE
+        )
+        if (!collapse) {
+          P_star <- BlockMatrix(H, P_star)
+        }
+      }
+    } else if (is.null(self_spec_list[["H"]])) {
+      H <- update[["H"]]
+      if (!collapse) {
+        if (is.matrix(H)) {
+          P_star <- BlockMatrix(H, P_star)
+        } else {
+          P_star <- BlockMatrix(H[,,1], P_star)
+        }
+      }
+    }
+    if (!collapse) {
+      Q_kal <- CombineTRQ(H, Q_kal)
+    }
+
+    # Collapse observation vector
+    if (collapse) {
+      y_temp <- y
+      y_temp[is.na(y)] <- 0
+      if (is.matrix(H) & is.matrix(Z_kal)) {
+        Hinv <- solve(H)
+        ZtHinv <- t(Z_kal) %*% Hinv
+        A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
+        y_kal <- y_temp %*% t(A_star)
+        H_star <- A_star %*% H %*% t(A_star)
+        P_star <- BlockMatrix(H_star, P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
+
+        # loglikelihood contribution
+        for (i in 1:N) {
+          e <- y_temp[i,] - Z_kal %*% y_kal[i,]
+          loglik_add <- loglik_add - 0.5 * t(e) %*% Hinv %*% e
+        }
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add + N * 0.5 * log(det(H_star) / det(H)) -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
+      } else if (is.matrix(H) & !is.matrix(Z_kal)) {
+        y_kal <- matrix(0, N, m2)
+        H_star <- array(0, dim = c(m2, m2, N))
+        Hinv <- solve(H)
+        detH <- det(H)
+        for (i in 1:N) {
+          Z_t <- matrix(Z_kal[,,i], nrow = p2)
+          ZtHinv <- t(Z_t) %*% Hinv
+          A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
+          y_kal[i,] <- A_star %*% y_temp[i,]
+          H_star[,,i] <- A_star %*% H %*% t(A_star)
+          e <- y_temp[i,] - Z_t %*% y_kal[i,]
+          loglik_add <- loglik_add +
+            0.5 * log(det(H_star[,,i]) / detH) -
+            0.5 * t(e) %*% Hinv %*% e
+        }
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
+        P_star <- BlockMatrix(H_star[,,1], P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
+      } else if (!is.matrix(H) & is.matrix(Z_kal)) {
+        y_kal <- matrix(0, N, m2)
+        H_star <- array(0, dim = c(m2, m2, N))
+        for (i in 1:N) {
+          H_t <- as.matrix(H[,,i])
+          Hinv <- solve(H_t)
+          detH <- det(H_t)
+          ZtHinv <- t(Z_kal) %*% Hinv
+          A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
+          y_kal[i,] <- A_star %*% y_temp[i,]
+          H_star[,,i] <- A_star %*% H_t %*% t(A_star)
+          e <- y_temp[i,] - Z_kal %*% y_kal[i,]
+          loglik_add <- loglik_add +
+            0.5 * log(det(H_star[,,i]) / detH) -
+            0.5 * t(e) %*% Hinv %*% e
+        }
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
+        P_star <- BlockMatrix(H_star[,,1], P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
+      } else {
+        y_kal <- matrix(0, N, m2)
+        H_star <- array(0, dim = c(m2, m2, N))
+        for (i in 1:N) {
+          H_t <- as.matrix(H[,,i])
+          Hinv <- solve(H_t)
+          detH <- det(H_t)
+          Z_t <- matrix(Z_kal[,,i], nrow = p2)
+          ZtHinv <- t(Z_t) %*% Hinv
+          A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
+          y_kal[i,] <- A_star %*% y_temp[i,]
+          H_star[,,i] <- A_star %*% H_t %*% t(A_star)
+          e <- y_temp[i,] - Z_t %*% y_kal[i,]
+          loglik_add <- loglik_add +
+            0.5 * log(det(H_star[,,i]) / detH) -
+            0.5 * t(e) %*% Hinv %*% e
+        }
+        y_kal[y_kal == 0] <- NA
+        loglik_add <- loglik_add -
+          0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
+        P_star <- BlockMatrix(H_star[,,1], P_star)
+        Q_kal <- CombineTRQ(H_star, Q_kal)
+      }
+      Z_kal <- Z_kal_tf
     }
 
     # Initialise P_star
@@ -629,7 +815,7 @@ StateSpaceFit <- function(y,
 
         # T, R, and Q matrices only needed when a transition to
         # the next timepoint is made
-        if (Tdim < 3) {
+        if (is.matrix(T_kal)) {
           T_input <- T_kal
         } else {
           T_input <- as.matrix(T_kal[,,t])
@@ -644,7 +830,7 @@ StateSpaceFit <- function(y,
         Q_input <- NULL
       }
 
-      if (Zdim < 3) {
+      if (is.matrix(Z_kal)) {
         Z_input <- Z_kal[row,, drop = FALSE]
       } else {
         Z_input <- matrix(Z_kal[row,,t], nrow = 1)
@@ -654,7 +840,7 @@ StateSpaceFit <- function(y,
       if (initialisation) {
 
         # Calling the Kalman Filter with exact initialisation
-        filter_output <- KalmanEI(y = y[t, row],
+        filter_output <- KalmanEI(y = y_kal[t, row],
                                   a = matrix(a[i,]),
                                   P_inf = as.matrix(P_inf[,,i]),
                                   P_star = as.matrix(P_star[,,i]),
@@ -677,7 +863,7 @@ StateSpaceFit <- function(y,
       } else {
 
         # Calling the Kalman Filter
-        filter_output <- KalmanUT(y = y[t, row],
+        filter_output <- KalmanUT(y = y_kal[t, row],
                                   a = matrix(a[i,]),
                                   P = as.matrix(P_star[,,i]),
                                   Z = Z_input,
@@ -699,7 +885,7 @@ StateSpaceFit <- function(y,
 
     # Return the negative average loglikelihood
     # Note: The average is computed as sum / N, using mean would divide by N*p
-    return(-sum(loglik, na.rm = TRUE) / N)
+    return(-sum(loglik, na.rm = TRUE) / N - loglik_add / N)
   }
 
   # Checking the number of initial parameters specified
@@ -745,7 +931,10 @@ StateSpaceFit <- function(y,
   # (Adjusted) Input parameters that were passed on to StateSpaceFit
   function_call <- c(list(y = y),
                      sys_mat$function_call,
-                     list(method = method, initial = initial, control = control)
+                     list(method = method,
+                          initial = initial,
+                          control = control,
+                          collapse = collapse)
   )
 
   # List that will be returned by the function
@@ -771,7 +960,7 @@ StateSpaceFit <- function(y,
 
     # Jacobian of the transformed parameters
     jacobian <- do.call(numDeriv::jacobian,
-                        c(list(func = TransformParam, x = fit$par, p = p),
+                        c(list(func = TransformParam, x = fit$par, p = p2),
                           sys_mat$function_call
                         )
     )
