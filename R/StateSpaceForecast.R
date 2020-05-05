@@ -32,6 +32,7 @@
 #' by the State Space model.
 #'
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
+#'
 #' @references
 #' \insertRef{durbin2012time}{statespacer}
 #'

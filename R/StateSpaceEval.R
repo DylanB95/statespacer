@@ -25,6 +25,7 @@
 #' see \code{vignette("dictionary", package = "statespacer")}.
 #'
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
+#'
 #' @references
 #' \insertRef{durbin2012time}{statespacer}
 #'

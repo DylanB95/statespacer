@@ -28,6 +28,8 @@
 #' * `correlation_matrix`: Matrix containing the correlations.
 #' * `stdev_matrix`: Matrix containing the standard deviations on the diagonal.
 #'
+#' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
+#'
 #' @examples
 #' format <- diag(1, 2, 2)
 #' format[2, 1] <- 1

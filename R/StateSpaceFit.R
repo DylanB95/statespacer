@@ -113,7 +113,7 @@
 #' * `H_spec`: Boolean indicating whether the H matrix is self-specified.
 #'   Should be `TRUE`, if you want to specify the H matrix yourself.
 #' * `state_num` (mandatory): The number of state parameters introduced by the
-#'   self-specified component.
+#'   self-specified component. Must be 0 if only `H` is self-specified.
 #' * `param_num`: The number of parameters needed by the self-specified
 #'   component. Must be specified and greater than 0 if parameters are needed.
 #' * `sys_mat_fun`: A function returning a list of system matrices that are
@@ -128,7 +128,7 @@
 #' * `Q`: The Q system matrix if it does not depend on the parameters.
 #' * `a1`: The initial guess of the state vector. Must be a matrix
 #'   with one column.
-#' * `P_inf` (mandatory): The initial diffuse part of the variance - covariance
+#' * `P_inf`: The initial diffuse part of the variance - covariance
 #'   matrix of the initial state vector. Must be a matrix.
 #' * `P_star`: The initial non-diffuse part of the variance - covariance
 #'   matrix of the initial state vector if it does not depend on the
@@ -138,20 +138,21 @@
 #'   standard errors have to be computed.
 #' * `transform_input`: A list containing additional arguments to
 #'   `transform_fun.`
-#' * `fixed_state`: The indices of the self specified initial state `a1` that
-#'   are kept fixed over time. Should be used if you want to include fixed
-#'   constants in the state equations, and want to use `collapse = TRUE`.
-#'   Should not be used for fixed constants in the observation equations!
-#'   Does not have to be specified for `collapse = FALSE`.
+#' * `state_only`: The indices of the self specified state that do not play a
+#'   role in the observation equations, but only in the state equations. Should
+#'   only be used if you want to use `collapse = TRUE` and have some state
+#'   parameters that do not play a role in the observation equations. Does not
+#'   have to be specified for `collapse = FALSE`.
 #'
 #' Note: System matrices should only be specified once and need to be
 #' specified once! That is, system matrices that are returned by `sys_mat_fun`
 #' should not be specified directly, and vice versa. So, system matrices need
-#' to be either specified directly, or be returned by `sys_mat_fun`. This will
-#' not be checked, so be aware of erroneous output if you do not follow the
-#' guidelines of specifying `self_spec_list`. If time-varying system matrices
-#' are required, return an array for the time-varying system matrix instead of
-#' a matrix.
+#' to be either specified directly, or be returned by `sys_mat_fun`. An
+#' exception holds for the case where you \strong{only} want to specify `H`
+#' yourself. This will not be checked, so be aware of erroneous output if you
+#' do not follow the guidelines of specifying `self_spec_list`. If time-varying
+#' system matrices are required, return an array for the time-varying system
+#' matrix instead of a matrix.
 #'
 #' @return
 #' A list containing:
@@ -176,6 +177,7 @@
 #' see \code{vignette("dictionary", "statespacer")}.
 #'
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
+#'
 #' @references
 #' \insertRef{durbin2012time}{statespacer}
 #'
@@ -328,8 +330,8 @@ StateSpaceFit <- function(y,
 
   if (collapse) {
 
-    # Fixed parameters in the state will not be used for collapsing
-    m2 <- m - length(self_spec_list$fixed_state)
+    # Parameters in the state that will not be used for collapsing
+    m2 <- m - length(self_spec_list$state_only)
 
     # Check if dimensionality of the observation vector is larger than
     # the dimensionality of the state vector
@@ -346,7 +348,7 @@ StateSpaceFit <- function(y,
     sys_mat$a_kal <- rbind(matrix(0, m2, 1), sys_mat$a_kal)
     sys_mat$P_inf_kal <- BlockMatrix(matrix(0, m2, m2), sys_mat$P_inf_kal)
     Z_kal_tf <- cbind(diag(1, m2, m2), diag(1, m2, m2),
-                      matrix(0, m2, length(self_spec_list$fixed_state)))
+                      matrix(0, m2, length(self_spec_list$state_only)))
     sys_mat$T_kal <- CombineTRQ(matrix(0, m2, m2), sys_mat$T_kal)
     sys_mat$R_kal <- CombineTRQ(diag(1, m2, m2), sys_mat$R_kal)
     p <- m2
@@ -625,30 +627,10 @@ StateSpaceFit <- function(y,
         }
         update <- do.call(self_spec_list$sys_mat_fun, input)
 
-        # Adding to full Z system matrix
+        # Adding to full system matrices
         if (!is.null(update$Z)) {
           Z_kal <- CombineZ(Z_kal, update$Z)
         }
-
-        # Check for fixed parameters in the state
-        if (!is.null(self_spec_list$fixed_state) & collapse) {
-          if (dim(a)[2] > 1) {
-            stop(
-              paste(
-                "`self_spec_list$fixed_state` is specified, while no",
-                "parameters are assigned to `a1` for the state equations."
-              )
-            )
-          }
-          fixed_indices <- length(a) - p + self_spec_list$fixed_state
-          if (is.matrix(Z_kal)) {
-            Z_kal <- Z_kal[, -fixed_indices, drop = FALSE]
-          } else {
-            Z_kal <- Z_kal[, -fixed_indices,, drop = FALSE]
-          }
-        }
-
-        # Adding to full system matrices
         if (!is.null(update$Tmat)) {
           T_kal <- CombineTRQ(T_kal, update$Tmat)
         }
@@ -679,6 +661,17 @@ StateSpaceFit <- function(y,
       }
       if (!is.null(self_spec_list$P_star)) {
         P_star <- BlockMatrix(P_star, self_spec_list$P_star)
+      }
+
+      # Check for state only parameters
+      if (!is.null(self_spec_list$state_only) & collapse) {
+        state_only_indices <- dim(a)[2] - p - self_spec_list$state_num +
+          self_spec_list$state_only
+        if (is.matrix(Z_kal)) {
+          Z_kal <- Z_kal[, -state_only_indices, drop = FALSE]
+        } else {
+          Z_kal <- Z_kal[, -state_only_indices,, drop = FALSE]
+        }
       }
     }
 

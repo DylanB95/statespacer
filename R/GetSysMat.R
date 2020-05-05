@@ -59,11 +59,6 @@ GetSysMat <- function(p,
       stop("`self_spec_list$state_num` must be specified!")
     }
 
-    # Check if self_spec_list$P_inf is specified
-    if (is.null(self_spec_list$P_inf)) {
-      stop("`self_spec_list$P_inf` must be specified!")
-    }
-
     # Check if self_spec_list$sys_mat_fun is specified
     if (is.null(self_spec_list$sys_mat_fun)) {
       if (!is.null(self_spec_list$param_num)) {
@@ -1328,8 +1323,10 @@ GetSysMat <- function(p,
       a_list$self_spec <- self_spec_list$a1
       a <- rbind(a, a_list$self_spec)
     }
-    Pinf_list$self_spec <- self_spec_list$P_inf
-    P_inf <- BlockMatrix(P_inf, Pinf_list$self_spec)
+    if (!is.null(self_spec_list$P_inf)) {
+      Pinf_list$self_spec <- self_spec_list$P_inf
+      P_inf <- BlockMatrix(P_inf, Pinf_list$self_spec)
+    }
     if (!is.null(self_spec_list$P_star)) {
       Pstar_list$self_spec <- self_spec_list$P_star
       if (update_part) {

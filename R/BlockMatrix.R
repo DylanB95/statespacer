@@ -11,6 +11,8 @@
 #'
 #' @return Block diagonal matrix consisting of the specified matrices.
 #'
+#' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
+#'
 #' @examples
 #' BlockMatrix(diag(ceiling(50 * stats::runif(5))), matrix(1:8, 4, 2), c(14,8))
 #'
