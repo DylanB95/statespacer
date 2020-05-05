@@ -167,7 +167,7 @@ StateSpaceEval <- function(param,
   P_inf <- array(P_inf, dim = c(m, m, N * p)) # m x m x N*p
   P_inf[,,2:(N*p)] <- 0
   P_star <- array(P_star, dim = c(m, m, N * p)) # m x m x N*p
-  a_pred <- t(matrix(a, m, N)) # N x m
+  a_pred <- t(matrix(sys_mat$a_kal, m, N)) # N x m
   P_pred <- array(P, dim = c(m, m, N)) # m x m x N
   a_fil <- a_pred # N x m
   P_fil <- P_pred # m x m x N

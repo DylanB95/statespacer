@@ -136,7 +136,13 @@
 #' * `H`: The H system matrix if it does not depend on the parameters.
 #' * `transform_fun`: Function that returns transformed parameters for which
 #'   standard errors have to be computed.
-#' * `transform_input`: A list containing additional arguments to `transform_fun.`
+#' * `transform_input`: A list containing additional arguments to
+#'   `transform_fun.`
+#' * `fixed_state`: The indices of the self specified initial state `a1` that
+#'   are kept fixed over time. Should be used if you want to include fixed
+#'   constants in the state equations, and want to use `collapse = TRUE`.
+#'   Should not be used for fixed constants in the observation equations!
+#'   Does not have to be specified for `collapse = FALSE`.
 #'
 #' Note: System matrices should only be specified once and need to be
 #' specified once! That is, system matrices that are returned by `sys_mat_fun`
@@ -319,13 +325,15 @@ StateSpaceFit <- function(y,
 
   # Number of state parameters
   m <- length(sys_mat$state_label)
-  m2 <- m
 
   if (collapse) {
 
+    # Fixed parameters in the state will not be used for collapsing
+    m2 <- m - length(self_spec_list$fixed_state)
+
     # Check if dimensionality of the observation vector is larger than
     # the dimensionality of the state vector
-    if (p <= m) {
+    if (p <= m2) {
       stop(
         paste(
           "`collapse = TRUE` can only be set if the dimensionality of the",
@@ -335,14 +343,15 @@ StateSpaceFit <- function(y,
       )
     }
 
-    sys_mat$a_kal <- rbind(matrix(0, m, 1), sys_mat$a_kal)
-    sys_mat$P_inf_kal <- BlockMatrix(matrix(0, m, m), sys_mat$P_inf_kal)
-    Z_kal_tf <- cbind(diag(1, m, m), diag(1, m, m))
-    sys_mat$T_kal <- CombineTRQ(matrix(0, m, m), sys_mat$T_kal)
-    sys_mat$R_kal <- CombineTRQ(diag(1, m, m), sys_mat$R_kal)
-    p <- m
-    m <- m + m
+    sys_mat$a_kal <- rbind(matrix(0, m2, 1), sys_mat$a_kal)
+    sys_mat$P_inf_kal <- BlockMatrix(matrix(0, m2, m2), sys_mat$P_inf_kal)
+    Z_kal_tf <- cbind(diag(1, m2, m2), diag(1, m2, m2),
+                      matrix(0, m2, length(self_spec_list$fixed_state)))
+    sys_mat$T_kal <- CombineTRQ(matrix(0, m2, m2), sys_mat$T_kal)
+    sys_mat$R_kal <- CombineTRQ(diag(1, m2, m2), sys_mat$R_kal)
+    p <- m2
   }
+  m <- m + p # Residuals in state
 
   # Check if P_inf is already 0
   initialisation <- !all(abs(sys_mat$P_inf_kal) < 1e-7)
@@ -616,10 +625,30 @@ StateSpaceFit <- function(y,
         }
         update <- do.call(self_spec_list$sys_mat_fun, input)
 
-        # Adding to full system matrices
+        # Adding to full Z system matrix
         if (!is.null(update$Z)) {
           Z_kal <- CombineZ(Z_kal, update$Z)
         }
+
+        # Check for fixed parameters in the state
+        if (!is.null(self_spec_list$fixed_state) & collapse) {
+          if (dim(a)[2] > 1) {
+            stop(
+              paste(
+                "`self_spec_list$fixed_state` is specified, while no",
+                "parameters are assigned to `a1` for the state equations."
+              )
+            )
+          }
+          fixed_indices <- length(a) - p + self_spec_list$fixed_state
+          if (is.matrix(Z_kal)) {
+            Z_kal <- Z_kal[, -fixed_indices, drop = FALSE]
+          } else {
+            Z_kal <- Z_kal[, -fixed_indices,, drop = FALSE]
+          }
+        }
+
+        # Adding to full system matrices
         if (!is.null(update$Tmat)) {
           T_kal <- CombineTRQ(T_kal, update$Tmat)
         }
