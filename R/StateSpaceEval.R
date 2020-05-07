@@ -328,7 +328,10 @@ StateSpaceEval <- function(param,
           Finv_root <- svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)) %*% t(svd_Finv$u)
 
           # Normalised prediction error
-          v_norm[t,] <- Finv_root %*% matrix(v[t,])
+          v_0na <- v[t,]
+          v_0na[is.na(v_0na)] <- 0
+          v_norm[t,] <- Finv_root %*% matrix(v_0na)
+          v_norm[t,][is.na(v[t,])] <- NA
         }
       }
 
@@ -395,7 +398,10 @@ StateSpaceEval <- function(param,
         Finv_root <- svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)) %*% t(svd_Finv$u)
 
         # Normalised prediction error
-        v_norm[t,] <- Finv_root %*% matrix(v[t,])
+        v_0na <- v[t,]
+        v_0na[is.na(v_0na)] <- 0
+        v_norm[t,] <- Finv_root %*% matrix(v_0na)
+        v_norm[t,][is.na(v[t,])] <- NA
       }
     }
 
@@ -429,7 +435,6 @@ StateSpaceEval <- function(param,
     correlogram <- matrix(0, floor(obs/2), p)
     Box_Ljung <- matrix(0, floor(obs/2), p)
     BL_running <- 0
-    # Number of non NA values per column
     for (i in 1:floor(obs/2)) {
       correlogram[i,] <- apply(
         v_norm_centered[(i+1):N,, drop = FALSE] *
@@ -592,7 +597,10 @@ StateSpaceEval <- function(param,
         }
         Finv <- solve(Fmat[,,t])
         K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
-        e[t,] <- Finv %*% matrix(v[t,]) - t(K) %*% r_vec[t + 1,]
+        v_0na <- v[t,]
+        v_0na[is.na(v_0na)] <- 0
+        e[t,] <- Finv %*% matrix(v_0na) - t(K) %*% r_vec[t + 1,]
+        e[t,][is.na(v[t,])] <- NA
         D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
         Tstat_observation[t,] <- e[t,] / sqrt(diag(as.matrix(D[,,t])))
 
@@ -706,7 +714,10 @@ StateSpaceEval <- function(param,
         }
         Finv <- solve(Fmat[,,t])
         K <- T_input %*% P_pred[,,t] %*% t(Z_full) %*% Finv  # Kernel matrix
-        e[t,] <- Finv %*% matrix(v[t,]) - t(K) %*% r_vec[t + 1,]
+        v_0na <- v[t,]
+        v_0na[is.na(v_0na)] <- 0
+        e[t,] <- Finv %*% matrix(v_0na) - t(K) %*% r_vec[t + 1,]
+        e[t,][is.na(v[t,])] <- NA
         D[,,t] <- Finv + t(K) %*% Nmat[,,t + 1] %*% K
         Tstat_observation[t,] <- e[t,] / sqrt(diag(as.matrix(D[,,t])))
 
