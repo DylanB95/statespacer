@@ -1,6 +1,6 @@
 Package: statespacer
-Version: 0.0.0.9000
-Date: 2020-04-23
+Version: 0.1.0
+Date: 2020-05-08
 Title: State Space Modelling In R
 Description: A tool that makes estimating models in State Space form 
     a breeze.
