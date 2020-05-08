@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![Travis build
+status](https://travis-ci.org/DylanB95/statespacer.svg?branch=master)](https://travis-ci.org/DylanB95/statespacer)
 <!-- badges: end -->
 
 ## Overview
