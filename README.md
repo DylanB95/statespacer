@@ -66,7 +66,16 @@ the models in State Space form\!
 
 ## Installation
 
-You can install statespacer with:
+You can install statespacer from CRAN with:
+
+``` r
+install.packages("statespacer")
+```
+
+### Development version
+
+To get a bug fix or to use a feature from the development version, you
+can install the development version of statespacer from GitHub.
 
 ``` r
 # install.packages("devtools")

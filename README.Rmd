@@ -52,7 +52,15 @@ The package employs a univariate treatment, and an exact initialisation for diff
 
 ## Installation
 
-You can install statespacer with:
+You can install statespacer from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("statespacer")
+```
+
+### Development version
+
+To get a bug fix or to use a feature from the development version, you can install the development version of statespacer from GitHub.
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
