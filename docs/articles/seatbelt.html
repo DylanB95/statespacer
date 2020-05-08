@@ -117,7 +117,7 @@
 
     
     
-<p>A lot of time series exhibit some form of seasonality. An example of such a time serie is the UK Road Deaths dataset, see <code><a href="https://rdrr.io/r/datasets/UKDriverDeaths.html">?Seatbelts</a></code> for details about this dataset. In this vignette you will learn how to deal with this seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. We also show you how to control the variance - covariance matrices of the various components. The UK Road Deaths dataset provides to be an excellent dataset at hand to showcase all of these functionalities of the statespacer package! The approach used in this document follows that of <span class="citation">Commandeur and Koopman (2007)</span>.</p>
+<p>A lot of time series exhibit some form of seasonality. An example of such a time series is the UK Road Deaths dataset, see <code><a href="https://rdrr.io/r/datasets/UKDriverDeaths.html">?Seatbelts</a></code> for details about this dataset. In this vignette you will learn how to deal with this seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. We also show you how to control the variance - covariance matrices of the various components. The UK Road Deaths dataset provides to be an excellent dataset at hand to showcase all of these functionalities of the statespacer package! The approach used in this document follows that of <span class="citation">Commandeur and Koopman (2007)</span>.</p>
 <div id="data-preparation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#data-preparation" class="anchor"></a>Data preparation</h2>
@@ -140,7 +140,7 @@
 <div id="univariate-model-with-deterministic-level-and-seasonal" class="section level2">
 <h2 class="hasAnchor">
 <a href="#univariate-model-with-deterministic-level-and-seasonal" class="anchor"></a>Univariate model with deterministic level and seasonal</h2>
-<p>We start off with estimating a univariate model for the “drivers” variable. We specify a deterministic seasonal component of period 12, and a deterministic level. Furhermore, we take the log of “PetrolPrice” together with the “law” dummy as explanatory variables.</p>
+<p>We start off with estimating a univariate model for the “drivers” variable. We specify a deterministic seasonal component of period 12, and a deterministic level. Furthermore, we take the log of “PetrolPrice” together with the “law” dummy as explanatory variables.</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Dependent variable</span>
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="no">Data</span>[, <span class="st">"drivers"</span>])
 
@@ -171,13 +171,13 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 22:54:12</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 23:19:07</span>
 <span class="co">#&gt; Parameter scaling:[1] 1</span>
 <span class="co">#&gt; initial  value -0.443442 </span>
 <span class="co">#&gt; final  value -0.735372 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 22:54:12</span>
-<span class="co">#&gt; Time difference of 0.389140129089355 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 23:19:07</span>
+<span class="co">#&gt; Time difference of 0.400264978408813 secs</span>
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span>
 
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span></pre></body></html></div>
@@ -223,7 +223,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 22:54:13</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 23:19:08</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -0.172423 </span>
 <span class="co">#&gt; iter  10 value -0.893962</span>
@@ -231,8 +231,8 @@
 <span class="co">#&gt; iter  30 value -0.915515</span>
 <span class="co">#&gt; final  value -0.915517 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 22:54:20</span>
-<span class="co">#&gt; Time difference of 7.19442296028137 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 23:19:15</span>
+<span class="co">#&gt; Time difference of 6.8987729549408 secs</span>
 
 <span class="co"># The estimated variance of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
@@ -284,7 +284,7 @@
 <div id="bivariate-model-of-front-and-rear-passengers" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bivariate-model-of-front-and-rear-passengers" class="anchor"></a>Bivariate model of front and rear passengers</h2>
-<p>The previous models dealed with a univariate serie. However, it might be interesting to model multiple series simultaneously. In this section we’ll just do that. We’ll take the logs of “front” and “rear” as dependent variables, the “law” dummy together with the logs of “PetrolPrice” and “kms” as explanatory variables, a stochastic local level component, and a deterministic seasonal component with period 12.</p>
+<p>The previous models dealt with a univariate series. However, it might be interesting to model multiple series simultaneously. In this section we’ll just do that. We’ll take the logs of “front” and “rear” as dependent variables, the “law” dummy together with the logs of “PetrolPrice” and “kms” as explanatory variables, a stochastic local level component, and a deterministic seasonal component with period 12.</p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="co"># Dependent variable</span>
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="no">Data</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"front"</span>, <span class="st">"rear"</span>)])
 
@@ -321,7 +321,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>))))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 22:54:22</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 23:19:17</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value 0.389588 </span>
 <span class="co">#&gt; iter  10 value -1.583528</span>
@@ -329,8 +329,8 @@
 <span class="co">#&gt; iter  30 value -1.676530</span>
 <span class="co">#&gt; final  value -1.676537 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 22:55:09</span>
-<span class="co">#&gt; Time difference of 47.392256975174 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 23:20:08</span>
+<span class="co">#&gt; Time difference of 50.7079689502716 secs</span></pre></body></html></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The estimated variance - covariance matrix of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>

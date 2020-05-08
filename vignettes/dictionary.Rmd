@@ -41,7 +41,7 @@ Having obtained a better understanding of the notation used, it is easier to fin
 `function_call` is a list that contains, as the name suggests, the call to the `StateSpaceFit()` function, including default values for the input arguments that were not specified. For details about the various input arguments, check out `?StateSpaceFit`.
 
 ### system_matrices
-`system_matrices` is a list containing all of the system matrices of each of the components. For the variance - covariance matrices $H$ and $Q$, it also contains 2 decompositions, namely the Cholesky $LDL^{\top}$ decomposition, where $L$ is the loading matrix and $D$ is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, `a1`, is also included, together with the corresponding uncertainty splitted out by its diffuse component, `P_inf`, and its stationary component `P_star`. Further, it contains `Z_padded`, which is a list containing the $Z$ matrices of the components augmented with zeroes, such that its dimension is $p ~ \times ~ m$. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There's also a vector called `state_label`, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are `lamba` (frequency) and `rho` (dampening factor) for the cycles, `AR` and `MA` for the ARIMA components, `SAR` and `SMA` for the SARIMA components, and `self_spec` for the self specified component. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter. 
+`system_matrices` is a list containing all of the system matrices of each of the components. For the variance - covariance matrices $H$ and $Q$, it also contains 2 decompositions, namely the Cholesky $LDL^{\top}$ decomposition, where $L$ is the loading matrix and $D$ is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, `a1`, is also included, together with the corresponding uncertainty split out by its diffuse component, `P_inf`, and its stationary component `P_star`. Further, it contains `Z_padded`, which is a list containing the $Z$ matrices of the components augmented with zeroes, such that its dimension is $p ~ \times ~ m$. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There's also a vector called `state_label`, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are `lamba` (frequency) and `rho` (dampening factor) for the cycles, `AR` and `MA` for the ARIMA components, `SAR` and `SMA` for the SARIMA components, and `self_spec` for the self specified component. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter. 
 
 ### predicted
 `predicted` is a list that contains the one-step ahead predicted (predicting time $t$ using data up to time $t ~ - ~ 1$) objects as returned by the Kalman filter: 
@@ -56,10 +56,10 @@ Having obtained a better understanding of the notation used, it is easier to fin
 * `a_fc` is the predicted state for time $N ~ + ~ 1$ ($N$ being the last observed timepoint).
 * `P_fc` is the uncertainty of `a_fc`. 
 
-Further, the contributions of the components to the predicted values are extracted seperately.
+Further, the contributions of the components to the predicted values are extracted separately.
 
 ### filtered
-`filtered` is a list that contains the filtered (estimates for time $t$ using data up to time $t$) objects as returned by the Kalman filter. Here, `a` is the filtered state, and `P` the uncertainty of the filtered state. Further, the filtered values of the components are extracted seperately.
+`filtered` is a list that contains the filtered (estimates for time $t$ using data up to time $t$) objects as returned by the Kalman filter. Here, `a` is the filtered state, and `P` the uncertainty of the filtered state. Further, the filtered values of the components are extracted separately.
 
 ### smoothed
 `smoothed` is a list that contains smoothed (estimates for time $t$ using all of the timepoints) objects as returned by the Kalman smoother: 
@@ -71,7 +71,7 @@ Further, the contributions of the components to the predicted values are extract
 * `epsilon` the smoothed observation disturbance.
 * `epsilon_var` the uncertainty of `epsilon`. 
 
-Further, the smoothed values of the components are extracted seperately.
+Further, the smoothed values of the components are extracted separately.
 
 ### diagnostics
 `diagnostics` is a list that contains items useful for diagnostic tests and model selection:

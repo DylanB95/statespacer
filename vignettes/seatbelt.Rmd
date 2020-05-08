@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-A lot of time series exhibit some form of seasonality. An example of such a time serie is the UK Road Deaths dataset, see `?Seatbelts` for details about this dataset. In this vignette you will learn how to deal with this seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. We also show you how to control the variance - covariance matrices of the various components. The UK Road Deaths dataset provides to be an excellent dataset at hand to showcase all of these functionalities of the statespacer package! The approach used in this document follows that of @commandeur2007introduction.
+A lot of time series exhibit some form of seasonality. An example of such a time series is the UK Road Deaths dataset, see `?Seatbelts` for details about this dataset. In this vignette you will learn how to deal with this seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. We also show you how to control the variance - covariance matrices of the various components. The UK Road Deaths dataset provides to be an excellent dataset at hand to showcase all of these functionalities of the statespacer package! The approach used in this document follows that of @commandeur2007introduction.
 
 ## Data preparation
 
@@ -45,7 +45,7 @@ Data[, c("drivers", "front", "rear", "PetrolPrice", "kms")] <- log(Data[, c("dri
 ```
 
 ## Univariate model with deterministic level and seasonal
-We start off with estimating a univariate model for the "drivers" variable. We specify a deterministic seasonal component of period 12, and a deterministic level. Furhermore, we take the log of "PetrolPrice" together with the "law" dummy as explanatory variables.
+We start off with estimating a univariate model for the "drivers" variable. We specify a deterministic seasonal component of period 12, and a deterministic level. Furthermore, we take the log of "PetrolPrice" together with the "law" dummy as explanatory variables.
 
 ```{r}
 # Dependent variable
@@ -166,7 +166,7 @@ abline(h = 0)
 ```
 
 ## Bivariate model of front and rear passengers
-The previous models dealed with a univariate serie. However, it might be interesting to model multiple series simultaneously. In this section we'll just do that. We'll take the logs of "front" and "rear" as dependent variables, the "law" dummy together with the logs of "PetrolPrice" and "kms" as explanatory variables, a stochastic local level component, and a deterministic seasonal component with period 12.
+The previous models dealt with a univariate series. However, it might be interesting to model multiple series simultaneously. In this section we'll just do that. We'll take the logs of "front" and "rear" as dependent variables, the "law" dummy together with the logs of "PetrolPrice" and "kms" as explanatory variables, a stochastic local level component, and a deterministic seasonal component with period 12.
 
 ```{r, warning = FALSE}
 # Dependent variable

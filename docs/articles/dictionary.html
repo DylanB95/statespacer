@@ -143,7 +143,7 @@
 <div id="system_matrices" class="section level3">
 <h3 class="hasAnchor">
 <a href="#system_matrices" class="anchor"></a>system_matrices</h3>
-<p><code>system_matrices</code> is a list containing all of the system matrices of each of the components. For the variance - covariance matrices <span class="math inline">\(H\)</span> and <span class="math inline">\(Q\)</span>, it also contains 2 decompositions, namely the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition, where <span class="math inline">\(L\)</span> is the loading matrix and <span class="math inline">\(D\)</span> is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, <code>a1</code>, is also included, together with the corresponding uncertainty splitted out by its diffuse component, <code>P_inf</code>, and its stationary component <code>P_star</code>. Further, it contains <code>Z_padded</code>, which is a list containing the <span class="math inline">\(Z\)</span> matrices of the components augmented with zeroes, such that its dimension is <span class="math inline">\(p ~ \times ~ m\)</span>. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There’s also a vector called <code>state_label</code>, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are <code>lamba</code> (frequency) and <code>rho</code> (dampening factor) for the cycles, <code>AR</code> and <code>MA</code> for the ARIMA components, <code>SAR</code> and <code>SMA</code> for the SARIMA components, and <code>self_spec</code> for the self specified component. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter.</p>
+<p><code>system_matrices</code> is a list containing all of the system matrices of each of the components. For the variance - covariance matrices <span class="math inline">\(H\)</span> and <span class="math inline">\(Q\)</span>, it also contains 2 decompositions, namely the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition, where <span class="math inline">\(L\)</span> is the loading matrix and <span class="math inline">\(D\)</span> is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, <code>a1</code>, is also included, together with the corresponding uncertainty split out by its diffuse component, <code>P_inf</code>, and its stationary component <code>P_star</code>. Further, it contains <code>Z_padded</code>, which is a list containing the <span class="math inline">\(Z\)</span> matrices of the components augmented with zeroes, such that its dimension is <span class="math inline">\(p ~ \times ~ m\)</span>. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There’s also a vector called <code>state_label</code>, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are <code>lamba</code> (frequency) and <code>rho</code> (dampening factor) for the cycles, <code>AR</code> and <code>MA</code> for the ARIMA components, <code>SAR</code> and <code>SMA</code> for the SARIMA components, and <code>self_spec</code> for the self specified component. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter.</p>
 </div>
 <div id="predicted" class="section level3">
 <h3 class="hasAnchor">
@@ -169,12 +169,12 @@
 <li>
 <code>P_fc</code> is the uncertainty of <code>a_fc</code>.</li>
 </ul>
-<p>Further, the contributions of the components to the predicted values are extracted seperately.</p>
+<p>Further, the contributions of the components to the predicted values are extracted separately.</p>
 </div>
 <div id="filtered" class="section level3">
 <h3 class="hasAnchor">
 <a href="#filtered" class="anchor"></a>filtered</h3>
-<p><code>filtered</code> is a list that contains the filtered (estimates for time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t\)</span>) objects as returned by the Kalman filter. Here, <code>a</code> is the filtered state, and <code>P</code> the uncertainty of the filtered state. Further, the filtered values of the components are extracted seperately.</p>
+<p><code>filtered</code> is a list that contains the filtered (estimates for time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t\)</span>) objects as returned by the Kalman filter. Here, <code>a</code> is the filtered state, and <code>P</code> the uncertainty of the filtered state. Further, the filtered values of the components are extracted separately.</p>
 </div>
 <div id="smoothed" class="section level3">
 <h3 class="hasAnchor">
@@ -194,7 +194,7 @@
 <li>
 <code>epsilon_var</code> the uncertainty of <code>epsilon</code>.</li>
 </ul>
-<p>Further, the smoothed values of the components are extracted seperately.</p>
+<p>Further, the smoothed values of the components are extracted separately.</p>
 </div>
 <div id="diagnostics" class="section level3">
 <h3 class="hasAnchor">
