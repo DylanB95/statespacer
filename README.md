@@ -9,6 +9,8 @@
 status](https://travis-ci.com/DylanB95/statespacer.svg?branch=master)](https://travis-ci.com/DylanB95/statespacer)
 [![Lifecycle:
 maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/statespacer)](https://CRAN.R-project.org/package=statespacer)
 <!-- badges: end -->
 
 ## Overview
