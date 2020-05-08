@@ -2,12 +2,8 @@ Package: statespacer
 Version: 0.0.0.9000
 Date: 2020-04-23
 Title: State Space Modelling In R
-Description: Functions that make estimating models in State Space form a breeze.
-    This package implements state-of-the-art algorithms developed by various
-    time series practitioners such as J. Durbin and S.J. Koopman. 
-    Details about the algorithms can be found in their book, 
-    "Time Series Analysis by State Space Methods". For more information about 
-    this package, please see the documentation.
+Description: A tool that makes estimating models in State Space form 
+    a breeze.
 Authors@R: person("Dylan", "Beijers", email = "dylanbeijers@gmail.com", 
                   role = c("aut", "cre"))
 URL: https://DylanB95.github.io/statespacer, 
