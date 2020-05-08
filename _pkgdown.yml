@@ -1,6 +1,7 @@
 url: https://dylanb95.github.io/statespacer
 
-destination: docs
+development:
+  mode: auto
 
 template:
   params:
