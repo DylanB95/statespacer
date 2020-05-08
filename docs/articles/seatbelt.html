@@ -24,6 +24,9 @@
 <meta property="og:description" content="A lot of time series exhibit some form of seasonality. In this vignette you  will learn how to deal with seasonality using the statespacer package.  Moreover, you will learn how to add explanatory variables to the State Space  model, and how to estimate multivariate models if there is more than one  dependent variable available. We also show you how to control the variance -  covariance matrices of the various components.
 ">
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@dylanbeijers">
+<meta name="twitter:site" content="@dylanbeijers">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -168,13 +171,13 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 14:50:09</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 15:35:37</span>
 <span class="co">#&gt; Parameter scaling:[1] 1</span>
 <span class="co">#&gt; initial  value -0.443442 </span>
 <span class="co">#&gt; final  value -0.735372 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 14:50:09</span>
-<span class="co">#&gt; Time difference of 0.374779939651489 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 15:35:37</span>
+<span class="co">#&gt; Time difference of 0.391790866851807 secs</span>
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span>
 
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span></pre></body></html></div>
@@ -220,7 +223,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 14:50:10</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 15:35:38</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -0.172423 </span>
 <span class="co">#&gt; iter  10 value -0.893962</span>
@@ -228,8 +231,8 @@
 <span class="co">#&gt; iter  30 value -0.915515</span>
 <span class="co">#&gt; final  value -0.915517 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 14:50:18</span>
-<span class="co">#&gt; Time difference of 8.22827386856079 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 15:35:46</span>
+<span class="co">#&gt; Time difference of 7.53556704521179 secs</span>
 
 <span class="co"># The estimated variance of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
@@ -318,7 +321,7 @@
                      <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>))))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 14:50:21</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 15:35:48</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value 0.389588 </span>
 <span class="co">#&gt; iter  10 value -1.583528</span>
@@ -326,8 +329,8 @@
 <span class="co">#&gt; iter  30 value -1.676530</span>
 <span class="co">#&gt; final  value -1.676537 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 14:51:15</span>
-<span class="co">#&gt; Time difference of 54.5079231262207 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 15:36:37</span>
+<span class="co">#&gt; Time difference of 49.2792301177979 secs</span></pre></body></html></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The estimated variance - covariance matrix of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>

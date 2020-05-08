@@ -24,6 +24,9 @@
 <meta property="og:description" content="A lot of time series practitiones resort to the well-known Box-Jenkins  methods, such as ARIMA and SARIMA, when modelling time series. Those methods  are easily incorporated into the State Space framework. This provides to be  beneficial, as missing observations are easily dealt with in the State Space  framework. Moreover, no observations need to be discarded due to the  differencing and introduced lagged variables. The loglikelihood is calculated in an  exact manner! In this document, we'll show you how to estimate ARIMA and  SARIMA models using statespacer.
 ">
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@dylanbeijers">
+<meta name="twitter:site" content="@dylanbeijers">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -133,14 +136,14 @@
                      <span class="kw">arima_list</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">0</span>)),
                      <span class="kw">format_level</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">Data</span>)), <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 14:49:47</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 15:35:17</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1</span>
 <span class="co">#&gt; initial  value 5.022561 </span>
 <span class="co">#&gt; iter  10 value 4.114363</span>
 <span class="co">#&gt; final  value 4.111163 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 14:49:49</span>
-<span class="co">#&gt; Time difference of 1.82276511192322 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 15:35:18</span>
+<span class="co">#&gt; Time difference of 1.29878091812134 secs</span></pre></body></html></div>
 <p>Note that we eliminate the observation error by setting its variance to 0, although it’s perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>.</p>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Coefficients of the ARMA component</span>
@@ -192,13 +195,13 @@
                      <span class="kw">H_format</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
                      <span class="kw">sarima_list</span> <span class="kw">=</span> <span class="no">sarima_list</span>,
                      <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span>(<span class="no">Data</span>))), <span class="fl">0</span>, <span class="fl">0</span>))
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 14:49:50</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 15:35:19</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -1.034434 </span>
 <span class="co">#&gt; final  value -1.616321 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 14:49:51</span>
-<span class="co">#&gt; Time difference of 1.4260630607605 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 15:35:21</span>
+<span class="co">#&gt; Time difference of 1.46582698822021 secs</span></pre></body></html></div>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># Coefficients of the ARMA component</span>
 <span class="no">arma_coeff</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(

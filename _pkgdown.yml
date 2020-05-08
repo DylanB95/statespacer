@@ -9,9 +9,13 @@ template:
     docsearch:
       api_key: 7e05823736aed6581d25ab2a4c1524a0
       index_name: statespacer
+  opengraph:
+    twitter:
+      creator: "@dylanbeijers"
+      card: summary_large_image
 
 home:
-  title: An R package for state space modelling in R
+  title: A package for state space modelling in R
   description: >
     Functions that make estimating models in State Space form a breeze.
     This package implements state-of-the-art algorithms for estimating 
