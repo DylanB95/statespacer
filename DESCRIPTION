@@ -13,7 +13,7 @@ License: MIT + file LICENSE
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
-Depends: R (>= 3.2.0)
+Depends: R (>= 3.6)
 Imports:
     Rdpack,
     stats
