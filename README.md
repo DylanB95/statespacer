@@ -6,7 +6,9 @@
 <!-- badges: start -->
 
 [![Travis build
-status](https://travis-ci.org/DylanB95/statespacer.svg?branch=master)](https://travis-ci.org/DylanB95/statespacer)
+status](https://travis-ci.com/DylanB95/statespacer.svg?branch=master)](https://travis-ci.com/DylanB95/statespacer)
+[![Lifecycle:
+maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
 
 ## Overview

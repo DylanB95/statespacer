@@ -28,22 +28,26 @@ This package supports numerous state space components:
 \item Explanatory Variables in the Local Level + Slope
 \item ARIMA
 \item SARIMA
+\item Moreover, you can specify a component yourself!
 }
 
-These components can be used for both univariate, as multivariate models.
+These components can be used for both univariate, and multivariate models.
 The components can be combined in order to get more extensive models.
 Moreover, the user can control the format of the variance - covariance
 matrices of each of the components. This way, one could specify the
 components to be deterministic instead of stochastic. In the multivariate
-case, one could set some correlations to be 0 if desired. Also, the rank of
-the variance - covariance matrix could be set such that commonalities in the
-components are estimated (common levels, common slopes, etc.).
+case, one could impose rank restrictions on the variance - covariance
+matrices such that commonalities in the components are estimated, like
+common levels, common slopes, etc.
 }
 
 \section{Fitting Procedure}{
 
 The package employs a univariate treatment, and an exact initialisation for
-diffuse elements, to estimate the state parameters.
+diffuse elements, to estimate the state parameters and compute the
+loglikelihood. Collapsing large observation vectors is supported as well.
+Moreover, missing observations are readily dealt with by putting the models
+in State Space form!
 }
 
 \references{
