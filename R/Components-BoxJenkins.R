@@ -197,7 +197,9 @@ ARIMA <- function(p = 1,
 
       # T matrix coefficients
       if (arima_spec[1] > 0) {
-        result$ar <- coeff$ar
+        if (decompositions) {
+          result$ar <- coeff$ar
+        }
         if (n_arima > 1) {
           coeff$ar <- aperm(coeff$ar, c(2, 1, 3))
         }
@@ -213,7 +215,9 @@ ARIMA <- function(p = 1,
 
       # R matrix coefficients
       if (arima_spec[3] > 0) {
-        result$ma <- coeff$ma
+        if (decompositions) {
+          result$ma <- coeff$ma
+        }
         if (n_arima > 1) {
           coeff$ma <- aperm(coeff$ma, c(2, 1, 3))
         }
@@ -502,7 +506,7 @@ SARIMA <- function(p = 1,
         )
       }
       ar_polynomial <- c()
-      if (fixed_part) {
+      if (decompositions) {
         sar <- list()
       }
 
@@ -516,7 +520,7 @@ SARIMA <- function(p = 1,
         )
       }
       ma_polynomial <- c()
-      if (fixed_part) {
+      if (decompositions) {
         sma <- list()
       }
 
@@ -542,7 +546,7 @@ SARIMA <- function(p = 1,
 
         # Update AR coefficient array
         if (sarima_spec$ar[i] > 0) {
-          if (fixed_part) {
+          if (decompositions) {
             sar[[paste0("S", sarima_spec$s[i])]] <- coeff$ar
           }
           AR_coeff_old <- AR_coeff
@@ -573,7 +577,7 @@ SARIMA <- function(p = 1,
 
         # Update MA coefficient array
         if (sarima_spec$ma[i] > 0) {
-          if (fixed_part) {
+          if (decompositions) {
             sma[[paste0("S", sarima_spec$s[i])]] <- coeff$ma
           }
           MA_coeff_old <- MA_coeff
@@ -655,7 +659,7 @@ SARIMA <- function(p = 1,
       }
       result$Tmat <- T1
       result$R <- R1
-      if (fixed_part) {
+      if (decompositions) {
         result$sar <- sar
         result$sma <- sma
       }
