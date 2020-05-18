@@ -341,7 +341,8 @@ StateSpaceFit <- function(y,
           "`collapse = TRUE` can only be set if the dimensionality of the",
           "observation vector is larger than the dimensionality of the",
           "state vector. Please set `collapse = FALSE`."
-        )
+        ),
+        call. = FALSE
       )
     }
 
@@ -895,7 +896,8 @@ StateSpaceFit <- function(y,
         "Number of initial parameters is less than the required ",
         "amount of parameters (", sys_mat$param_num, "), ",
         "recycling the initial parameters the required amount of times."
-      )
+      ),
+      call. = FALSE
     )
     initial <- rep(
       initial,
@@ -907,7 +909,8 @@ StateSpaceFit <- function(y,
         "Number of initial parameters is greater than the required ",
         "amount of parameters (", sys_mat$param_num, "), ",
         "only using the first ", sys_mat$param_num, " initial parameters."
-      )
+      ),
+      call. = FALSE
     )
     initial <- initial[1:sys_mat$param_num]
   }
@@ -980,7 +983,8 @@ StateSpaceFit <- function(y,
       paste(
         "Install \"numDeriv\" if standard errors of the estimated",
         "parameters are required."
-      )
+      ),
+      call. = FALSE
     )
   }
 

@@ -378,7 +378,10 @@ StructParam <- function(param = NULL,
 
   # Check if all parameters have been used
   if (length(param) != 0) {
-    stop("Not all parameters have been used in assigning standard errors!")
+    stop(
+      "Not all parameters have been used in assigning standard errors!",
+      call. = FALSE
+    )
   }
 
   return(result)

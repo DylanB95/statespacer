@@ -56,7 +56,7 @@ GetSysMat <- function(p,
 
     # Check if self_spec_list$state_num is specified
     if (is.null(self_spec_list$state_num)) {
-      stop("`self_spec_list$state_num` must be specified!")
+      stop("`self_spec_list$state_num` must be specified!", call. = FALSE)
     }
 
     # Check if self_spec_list$sys_mat_fun is specified
@@ -67,7 +67,8 @@ GetSysMat <- function(p,
             paste(
               "`self_spec_list$sys_mat_fun` was not specified while",
               "`self_spec_list$param_num` is greater than 0."
-            )
+            ),
+            call. = FALSE
           )
         }
       }
@@ -77,14 +78,16 @@ GetSysMat <- function(p,
         paste(
           "`self_spec_list$param_num` must be specified if",
           "`self_spec_list$sys_mat_fun` is specified."
-        )
+        ),
+        call. = FALSE
       )
     } else if (self_spec_list$param_num <= 0) {
       stop(
         paste(
           "`self_spec_list$param_num` must be greater than 0 if",
           "`self_spec_list$sys_mat_fun` is specified."
-        )
+        ),
+        call. = FALSE
       )
     }
 

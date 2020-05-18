@@ -34,14 +34,18 @@ ARIMA <- function(p = 1,
 
   # Check for erroneous input
   if (length(arima_spec) != 3) {
-    stop("The ARIMA specification must be a vector of length 3.")
+    stop(
+      "The ARIMA specification must be a vector of length 3.",
+      call. = FALSE
+    )
   }
   if (arima_spec[2] < 0) {
     stop(
       paste(
         "Number of differencing of the ARIMA component must",
         "be greater than or equal to 0."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -146,10 +150,10 @@ ARIMA <- function(p = 1,
     needed <- 0.5 * n_arima * (n_arima + 1) +
       (arima_spec[1] + arima_spec[3]) * n_arima^2
     if (length(param) < needed) {
-      stop("Not enough parameters supplied.")
+      stop("Not enough parameters supplied.", call. = FALSE)
     }
     if (length(param) > needed) {
-      stop("Too many parameters supplied.")
+      stop("Too many parameters supplied.", call. = FALSE)
     }
 
     # Parameters for the variance - covariance matrix
@@ -302,19 +306,26 @@ SARIMA <- function(p = 1,
 
   # Check for erroneous input
   if (length(sarima_spec) != 4) {
-    stop("The SARIMA specification must be a list containing 4 vectors.")
+    stop(
+      "The SARIMA specification must be a list containing 4 vectors.",
+      call. = FALSE
+    )
   }
   if (length(sarima_spec$s) != length(sarima_spec$ar) |
       length(sarima_spec$s) != length(sarima_spec$i)  |
       length(sarima_spec$s) != length(sarima_spec$ma)) {
-    stop("The vectors in the SARIMA specification must be of equal length.")
+    stop(
+      "The vectors in the SARIMA specification must be of equal length.",
+      call. = FALSE
+    )
   }
   if (min(sarima_spec$i) < 0) {
     stop(
       paste(
         "Number of differencing in the SARIMA specification must",
         "be greater than or equal to 0."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -447,10 +458,10 @@ SARIMA <- function(p = 1,
     needed <- 0.5 * n_sarima * (n_sarima + 1) +
       (sum(sarima_spec$ar) + sum(sarima_spec$ma)) * n_sarima^2
     if (length(param) < needed) {
-      stop("Not enough parameters supplied.")
+      stop("Not enough parameters supplied.", call. = FALSE)
     }
     if (length(param) > needed) {
-      stop("Too many parameters supplied.")
+      stop("Too many parameters supplied.", call. = FALSE)
     }
 
     # Parameters for the variance - covariance matrix

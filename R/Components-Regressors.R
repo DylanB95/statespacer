@@ -26,7 +26,8 @@ AddVar <- function(p = 1,
       paste(
         "The number of elements in `addvar_list` must",
         "be equal to the number of dependent variables."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -90,7 +91,8 @@ AddVar <- function(p = 1,
         paste(
           "The number of rows of `format_addvar` for the explanatory variables",
           "must be equal to the number of explanatory variables."
-        )
+        ),
+        call. = FALSE
       )
     }
 
@@ -149,7 +151,8 @@ LevelAddVar <- function(p = 1,
       paste(
         "The number of elements in `level_addvar_list`",
         "must be equal to the number of dependent variables."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -199,7 +202,8 @@ LevelAddVar <- function(p = 1,
               "The ", i, "th dependent variable was specified to be excluded ",
               "from getting a local level, ",
               "but did have explanatory variables specified for the local level."
-            )
+            ),
+            call. = FALSE
           )
         } else {
           Ttemp2 <- rbind(Ttemp2, Ttemp[index,])
@@ -253,7 +257,8 @@ LevelAddVar <- function(p = 1,
             "explanatory variables in the level component must be equal",
             "to the number of dependent variables minus the number of",
             "excluded dependent variables."
-          )
+          ),
+          call. = FALSE
         )
       }
 
@@ -292,7 +297,8 @@ LevelAddVar <- function(p = 1,
             "The number of rows of `format_level_addvar` for the level +",
             "explanatory variables in the level component",
             "must be equal to the number of explanatory variables."
-          )
+          ),
+          call. = FALSE
         )
       }
 
@@ -354,7 +360,8 @@ SlopeAddVar <- function(p = 1,
       paste(
         "The number of elements in `level_addvar_list` must be equal",
         "to the number of dependent variables."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -421,7 +428,8 @@ SlopeAddVar <- function(p = 1,
               "The ", i, "th dependent variable was specified to be excluded ",
               "from getting a local level, ",
               "but did have explanatory variables specified for the local level."
-            )
+            ),
+            call. = FALSE
           )
         } else {
           Ttemp2 <- rbind(Ttemp2, Ttemp[index,])
@@ -498,7 +506,8 @@ SlopeAddVar <- function(p = 1,
             "+ slope + explanatory variables in the level component must be",
             "equal to the number of dependent variables minus",
             "the number of excluded dependent variables."
-          )
+          ),
+          call. = FALSE
         )
       }
 
@@ -538,7 +547,8 @@ SlopeAddVar <- function(p = 1,
             "+ slope + explanatory variables in the level component must be",
             "equal to the number of local levels minus",
             "the number of excluded local levels."
-          )
+          ),
+          call. = FALSE
         )
       }
 
@@ -577,7 +587,8 @@ SlopeAddVar <- function(p = 1,
             "The number of rows of `format_level_addvar` for the level",
             "+ slope + explanatory variables in the level component must be",
             "equal to the number of explanatory variables."
-          )
+          ),
+          call. = FALSE
         )
       }
 

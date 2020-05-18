@@ -44,7 +44,8 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
       paste(
         "Both `param` and `format` were not specified.",
         "Must specify at least one of them."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -63,10 +64,11 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
       stop(
         paste(
           "Number of parameters supplied result in non-integer dimensions",
-          "of the Variance - Covariance matrix,",
+          "of the variance - covariance matrix,",
           "specify a correct number of parameters.",
           "Hint: The dimension is calculated as (-1 + sqrt(1 + 8 * n_par))/2."
-        )
+        ),
+        call. = FALSE
       )
     }
 
@@ -87,7 +89,8 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
         paste(
           "Number of columns of `format` must be less than",
           "or equal to the number of rows."
-        )
+        ),
+        call. = FALSE
       )
     }
 
@@ -107,7 +110,8 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
           "The specified format is not valid.",
           "Columns of which the diagonal element is zero,",
           "should be set to zero."
-        )
+        ),
+        call. = FALSE
       )
     }
 
@@ -118,12 +122,12 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
 
     # Check if more parameters are specified than needed
     if ((lower + diagonal) < n_par) {
-      stop("Too many parameters supplied.")
+      stop("Too many parameters supplied.", call. = FALSE)
     }
 
     # Check if not enough parameters are specified
     if ((lower + diagonal) > n_par) {
-      stop("Not enough parameters supplied.")
+      stop("Not enough parameters supplied.", call. = FALSE)
     }
 
     # Initialising L matrix with specified dimensions

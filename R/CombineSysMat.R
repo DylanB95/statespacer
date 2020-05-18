@@ -30,7 +30,7 @@ CombineZ <- function(Z1, Z2) {
 
   # Check if rows match
   if (dimZ1[1] != dimZ2[1]) {
-    stop("Number of rows of Z matrices must match!")
+    stop("Number of rows of Z matrices must match!", call. = FALSE)
   }
 
   # Compute result
@@ -66,7 +66,7 @@ CombineZ <- function(Z1, Z2) {
 
     # Check if 3rd dimensions match
     if (dimZ1[3] != dimZ2[3]) {
-      stop("3rd dimensions of Z matrices must match!")
+      stop("3rd dimensions of Z matrices must match!", call. = FALSE)
     }
 
     result <- sapply(
@@ -137,7 +137,7 @@ CombineTRQ <- function(S1, S2) {
 
     # Check if 3rd dimensions match
     if (dimS1[3] != dimS2[3]) {
-      stop("3rd dimensions of S matrices must match!")
+      stop("3rd dimensions of S matrices must match!", call. = FALSE)
     }
 
     result <- sapply(

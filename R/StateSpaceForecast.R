@@ -57,21 +57,28 @@ StateSpaceForecast <- function(fit,
 
   # Check if specification of addvar_list_fc is in line with the fit object
   if (!is.null(fit$function_call$addvar_list) & is.null(addvar_list_fc)) {
-    stop("`addvar_list_fc` must be specified for the forecasting period.")
+    stop(
+      "`addvar_list_fc` must be specified for the forecasting period.",
+      call. = FALSE
+    )
   }
   if (is.null(fit$function_call$addvar_list) & !is.null(addvar_list_fc)) {
     stop(
       paste(
         "`addvar_list_fc` was specified for the forecasting period,",
         "while explanatory variables were not incorporated in the model."
-      )
+      ),
+      call. = FALSE
     )
   }
 
   # Check if specification of level_addvar_list_fc is in line with the fit object
   if (!is.null(fit$function_call$level_addvar_list) &
       is.null(level_addvar_list_fc)) {
-    stop("`level_addvar_list_fc` must be specified for the forecasting period.")
+    stop(
+      "`level_addvar_list_fc` must be specified for the forecasting period.",
+      call. = FALSE
+    )
   }
   if (is.null(fit$function_call$level_addvar_list) &
       !is.null(level_addvar_list_fc)) {
@@ -80,7 +87,8 @@ StateSpaceForecast <- function(fit,
         "`level_addvar_list_fc` was specified for the forecasting period,",
         "while explanatory variables in the level were not",
         "incorporated in the model."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -98,7 +106,8 @@ StateSpaceForecast <- function(fit,
         paste(
           "`self_spec_list_fc` was specified for the forecasting period,",
           "while a self specified component was not incorporated in the model."
-        )
+        ),
+        call. = FALSE
       )
     }
   }

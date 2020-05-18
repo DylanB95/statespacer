@@ -144,13 +144,16 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
 
   # Check for erroneous input
   if (ar < 0) {
-    stop("The order of the autoregressive part must be >= 0.")
+    stop("The order of the autoregressive part must be >= 0.", call. = FALSE)
   }
   if (ma < 0) {
-    stop("The order of the moving average part must be >= 0.")
+    stop("The order of the moving average part must be >= 0.", call. = FALSE)
   }
   if (ar + ma == 0) {
-    stop("At least one of the orders of the AR and MA parts must be positive.")
+    stop(
+      "At least one of the orders of the AR and MA parts must be positive.",
+      call. = FALSE
+    )
   }
 
   # Initialise list to return
@@ -159,7 +162,7 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
   # Check if array contains square matrices
   if(is.array(A)) {
     if (dim(A)[1] != dim(A)[2]) {
-      stop("Matrices in `A` must be square matrices.")
+      stop("Matrices in `A` must be square matrices.", call. = FALSE)
     }
   }
 
