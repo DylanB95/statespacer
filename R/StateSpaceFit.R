@@ -353,6 +353,10 @@ StateSpaceFit <- function(y,
     sys_mat$T_kal <- CombineTRQ(matrix(0, m2, m2), sys_mat$T_kal)
     sys_mat$R_kal <- CombineTRQ(diag(1, m2, m2), sys_mat$R_kal)
     p <- m2
+
+    # Dealing with NA for collapsing transformation
+    y_temp <- y
+    y_temp[is.na(y)] <- 0
   }
   m <- m + p # Residuals in state
 
@@ -704,8 +708,6 @@ StateSpaceFit <- function(y,
 
     # Collapse observation vector
     if (collapse) {
-      y_temp <- y
-      y_temp[is.na(y)] <- 0
       if (is.matrix(H) & is.matrix(Z_kal)) {
         Hinv <- solve(H)
         ZtHinv <- t(Z_kal) %*% Hinv
