@@ -14,6 +14,7 @@
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceEval
 #' @inheritParams Cholesky
+#' @inheritParams Cycle
 #'
 #' @return
 #' A list containing the system matrices.
@@ -24,6 +25,7 @@ ARIMA <- function(p = 1,
                   exclude_arima = NULL,
                   fixed_part = TRUE,
                   update_part = TRUE,
+                  transform_only = FALSE,
                   param = rep(1, p^2 + 0.5 * p * (p+1)),
                   decompositions = TRUE,
                   T1 = NULL,
@@ -200,69 +202,80 @@ ARIMA <- function(p = 1,
         if (decompositions) {
           result$ar <- coeff$ar
         }
-        if (n_arima > 1) {
-          coeff$ar <- aperm(coeff$ar, c(2, 1, 3))
-        }
-        T1[1:(n_arima * arima_spec[1]), 1:n_arima] <- t(
-          matrix(
-            coeff$ar,
-            n_arima,
-            n_arima * arima_spec[1]
+        if (!transform_only) {
+          if (n_arima > 1) {
+            coeff$ar <- aperm(coeff$ar, c(2, 1, 3))
+          }
+          T1[1:(n_arima * arima_spec[1]), 1:n_arima] <- t(
+            matrix(
+              coeff$ar,
+              n_arima,
+              n_arima * arima_spec[1]
+            )
           )
-        )
+        }
       }
-      T_stationary <- T1
+      if (!transform_only) {
+        T_stationary <- T1
+      }
 
       # R matrix coefficients
       if (arima_spec[3] > 0) {
         if (decompositions) {
           result$ma <- coeff$ma
         }
-        if (n_arima > 1) {
-          coeff$ma <- aperm(coeff$ma, c(2, 1, 3))
-        }
-        R1 <- rbind(
-          R1,
-          t(
-            matrix(
-              coeff$ma,
-              n_arima,
-              n_arima * arima_spec[3]
+        if (!transform_only) {
+          if (n_arima > 1) {
+            coeff$ma <- aperm(coeff$ma, c(2, 1, 3))
+          }
+          R1 <- rbind(
+            R1,
+            t(
+              matrix(
+                coeff$ma,
+                n_arima,
+                n_arima * arima_spec[3]
+              )
             )
           )
+        }
+      }
+      if (!transform_only) {
+        R1 <- rbind(
+          R1,
+          matrix(0, (r - 1 - arima_spec[3]) * n_arima, n_arima)
         )
-      }
-      R1 <- rbind(
-        R1,
-        matrix(0, (r - 1 - arima_spec[3]) * n_arima, n_arima)
-      )
-      R_stationary <- R1
+        R_stationary <- R1
 
-      # Non-stationary part
-      if (arima_spec[2] > 0) {
-        T1 <- cbind(T2, T1)
-        T1 <- rbind(T3, T1)
-        R1 <- rbind(R2, R1)
+        # Non-stationary part
+        if (arima_spec[2] > 0) {
+          T1 <- cbind(T2, T1)
+          T1 <- rbind(T3, T1)
+          R1 <- rbind(R2, R1)
+        }
+        result$Tmat <- T1
+        result$R <- R1
       }
-      result$Tmat <- T1
-      result$R <- R1
     }
 
-    # Initial uncertainty for the stationary part
-    if (arima_spec[1] == 0 & arima_spec[3] == 0) {
-      result$P_star <- BlockMatrix(
-        matrix(0, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
-        result$Q
-      )
-    } else {
-      T_kronecker <- kronecker(T_stationary, T_stationary)
-      Tinv <- solve(diag(1, dim(T_kronecker)[1], dim(T_kronecker)[2]) - T_kronecker)
-      vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
-      vecPstar <- Tinv %*% vecRQR
-      result$P_star <- BlockMatrix(
-        matrix(0, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
-        matrix(vecPstar, dim(T_stationary)[1], dim(T_stationary)[2])
-      )
+    if (!transform_only) {
+
+      # Initial uncertainty for the stationary part
+      if (arima_spec[1] == 0 & arima_spec[3] == 0) {
+        result$P_star <- BlockMatrix(
+          matrix(0, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
+          result$Q
+        )
+      } else {
+        T_kronecker <- kronecker(T_stationary, T_stationary)
+        Tinv <- solve(diag(1, dim(T_kronecker)[1], dim(T_kronecker)[2]) - T_kronecker)
+        vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
+        vecPstar <- Tinv %*% vecRQR
+        result$P_star <- BlockMatrix(
+          matrix(0, arima_spec[2] * n_arima, arima_spec[2] * n_arima),
+          matrix(vecPstar, dim(T_stationary)[1], dim(T_stationary)[2])
+        )
+      }
     }
   }
 
@@ -285,6 +298,7 @@ ARIMA <- function(p = 1,
 #' @inheritParams GetSysMat
 #' @inheritParams StateSpaceEval
 #' @inheritParams Cholesky
+#' @inheritParams Cycle
 #'
 #' @return
 #' A list containing the system matrices.
@@ -300,6 +314,7 @@ SARIMA <- function(p = 1,
                    exclude_sarima = NULL,
                    fixed_part = TRUE,
                    update_part = TRUE,
+                   transform_only = FALSE,
                    param = rep(1, 2 * p^2 + 0.5 * p * (p+1)),
                    decompositions = TRUE,
                    T1 = NULL,
@@ -496,31 +511,34 @@ SARIMA <- function(p = 1,
     # T matrix and coefficients in R matrix
     if (sum(sarima_spec$ar) > 0 | sum(sarima_spec$ma) > 0) {
 
-      # Initialise coefficient vector/array for the AR part
-      if (n_sarima == 1) {
-        AR_coeff <- rep(0, sum(sarima_spec$s * sarima_spec$ar))
-      } else {
-        AR_coeff <- array(
-          0,
-          dim = c(n_sarima, n_sarima, sum(sarima_spec$s * sarima_spec$ar))
-        )
-      }
-      ar_polynomial <- c()
-      if (decompositions) {
-        sar <- list()
+      if (!transform_only) {
+
+        # Initialise coefficient vector/array for the AR part
+        if (n_sarima == 1) {
+          AR_coeff <- rep(0, sum(sarima_spec$s * sarima_spec$ar))
+        } else {
+          AR_coeff <- array(
+            0,
+            dim = c(n_sarima, n_sarima, sum(sarima_spec$s * sarima_spec$ar))
+          )
+        }
+        ar_polynomial <- c()
+
+        # Initialise coefficient vector/array for the MA part
+        if (n_sarima == 1) {
+          MA_coeff <- rep(0, sum(sarima_spec$s * sarima_spec$ma))
+        } else {
+          MA_coeff <- array(
+            0,
+            dim = c(n_sarima, n_sarima, sum(sarima_spec$s * sarima_spec$ma))
+          )
+        }
+        ma_polynomial <- c()
       }
 
-      # Initialise coefficient vector/array for the MA part
-      if (n_sarima == 1) {
-        MA_coeff <- rep(0, sum(sarima_spec$s * sarima_spec$ma))
-      } else {
-        MA_coeff <- array(
-          0,
-          dim = c(n_sarima, n_sarima, sum(sarima_spec$s * sarima_spec$ma))
-        )
-      }
-      ma_polynomial <- c()
+      # Initialise lists for AR and MA coefficients
       if (decompositions) {
+        sar <- list()
         sma <- list()
       }
 
@@ -549,30 +567,32 @@ SARIMA <- function(p = 1,
           if (decompositions) {
             sar[[paste0("S", sarima_spec$s[i])]] <- coeff$ar
           }
-          AR_coeff_old <- AR_coeff
-          add_coeff <- sarima_spec$s[i] * 1:sarima_spec$ar[i]
-          if (n_sarima == 1) {
-            AR_coeff[add_coeff] <- AR_coeff[add_coeff] + -coeff$ar
-            for (j in (1:sarima_spec$ar[i])) {
-              mult_coeff <- sarima_spec$s[i] * j + ar_polynomial
-              AR_coeff[mult_coeff] <- AR_coeff[mult_coeff] +
-                -coeff$ar[j] * AR_coeff_old[ar_polynomial]
-              add_coeff <- c(add_coeff, mult_coeff)
+          if (!transform_only) {
+            AR_coeff_old <- AR_coeff
+            add_coeff <- sarima_spec$s[i] * 1:sarima_spec$ar[i]
+            if (n_sarima == 1) {
+              AR_coeff[add_coeff] <- AR_coeff[add_coeff] - coeff$ar
+              for (j in (1:sarima_spec$ar[i])) {
+                mult_coeff <- sarima_spec$s[i] * j + ar_polynomial
+                AR_coeff[mult_coeff] <- AR_coeff[mult_coeff] -
+                  coeff$ar[j] * AR_coeff_old[ar_polynomial]
+                add_coeff <- c(add_coeff, mult_coeff)
+              }
+            } else {
+              AR_coeff[,,add_coeff] <- AR_coeff[,,add_coeff, drop = FALSE] - coeff$ar
+              for (j in (1:sarima_spec$ar[i])) {
+                mult_coeff <- sarima_spec$s[i] * j + ar_polynomial
+                AR_coeff[,,mult_coeff] <- AR_coeff[,,mult_coeff, drop = FALSE] -
+                  array(
+                    coeff$ar[,,j] %*%
+                      matrix(AR_coeff_old[,,ar_polynomial], nrow = n_sarima),
+                    dim = c(n_sarima, n_sarima, length(ar_polynomial))
+                  )
+                add_coeff <- c(add_coeff, mult_coeff)
+              }
             }
-          } else {
-            AR_coeff[,,add_coeff] <- AR_coeff[,,add_coeff, drop = FALSE] + -coeff$ar
-            for (j in (1:sarima_spec$ar[i])) {
-              mult_coeff <- sarima_spec$s[i] * j + ar_polynomial
-              AR_coeff[,,mult_coeff] <- AR_coeff[,,mult_coeff, drop = FALSE] +
-                array(
-                  -coeff$ar[,,j] %*%
-                    matrix(AR_coeff_old[,,ar_polynomial], nrow = n_sarima),
-                  dim = c(n_sarima, n_sarima, length(ar_polynomial))
-                )
-              add_coeff <- c(add_coeff, mult_coeff)
-            }
+            ar_polynomial <- unique(c(ar_polynomial, add_coeff))
           }
-          ar_polynomial <- unique(c(ar_polynomial, add_coeff))
         }
 
         # Update MA coefficient array
@@ -580,112 +600,122 @@ SARIMA <- function(p = 1,
           if (decompositions) {
             sma[[paste0("S", sarima_spec$s[i])]] <- coeff$ma
           }
-          MA_coeff_old <- MA_coeff
-          add_coeff <- sarima_spec$s[i] * 1:sarima_spec$ma[i]
-          if (n_sarima == 1) {
-            MA_coeff[add_coeff] <- MA_coeff[add_coeff] + coeff$ma
-            for (j in (1:sarima_spec$ma[i])) {
-              mult_coeff <- sarima_spec$s[i] * j + ma_polynomial
-              MA_coeff[mult_coeff] <- MA_coeff[mult_coeff] +
-                coeff$ma[j] * MA_coeff_old[ma_polynomial]
-              add_coeff <- c(add_coeff, mult_coeff)
+          if (!transform_only) {
+            MA_coeff_old <- MA_coeff
+            add_coeff <- sarima_spec$s[i] * 1:sarima_spec$ma[i]
+            if (n_sarima == 1) {
+              MA_coeff[add_coeff] <- MA_coeff[add_coeff] + coeff$ma
+              for (j in (1:sarima_spec$ma[i])) {
+                mult_coeff <- sarima_spec$s[i] * j + ma_polynomial
+                MA_coeff[mult_coeff] <- MA_coeff[mult_coeff] +
+                  coeff$ma[j] * MA_coeff_old[ma_polynomial]
+                add_coeff <- c(add_coeff, mult_coeff)
+              }
+            } else {
+              MA_coeff[,,add_coeff] <- MA_coeff[,,add_coeff, drop = FALSE] + coeff$ma
+              for (j in (1:sarima_spec$ma[i])) {
+                mult_coeff <- sarima_spec$s[i] * j + ma_polynomial
+                MA_coeff[,,mult_coeff] <- MA_coeff[,,mult_coeff, drop = FALSE] +
+                  array(
+                    coeff$ma[,,j] %*%
+                      matrix(MA_coeff_old[,,ma_polynomial], nrow = n_sarima),
+                    dim = c(n_sarima, n_sarima, length(ma_polynomial))
+                  )
+                add_coeff <- c(add_coeff, mult_coeff)
+              }
             }
-          } else {
-            MA_coeff[,,add_coeff] <- MA_coeff[,,add_coeff, drop = FALSE] + coeff$ma
-            for (j in (1:sarima_spec$ma[i])) {
-              mult_coeff <- sarima_spec$s[i] * j + ma_polynomial
-              MA_coeff[,,mult_coeff] <- MA_coeff[,,mult_coeff, drop = FALSE] +
-                array(
-                  coeff$ma[,,j] %*%
-                    matrix(MA_coeff_old[,,ma_polynomial], nrow = n_sarima),
-                  dim = c(n_sarima, n_sarima, length(ma_polynomial))
-                )
-              add_coeff <- c(add_coeff, mult_coeff)
-            }
+            ma_polynomial <- unique(c(ma_polynomial, add_coeff))
           }
-          ma_polynomial <- unique(c(ma_polynomial, add_coeff))
         }
 
         # Drop parameters that are already used
         param <- param[-ARMA_indices]
       }
 
-      # T matrix coefficients
-      if (sum(sarima_spec$ar) > 0) {
-        if (n_sarima > 1) {
-          AR_coeff <- aperm(AR_coeff, c(2, 1, 3))
-        }
-        T1[1:(n_sarima * sum(sarima_spec$s * sarima_spec$ar)), 1:n_sarima] <- t(
-          matrix(
-            -AR_coeff,
-            n_sarima,
-            n_sarima * sum(sarima_spec$s * sarima_spec$ar)
-          )
-        )
-      }
-      T_stationary <- T1
+      if (!transform_only) {
 
-      # R matrix coefficients
-      if (sum(sarima_spec$ma) > 0) {
-        if (n_sarima > 1) {
-          MA_coeff <- aperm(MA_coeff, c(2, 1, 3))
+        # T matrix coefficients
+        if (sum(sarima_spec$ar) > 0) {
+          if (n_sarima > 1) {
+            AR_coeff <- aperm(AR_coeff, c(2, 1, 3))
+          }
+          T1[1:(n_sarima * sum(sarima_spec$s * sarima_spec$ar)), 1:n_sarima] <- t(
+            matrix(
+              -AR_coeff,
+              n_sarima,
+              n_sarima * sum(sarima_spec$s * sarima_spec$ar)
+            )
+          )
+        }
+        T_stationary <- T1
+
+        # R matrix coefficients
+        if (sum(sarima_spec$ma) > 0) {
+          if (n_sarima > 1) {
+            MA_coeff <- aperm(MA_coeff, c(2, 1, 3))
+          }
+          R1 <- rbind(
+            R1,
+            t(
+              matrix(
+                MA_coeff,
+                n_sarima,
+                n_sarima * sum(sarima_spec$s * sarima_spec$ma)
+              )
+            )
+          )
         }
         R1 <- rbind(
           R1,
-          t(
-            matrix(
-              MA_coeff,
-              n_sarima,
-              n_sarima * sum(sarima_spec$s * sarima_spec$ma)
-            )
+          matrix(
+            0,
+            (r - 1 - sum(sarima_spec$s * sarima_spec$ma)) * n_sarima,
+            n_sarima
           )
         )
-      }
-      R1 <- rbind(
-        R1,
-        matrix(
-          0,
-          (r - 1 - sum(sarima_spec$s * sarima_spec$ma)) * n_sarima,
-          n_sarima
-        )
-      )
-      R_stationary <- R1
+        R_stationary <- R1
 
-      # Non-stationary part
-      if (sum(sarima_spec$i) > 0) {
-        T1 <- cbind(T2, T1)
-        T1 <- rbind(T3, T1)
-        R1 <- rbind(R2, R1)
+        # Non-stationary part
+        if (sum(sarima_spec$i) > 0) {
+          T1 <- cbind(T2, T1)
+          T1 <- rbind(T3, T1)
+          R1 <- rbind(R2, R1)
+        }
+        result$Tmat <- T1
+        result$R <- R1
       }
-      result$Tmat <- T1
-      result$R <- R1
+
+      # Return AR and MA coefficients
       if (decompositions) {
         result$sar <- sar
         result$sma <- sma
       }
     }
 
-    # Initial uncertainty for the stationary part
-    if (sum(sarima_spec$ar) == 0 & sum(sarima_spec$ma) == 0) {
-      result$P_star <- BlockMatrix(
-        matrix(0,
-               sum(sarima_spec$s * sarima_spec$i) * n_sarima,
-               sum(sarima_spec$s * sarima_spec$i) * n_sarima
-        ),
-        result$Q
-      )
-    } else {
-      T_kronecker <- kronecker(T_stationary, T_stationary)
-      Tinv <- solve(diag(1, dim(T_kronecker)[1], dim(T_kronecker)[2]) - T_kronecker)
-      vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
-      vecPstar <- Tinv %*% vecRQR
-      result$P_star <- BlockMatrix(
-        matrix(0,
-               sum(sarima_spec$s * sarima_spec$i) * n_sarima,
-               sum(sarima_spec$s * sarima_spec$i) * n_sarima
-        ),
-        matrix(vecPstar, dim(T_stationary)[1], dim(T_stationary)[2])
-      )
+    if (!transform_only) {
+
+      # Initial uncertainty for the stationary part
+      if (sum(sarima_spec$ar) == 0 & sum(sarima_spec$ma) == 0) {
+        result$P_star <- BlockMatrix(
+          matrix(0,
+                 sum(sarima_spec$s * sarima_spec$i) * n_sarima,
+                 sum(sarima_spec$s * sarima_spec$i) * n_sarima
+          ),
+          result$Q
+        )
+      } else {
+        T_kronecker <- kronecker(T_stationary, T_stationary)
+        Tinv <- solve(diag(1, dim(T_kronecker)[1], dim(T_kronecker)[2]) - T_kronecker)
+        vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
+        vecPstar <- Tinv %*% vecRQR
+        result$P_star <- BlockMatrix(
+          matrix(0,
+                 sum(sarima_spec$s * sarima_spec$i) * n_sarima,
+                 sum(sarima_spec$s * sarima_spec$i) * n_sarima
+          ),
+          matrix(vecPstar, dim(T_stationary)[1], dim(T_stationary)[2])
+        )
+      }
     }
   }
 

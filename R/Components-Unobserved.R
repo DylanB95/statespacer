@@ -271,6 +271,8 @@ Slope <- function(p = 1,
 #'   Cycle component.
 #' @param damping_factor_ind Boolean indicating whether a damping factor
 #'   should be included.
+#' @param transform_only Boolean indicating whether only the transformed
+#'   parameters should be returned.
 #' @param format_cycle `format` argument for the
 #'   \code{\link{Cholesky}} function.
 #' @inheritParams GetSysMat
@@ -287,6 +289,7 @@ Cycle <- function(p = 1,
                   damping_factor_ind = TRUE,
                   fixed_part = TRUE,
                   update_part = TRUE,
+                  transform_only = FALSE,
                   param = rep(1, p + 1 + damping_factor_ind),
                   format_cycle = diag(1, p, p),
                   decompositions = TRUE) {
@@ -341,26 +344,12 @@ Cycle <- function(p = 1,
       stop("Not enough parameters supplied.", call. = FALSE)
     }
 
-
-    # T matrix = a 2 * n_cycle x 2 * n_cycle matrix
-    result$Tmat <- rbind(
-      cbind(
-        diag(cos(result$lambda), n_cycle, n_cycle),
-        diag(sin(result$lambda), n_cycle, n_cycle)
-      ),
-      cbind(
-        diag(-sin(result$lambda), n_cycle, n_cycle),
-        diag(cos(result$lambda), n_cycle, n_cycle)
-      )
-    )
-
     # Damping factor rho (between 0 and 1)
     if (damping_factor_ind) {
       result$rho <- 1 / (1 + exp(param[2]))
       if (is.na(result$rho)) {
         stop("Not enough parameters supplied.", call. = FALSE)
       }
-      result$Tmat <- result$rho * result$Tmat
       paramQ <- param[-(1:2)]
     } else {
       paramQ <- param[-1]
@@ -401,8 +390,26 @@ Cycle <- function(p = 1,
       }
 
       # Initial uncertainty of the state vector
-      if (damping_factor_ind) {
+      if (damping_factor_ind & !transform_only) {
         result$P_star <- result$Q / (1 - result$rho^2)
+      }
+    }
+
+    if (!transform_only) {
+
+      # T matrix = a 2 * n_cycle x 2 * n_cycle matrix
+      result$Tmat <- rbind(
+        cbind(
+          diag(cos(result$lambda), n_cycle, n_cycle),
+          diag(sin(result$lambda), n_cycle, n_cycle)
+        ),
+        cbind(
+          diag(-sin(result$lambda), n_cycle, n_cycle),
+          diag(cos(result$lambda), n_cycle, n_cycle)
+        )
+      )
+      if (damping_factor_ind) {
+        result$Tmat <- result$rho * result$Tmat
       }
     }
   }
@@ -422,6 +429,7 @@ Cycle <- function(p = 1,
 #' @inheritParams LocalLevel
 #' @inheritParams StateSpaceEval
 #' @inheritParams Cholesky
+#' @inheritParams Cycle
 #'
 #' @return
 #' A list containing the system matrices.
@@ -432,6 +440,7 @@ BSM <- function(p = 1,
                 exclude_BSM = NULL,
                 fixed_part = TRUE,
                 update_part = TRUE,
+                transform_only = FALSE,
                 param = rep(1, p),
                 format_BSM = diag(1, p, p),
                 decompositions = TRUE) {
@@ -556,10 +565,12 @@ BSM <- function(p = 1,
       result$diagonal_matrix <- Q_BSM$diagonal_matrix
       result$correlation_matrix <- Q_BSM$correlation_matrix
       result$stdev_matrix <- Q_BSM$stdev_matrix
-      result$Q <- do.call(
-        BlockMatrix,
-        replicate(s - 1, Q_BSM$cov_mat, simplify = FALSE)
-      )
+      if (!transform_only) {
+        result$Q <- do.call(
+          BlockMatrix,
+          replicate(s - 1, Q_BSM$cov_mat, simplify = FALSE)
+        )
+      }
     } else {
       result$Q <- do.call(
         BlockMatrix,
