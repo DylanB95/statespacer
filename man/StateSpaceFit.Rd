@@ -32,7 +32,8 @@ StateSpaceFit(
   method = "BFGS",
   initial = 0,
   control = list(),
-  collapse = FALSE
+  collapse = FALSE,
+  standard_errors = NULL
 )
 }
 \arguments{
@@ -155,6 +156,10 @@ collapsed. Should only be set to \code{TRUE} if the dimensionality of the
 observation vector exceeds the dimensionality of the state vector.
 If this is the case, computational gains can be achieved by collapsing
 the observation vector.}
+
+\item{standard_errors}{Boolean indicating whether standard errors should be
+computed. \pkg{numDeriv} must be installed in order to compute the
+standard errors! Defaults to TRUE if \pkg{numDeriv} is available.}
 }
 \value{
 A list containing:
@@ -173,7 +178,7 @@ the State Space model.
 \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
 \item \code{loglik_fun}: Function that returns the loglikelihood of the
 specified State Space model, as a function of its parameters.
-\item \code{standard_errors}: A list containing the standard errors of
+\item \code{standard_errors} (optional): A list containing the standard errors of
 the parameters of the State Space model.
 }
 
