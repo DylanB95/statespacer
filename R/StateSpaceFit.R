@@ -94,6 +94,9 @@
 #'   observation vector exceeds the dimensionality of the state vector.
 #'   If this is the case, computational gains can be achieved by collapsing
 #'   the observation vector.
+#' @param standard_errors Boolean indicating whether standard errors should be
+#'   computed. \pkg{numDeriv} must be installed in order to compute the
+#'   standard errors! Defaults to TRUE if \pkg{numDeriv} is available.
 #'
 #' @details
 #' To fit the specified State Space model, one occasionally has to pay careful
@@ -170,7 +173,7 @@
 #'   \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
 #' * `loglik_fun`: Function that returns the loglikelihood of the
 #'   specified State Space model, as a function of its parameters.
-#' * `standard_errors`: A list containing the standard errors of
+#' * `standard_errors` (optional): A list containing the standard errors of
 #'   the parameters of the State Space model.
 #'
 #' For extensive details about the object returned,
@@ -239,7 +242,24 @@ StateSpaceFit <- function(y,
                           method = "BFGS",
                           initial = 0,
                           control = list(),
-                          collapse = FALSE) {
+                          collapse = FALSE,
+                          standard_errors = NULL) {
+
+  # Check whether standard_errors should be computed
+  if (is.null(standard_errors)) {
+    if (requireNamespace("numDeriv", quietly = TRUE)) {
+      standard_errors <- TRUE
+    } else {
+      standard_errors <- FALSE
+    }
+  } else if (standard_errors) {
+    if (!requireNamespace("numDeriv", quietly = TRUE)) {
+      stop(
+        "\"numDeriv\" must be installed if standard errors are required.",
+        call. = FALSE
+      )
+    }
+  }
 
   # Check whether optimr is available
   # Note: Negative loglikelihood will be minimised,
@@ -954,20 +974,20 @@ StateSpaceFit <- function(y,
   # Indices of the parameters for each of the components
   result$diagnostics$param_indices <- param_indices
 
-  # Check if numDeriv is available, and return standard_errors if this is the case
-  if (requireNamespace("numDeriv", quietly = TRUE)) {
+  # Compute standard errors if required
+  if (standard_errors) {
 
-    # Hessian of the loglikelihood evaluated at the ML estimates of the parameters
-    result$diagnostics$hessian <- numDeriv::hessian(
+    # Hessian of the loglikelihood evaluated at the ML estimates
+    hessian <- numDeriv::hessian(
       func = result$loglik_fun,
       x = fit$par
     )
+    result$diagnostics$hessian <- hessian
 
     # Jacobian of the transformed parameters
     jacobian <- do.call(numDeriv::jacobian,
                         c(list(func = TransformParam, x = fit$par, p = p2),
-                          sys_mat$function_call
-                        )
+                          sys_mat$function_call)
     )
 
     # Standard errors of the transformed parameters
@@ -979,14 +999,6 @@ StateSpaceFit <- function(y,
     result$standard_errors <- StructParam(
       param = std_errors,
       sys_mat = result$system_matrices
-    )
-  } else{
-    warning(
-      paste(
-        "Install \"numDeriv\" if standard errors of the estimated",
-        "parameters are required."
-      ),
-      call. = FALSE
     )
   }
 
