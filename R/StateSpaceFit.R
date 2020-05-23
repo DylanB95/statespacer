@@ -959,7 +959,8 @@ StateSpaceFit <- function(y,
                      list(method = method,
                           initial = initial,
                           control = control,
-                          collapse = collapse)
+                          collapse = collapse,
+                          standard_errors = standard_errors)
   )
 
   # List that will be returned by the function
@@ -977,29 +978,925 @@ StateSpaceFit <- function(y,
   # Compute standard errors if required
   if (standard_errors) {
 
+    # Initialise standard_errors list
+    standard_errors <- list()
+
     # Hessian of the loglikelihood evaluated at the ML estimates
     hessian <- numDeriv::hessian(
       func = result$loglik_fun,
       x = fit$par
     )
     result$diagnostics$hessian <- hessian
+    min_hessian_inv <- -solve(hessian)
 
-    # Jacobian of the transformed parameters
-    jacobian <- do.call(numDeriv::jacobian,
-                        c(list(func = TransformParam, x = fit$par, p = p2),
-                          sys_mat$function_call)
-    )
+    # Local Level
+    if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
+      if (param_num_list$level > 0) {
+        TransformFun <- function(param) {
+          update <- LocalLevel(p = p2,
+                               exclude_level =  exclude_level,
+                               fixed_part = FALSE,
+                               update_part = TRUE,
+                               param = param,
+                               format_level = format_level,
+                               decompositions = TRUE
+          )
+          result <- c(update[["Q"]],
+                      update$loading_matrix, update$diagonal_matrix,
+                      update$correlation_matrix, update$stdev_matrix
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices$level]
+        )
+        hess_subset <- min_hessian_inv[param_indices$level,
+                                       param_indices$level,
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        dimQ <- dim(result$system_matrices$Q$level)[1]
+        se_index <- 1:(dimQ * dimQ)
 
-    # Standard errors of the transformed parameters
-    std_errors <- sqrt(
-      diag(jacobian %*% -solve(result$diagnostics$hessian) %*% t(jacobian))
-    )
+        # Q
+        standard_errors$Q$level <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
 
-    # Structured standard errors of the transformed parameters
-    result$standard_errors <- StructParam(
-      param = std_errors,
-      sys_mat = result$system_matrices
-    )
+        # Q_loading_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_loading_matrix$level <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_diagonal_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_diagonal_matrix$level <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_correlation_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_correlation_matrix$level <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_stdev_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_stdev_matrix$level <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+      }
+    }
+
+    # Local Level + Slope
+    if (slope_ind & is.null(level_addvar_list)) {
+      if ((param_num_list$level + param_num_list$slope) > 0) {
+        TransformFun <- function(param) {
+          update <- Slope(p = p2,
+                          exclude_level = exclude_level,
+                          exclude_slope = exclude_slope,
+                          fixed_part = FALSE,
+                          update_part = TRUE,
+                          param = param,
+                          format_level = format_level,
+                          format_slope = format_slope,
+                          decompositions = TRUE
+          )
+          result <- c(update$Q_level,
+                      update$loading_matrix_level, update$diagonal_matrix_level,
+                      update$correlation_matrix_level, update$stdev_matrix_level,
+                      update$Q_slope,
+                      update$loading_matrix_slope, update$diagonal_matrix_slope,
+                      update$correlation_matrix_slope, update$stdev_matrix_slope
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices$level]
+        )
+        hess_subset <- min_hessian_inv[param_indices$level,
+                                       param_indices$level,
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+
+        # level
+        if (param_num_list$level > 0) {
+          dimQ <- dim(result$system_matrices$Q$level)[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q_level
+          standard_errors$Q$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          std_errors <- std_errors[-se_index]
+        }
+
+        # slope
+        if (param_num_list$slope > 0) {
+          dimQ <- dim(result$system_matrices$Q$slope)[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q_slope
+          standard_errors$Q$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+        }
+      }
+    }
+
+    # BSM
+    if (length(BSM_vec) > 0) {
+      for (i in seq_along(BSM_vec)) {
+        s <- BSM_vec[i]
+        if (param_num_list[[paste0('BSM', s)]] > 0) {
+          TransformFun <- function(param) {
+            update <- BSM(p = p2,
+                          s = s,
+                          exclude_BSM = exclude_BSM_list[[i]],
+                          fixed_part = FALSE,
+                          update_part = TRUE,
+                          transform_only = TRUE,
+                          param = param,
+                          format_BSM = format_BSM_list[[i]],
+                          decompositions = TRUE
+            )
+            result <- c(update$Q_BSM,
+                        update$loading_matrix, update$diagonal_matrix,
+                        update$correlation_matrix, update$stdev_matrix
+            )
+            return(result)
+          }
+          jacobian <- numDeriv::jacobian(
+            func = TransformFun,
+            x = fit$par[param_indices[[paste0('BSM', s)]]]
+          )
+          hess_subset <- min_hessian_inv[param_indices[[paste0('BSM', s)]],
+                                         param_indices[[paste0('BSM', s)]],
+                                         drop = FALSE]
+          std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+          dimQ <- dim(result$system_matrices$Q[[paste0('BSM', s)]])[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q
+          standard_errors$Q[[paste0('BSM', s)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix[[paste0('BSM', s)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix[[paste0('BSM', s)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix[[paste0('BSM', s)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix[[paste0('BSM', s)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+        }
+      }
+    }
+
+    # Explanatory Variables
+    if (!is.null(addvar_list)) {
+      if (param_num_list$addvar > 0) {
+        TransformFun <- function(param) {
+          update <- AddVar(p = p2,
+                           addvar_list = addvar_list,
+                           fixed_part = FALSE,
+                           update_part = TRUE,
+                           param = param,
+                           format_addvar = format_addvar,
+                           decompositions = TRUE
+          )
+          result <- c(update[["Q"]],
+                      update$loading_matrix, update$diagonal_matrix,
+                      update$correlation_matrix, update$stdev_matrix
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices$addvar]
+        )
+        hess_subset <- min_hessian_inv[param_indices$addvar,
+                                       param_indices$addvar,
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        dimQ <- dim(result$system_matrices$Q$addvar)[1]
+        se_index <- 1:(dimQ * dimQ)
+
+        # Q
+        standard_errors$Q$addvar <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_loading_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_loading_matrix$addvar <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_diagonal_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_diagonal_matrix$addvar <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_correlation_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_correlation_matrix$addvar <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_stdev_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_stdev_matrix$addvar <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+      }
+    }
+
+    # Local Level + Explanatory Variables
+    if (!is.null(level_addvar_list) & !slope_ind) {
+      if ((param_num_list$level + param_num_list$level_addvar) > 0) {
+        TransformFun <- function(param) {
+          update <- LevelAddVar(p = p2,
+                                exclude_level = exclude_level,
+                                level_addvar_list = level_addvar_list,
+                                fixed_part = FALSE,
+                                update_part = TRUE,
+                                param = param,
+                                format_level = format_level,
+                                format_level_addvar = format_level_addvar,
+                                decompositions = TRUE
+          )
+          result <- c(update$Q_level,
+                      update$loading_matrix_level,
+                      update$diagonal_matrix_level,
+                      update$correlation_matrix_level,
+                      update$stdev_matrix_level,
+                      update$Q_level_addvar,
+                      update$loading_matrix_level_addvar,
+                      update$diagonal_matrix_level_addvar,
+                      update$correlation_matrix_level_addvar,
+                      update$stdev_matrix_level_addvar
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices$level]
+        )
+        hess_subset <- min_hessian_inv[param_indices$level,
+                                       param_indices$level,
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+
+        # level
+        if (param_num_list$level > 0) {
+          dimQ <- dim(result$system_matrices$Q$level)[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q_level
+          standard_errors$Q$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          std_errors <- std_errors[-se_index]
+        }
+
+        # level_addvar
+        if (param_num_list$level_addvar > 0) {
+          dimQ <- dim(result$system_matrices$Q$level_addvar)[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q_level_addvar
+          standard_errors$Q$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+        }
+      }
+    }
+
+    # Local Level + Explanatory Variables + Slope
+    if (!is.null(level_addvar_list) & slope_ind) {
+      if ((param_num_list$level +
+           param_num_list$slope +
+           param_num_list$level_addvar) > 0) {
+        TransformFun <- function(param) {
+          update <- SlopeAddVar(p = p2,
+                                exclude_level = exclude_level,
+                                exclude_slope = exclude_slope,
+                                level_addvar_list = level_addvar_list,
+                                fixed_part = FALSE,
+                                update_part = TRUE,
+                                param = param,
+                                format_level = format_level,
+                                format_slope = format_slope,
+                                format_level_addvar = format_level_addvar,
+                                decompositions = TRUE
+          )
+          result <- c(update$Q_level,
+                      update$loading_matrix_level,
+                      update$diagonal_matrix_level,
+                      update$correlation_matrix_level,
+                      update$stdev_matrix_level,
+                      update$Q_slope,
+                      update$loading_matrix_slope,
+                      update$diagonal_matrix_slope,
+                      update$correlation_matrix_slope,
+                      update$stdev_matrix_slope,
+                      update$Q_level_addvar,
+                      update$loading_matrix_level_addvar,
+                      update$diagonal_matrix_level_addvar,
+                      update$correlation_matrix_level_addvar,
+                      update$stdev_matrix_level_addvar
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices$level]
+        )
+        hess_subset <- min_hessian_inv[param_indices$level,
+                                       param_indices$level,
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+
+        # level
+        if (param_num_list$level > 0) {
+          dimQ <- dim(result$system_matrices$Q$level)[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q_level
+          standard_errors$Q$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix_level
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix$level <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          std_errors <- std_errors[-se_index]
+        }
+
+        # slope
+        if (param_num_list$slope > 0) {
+          dimQ <- dim(result$system_matrices$Q$slope)[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q_slope
+          standard_errors$Q$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix_slope
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix$slope <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          std_errors <- std_errors[-se_index]
+        }
+
+        # level_addvar
+        if (param_num_list$level_addvar > 0) {
+          dimQ <- dim(result$system_matrices$Q$level_addvar)[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q_level_addvar
+          standard_errors$Q$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix_level_addvar
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix$level_addvar <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+        }
+      }
+    }
+
+    # Cycle
+    if (cycle_ind) {
+      for (i in seq_along(format_cycle_list)) {
+        TransformFun <- function(param) {
+          update <- Cycle(p = p2,
+                          exclude_cycle = exclude_cycle_list[[i]],
+                          damping_factor_ind = damping_factor_ind[i],
+                          fixed_part = FALSE,
+                          update_part = TRUE,
+                          transform_only = TRUE,
+                          param = param,
+                          format_cycle = format_cycle_list[[i]],
+                          decompositions = TRUE
+          )
+          result <- c(update$lambda, update$rho, update$Q_cycle,
+                      update$loading_matrix, update$diagonal_matrix,
+                      update$correlation_matrix, update$stdev_matrix
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices[[paste0('Cycle', i)]]]
+        )
+        hess_subset <- min_hessian_inv[param_indices[[paste0('Cycle', i)]],
+                                       param_indices[[paste0('Cycle', i)]],
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+
+        # lambda
+        standard_errors$lambda[[paste0('Cycle', i)]] <- std_errors[1]
+        std_errors <- std_errors[-1]
+
+        # rho
+        if (damping_factor_ind[i]) {
+          standard_errors$rho[[paste0('Cycle', i)]] <- std_errors[1]
+          std_errors <- std_errors[-1]
+        }
+
+        if (param_num_list[[paste0('Cycle', i)]] > (1 + damping_factor_ind[i])) {
+          dimQ <- dim(result$system_matrices$Q[[paste0('Cycle', i)]])[1]
+          se_index <- 1:(dimQ * dimQ)
+
+          # Q
+          standard_errors$Q[[paste0('Cycle', i)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_loading_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_loading_matrix[[paste0('Cycle', i)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_diagonal_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_diagonal_matrix[[paste0('Cycle', i)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_correlation_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_correlation_matrix[[paste0('Cycle', i)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+
+          # Q_stdev_matrix
+          std_errors <- std_errors[-se_index]
+          standard_errors$Q_stdev_matrix[[paste0('Cycle', i)]] <- matrix(
+            std_errors[se_index], dimQ, dimQ
+          )
+        }
+      }
+    }
+
+    # ARIMA
+    if (!is.null(arima_list)) {
+      for (i in seq_along(arima_list)) {
+        TransformFun <- function(param) {
+          update <- ARIMA(p = p2,
+                          arima_spec = arima_list[[i]],
+                          exclude_arima = exclude_arima_list[[i]],
+                          fixed_part = FALSE,
+                          update_part = TRUE,
+                          transform_only = TRUE,
+                          param = param,
+                          decompositions = TRUE
+          )
+          result <- c(update$ar, update$ma, update$Q,
+                      update$loading_matrix, update$diagonal_matrix,
+                      update$correlation_matrix, update$stdev_matrix
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices[[paste0('ARIMA', i)]]]
+        )
+        hess_subset <- min_hessian_inv[param_indices[[paste0('ARIMA', i)]],
+                                       param_indices[[paste0('ARIMA', i)]],
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+
+        # AR
+        if (!is.null(result$system_matrices$AR[[paste0('ARIMA', i)]])) {
+          se_index <- 1:length(result$system_matrices$AR[[paste0('ARIMA', i)]])
+          if (is.vector(result$system_matrices$AR[[paste0('ARIMA', i)]])) {
+            standard_errors$AR[[paste0('ARIMA', i)]] <- std_errors[se_index]
+          } else {
+            standard_errors$AR[[paste0('ARIMA', i)]] <- array(
+              std_errors[se_index],
+              dim = dim(result$system_matrices$AR[[paste0('ARIMA', i)]])
+            )
+          }
+          std_errors <- std_errors[-se_index]
+        }
+
+        # MA
+        if (!is.null(result$system_matrices$MA[[paste0('ARIMA', i)]])) {
+          se_index <- 1:length(result$system_matrices$MA[[paste0('ARIMA', i)]])
+          if (is.vector(result$system_matrices$MA[[paste0('ARIMA', i)]])) {
+            standard_errors$MA[[paste0('ARIMA', i)]] <- std_errors[se_index]
+          } else {
+            standard_errors$MA[[paste0('ARIMA', i)]] <- array(
+              std_errors[se_index],
+              dim = dim(result$system_matrices$MA[[paste0('ARIMA', i)]])
+            )
+          }
+          std_errors <- std_errors[-se_index]
+        }
+
+        dimQ <- dim(result$system_matrices$Q[[paste0('ARIMA', i)]])[1]
+        se_index <- 1:(dimQ * dimQ)
+
+        # Q
+        standard_errors$Q[[paste0('ARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_loading_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_loading_matrix[[paste0('ARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_diagonal_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_diagonal_matrix[[paste0('ARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_correlation_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_correlation_matrix[[paste0('ARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_stdev_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_stdev_matrix[[paste0('ARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+      }
+    }
+
+    # SARIMA
+    if (!is.null(sarima_list)) {
+      for (i in seq_along(sarima_list)) {
+        TransformFun <- function(param) {
+          update <- SARIMA(p = p2,
+                           sarima_spec = sarima_list[[i]],
+                           exclude_sarima = exclude_sarima_list[[i]],
+                           fixed_part = FALSE,
+                           update_part = TRUE,
+                           transform_only = TRUE,
+                           param = param,
+                           decompositions = TRUE
+          )
+          result <- c()
+          if (length(update$sar) > 0) {
+            for (sar in update$sar) {
+              result <- c(result, sar)
+            }
+          }
+          if (length(update$sma) > 0) {
+            for (sma in update$sma) {
+              result <- c(result, sma)
+            }
+          }
+          result <- c(result, update$Q,
+                      update$loading_matrix, update$diagonal_matrix,
+                      update$correlation_matrix, update$stdev_matrix
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices[[paste0('SARIMA', i)]]]
+        )
+        hess_subset <- min_hessian_inv[param_indices[[paste0('SARIMA', i)]],
+                                       param_indices[[paste0('SARIMA', i)]],
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+
+        # SAR
+        if (!is.null(result$system_matrices$SAR[[paste0('SARIMA', i)]])) {
+          for (j in seq_along(result$system_matrices$SAR[[paste0('SARIMA', i)]])) {
+            sar <- result$system_matrices$SAR[[paste0('SARIMA', i)]][[j]]
+            se_index <- 1:length(sar)
+            if (is.vector(sar)) {
+              standard_errors$SAR[[paste0('SARIMA', i)]][[j]] <- std_errors[se_index]
+            } else {
+              standard_errors$SAR[[paste0('SARIMA', i)]][[j]] <- array(
+                std_errors[se_index],
+                dim = dim(sar)
+              )
+            }
+            std_errors <- std_errors[-se_index]
+          }
+          names(standard_errors$SAR[[paste0('SARIMA', i)]]) <- names(
+            result$system_matrices$SAR[[paste0('SARIMA', i)]]
+          )
+        }
+
+        # SMA
+        if (!is.null(result$system_matrices$SMA[[paste0('SARIMA', i)]])) {
+          for (j in seq_along(result$system_matrices$SMA[[paste0('SARIMA', i)]])) {
+            sma <- result$system_matrices$SMA[[paste0('SARIMA', i)]][[j]]
+            se_index <- 1:length(sma)
+            if (is.vector(sma)) {
+              standard_errors$SMA[[paste0('SARIMA', i)]][[j]] <- std_errors[se_index]
+            } else {
+              standard_errors$SMA[[paste0('SARIMA', i)]][[j]] <- array(
+                std_errors[se_index],
+                dim = dim(sma)
+              )
+            }
+            std_errors <- std_errors[-se_index]
+          }
+          names(standard_errors$SMA[[paste0('SARIMA', i)]]) <- names(
+            result$system_matrices$SMA[[paste0('SARIMA', i)]]
+          )
+        }
+
+        dimQ <- dim(result$system_matrices$Q[[paste0('SARIMA', i)]])[1]
+        se_index <- 1:(dimQ * dimQ)
+
+        # Q
+        standard_errors$Q[[paste0('SARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_loading_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_loading_matrix[[paste0('SARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_diagonal_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_diagonal_matrix[[paste0('SARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_correlation_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_correlation_matrix[[paste0('SARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+
+        # Q_stdev_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$Q_stdev_matrix[[paste0('SARIMA', i)]] <- matrix(
+          std_errors[se_index], dimQ, dimQ
+        )
+      }
+    }
+
+    # Self Specified
+    if (!is.null(self_spec_list$transform_fun)) {
+      input <- list(func = self_spec_list$transform_fun,
+                    x = fit$par[param_indices$self_spec]
+      )
+      if (!is.null(self_spec_list$transform_input)) {
+        input <- c(input, self_spec_list$transform_input)
+      }
+      jacobian <- do.call(numDeriv::jacobian, input)
+      hess_subset <- min_hessian_inv[param_indices$self_spec,
+                                     param_indices$self_spec,
+                                     drop = FALSE]
+      standard_errors$self_spec <- sqrt(
+        diag(jacobian %*% hess_subset %*% t(jacobian))
+      )
+    }
+
+    # H Matrix
+    if (!sys_mat$H_spec) {
+      if (param_num_list$H > 0) {
+        TransformFun <- function(param) {
+          update <- Cholesky(
+            param = param,
+            format = H_format,
+            decompositions = TRUE
+          )
+          result <- c(update$cov_mat,
+                      update$loading_matrix, update$diagonal_matrix,
+                      update$correlation_matrix, update$stdev_matrix
+          )
+          return(result)
+        }
+        jacobian <- numDeriv::jacobian(
+          func = TransformFun,
+          x = fit$par[param_indices$H]
+        )
+        hess_subset <- min_hessian_inv[param_indices$H,
+                                       param_indices$H,
+                                       drop = FALSE]
+        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        dimH <- dim(result$system_matrices$H$H)[1]
+        se_index <- 1:(dimH * dimH)
+
+        # H
+        standard_errors$H$H <- matrix(
+          std_errors[se_index], dimH, dimH
+        )
+
+        # loading_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$H$loading_matrix <- matrix(
+          std_errors[se_index], dimH, dimH
+        )
+
+        # diagonal_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$H$diagonal_matrix <- matrix(
+          std_errors[se_index], dimH, dimH
+        )
+
+        # correlation_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$H$correlation_matrix <- matrix(
+          std_errors[se_index], dimH, dimH
+        )
+
+        # stdev_matrix
+        std_errors <- std_errors[-se_index]
+        standard_errors$H$stdev_matrix <- matrix(
+          std_errors[se_index], dimH, dimH
+        )
+      }
+    }
   }
 
   return(result)

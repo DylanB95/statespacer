@@ -384,7 +384,9 @@ Cycle <- function(p = 1,
         result$diagonal_matrix <- Q_cycle$diagonal_matrix
         result$correlation_matrix <- Q_cycle$correlation_matrix
         result$stdev_matrix <- Q_cycle$stdev_matrix
-        result$Q <- BlockMatrix(Q_cycle$cov_mat, Q_cycle$cov_mat)
+        if (!transform_only) {
+          result$Q <- BlockMatrix(Q_cycle$cov_mat, Q_cycle$cov_mat)
+        }
       } else {
         result$Q <- BlockMatrix(Q_cycle, Q_cycle)
       }
