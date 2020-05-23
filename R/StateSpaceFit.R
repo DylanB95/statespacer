@@ -1897,6 +1897,9 @@ StateSpaceFit <- function(y,
         )
       }
     }
+
+    # Add standard_errors to result
+    result$standard_errors <- standard_errors
   }
 
   return(result)
