@@ -69,7 +69,7 @@ devtools::install_github("DylanB95/statespacer")
 ```
 
 ## Usage
-```{r, message = FALSE, fig.height = 4.5, fig.width = 7}
+```{r, message = FALSE, warning = FALSE}
 library(statespacer)
 
 library(datasets)

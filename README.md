@@ -95,9 +95,6 @@ y <- matrix(Nile)
 fit <- StateSpaceFit(y = y,
                      local_level_ind = TRUE,
                      initial = 0.5*log(var(y)))
-#> Warning in StateSpaceFit(y = y, local_level_ind = TRUE, initial = 0.5 * :
-#> Number of initial parameters is less than the required amount of parameters (2),
-#> recycling the initial parameters the required amount of times.
 #> Parameter scaling:[1] 1 1
 #> initial  value 6.623273 
 #> iter  10 value 6.334646
