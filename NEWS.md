@@ -1,10 +1,10 @@
 # statespacer 0.2.0 (in development)
 
-* Computation of standard_errors now optional. (in progress...)
+* Computation of standard_errors now optional.
 
-* Improved efficiency of the computation of standard_errors. (in progress...)
+* Improved efficiency of the computation of standard_errors.
 
-* y_temp outside Loglikelihood function, minor efficiency gain.
+* y_temp outside LogLikelihood function, minor efficiency gain.
 
 * call. = FALSE in errors and warnings.
 

@@ -147,7 +147,7 @@ legend(1978, 8.09, c("log(drivers)", "level + regression effects"),
 Plotting the stochastic seasonal, we can see that it barely changes over time, which is in line with the near zero value of its variance. It might be worthwhile to set the seasonal component to be deterministic, while letting the level be stochastic. I'll leave that as an exercise for you. You can compare the AICs of both models, and see which one scores better!
 
 ```{r, fig.height = 4.5, fig.width = 7}
-# Plot the stochastic seasonal and irregular as well
+# Plot the stochastic seasonal
 plot(seq(tsp(Data)[1], tsp(Data)[2], 1/tsp(Data)[3]), 
      fit$smoothed$BSM12,
      type = "l", ylim = c(-0.2, 0.3),
