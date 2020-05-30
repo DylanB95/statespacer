@@ -948,6 +948,14 @@ StateSpaceFit <- function(y,
                    control = control
   )
 
+  # Check if optim returned NA values as optimal parameters
+  if (any(is.na(fit$par))) {
+    stop(
+      "NA values returned by `optim`. Please try different initial values.",
+      call. = FALSE
+    )
+  }
+
   # Elapsed time
   t2 <- Sys.time()
   message(paste("Finished the optimisation procedure at:", t2))
