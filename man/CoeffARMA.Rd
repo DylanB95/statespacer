@@ -38,7 +38,6 @@ the transformation used.
 }
 \examples{
 CoeffARMA(A = stats::rnorm(2), ar = 1, ma = 1)
-
 }
 \references{
 \insertRef{ansley1986note}{statespacer}

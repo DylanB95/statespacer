@@ -4,15 +4,13 @@
 \alias{BlockMatrix}
 \title{Combine Matrices into a Block Diagonal Matrix}
 \usage{
-BlockMatrix(A = NULL, ...)
+BlockMatrix(...)
 }
 \arguments{
-\item{A}{The first block matrix to be put on the diagonal.}
-
-\item{...}{Other block matrices that should be put on the diagonal.}
+\item{...}{Matrices that should be put on the diagonal.}
 }
 \value{
-Block diagonal matrix consisting of the specified matrices.
+Block diagonal matrix having the specified matrices on its diagonal.
 }
 \description{
 Creates a block diagonal matrix with its arguments as the blocks.
@@ -22,8 +20,7 @@ Creates a block diagonal matrix with its arguments as the blocks.
 using \code{\link[base:matrix]{as.matrix}}.
 }
 \examples{
-BlockMatrix(diag(ceiling(50 * stats::runif(5))), matrix(1:8, 4, 2), c(14,8))
-
+BlockMatrix(diag(ceiling(9 * stats::runif(5))), matrix(1:8, 4, 2), c(14, 8))
 }
 \author{
 Dylan Beijers, \email{dylanbeijers@gmail.com}

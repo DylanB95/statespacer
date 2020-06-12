@@ -41,10 +41,10 @@ BlockMatrix <- function(...) {
   result <- matrix(0, nrow = dim_result[[1]], ncol = dim_result[[2]])
 
   # Indices of blocks in result matrix
-  row_1 <- cumsum(c(1, dim_blocks[1, ]))
-  col_1 <- cumsum(c(1, dim_blocks[2, ]))
   row_2 <- cumsum(dim_blocks[1, ])
   col_2 <- cumsum(dim_blocks[2, ])
+  row_1 <- c(1, 1 + row_2)
+  col_1 <- c(1, 1 + col_2)
 
   # Add block matrices on the diagonal of the result matrix
   for (i in seq_along(dots)) {
