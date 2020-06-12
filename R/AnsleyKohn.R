@@ -18,7 +18,7 @@ PACMat <- function(A) {
 
   # Multivariate, for a single partial autocorrelation matrix
   if (is.matrix(A)) {
-    return(solve(t(chol(diag(dim(A)[1]) + A %*% t(A)))) %*% A)
+    return(solve(t(chol(diag(dim(A)[[1]]) + A %*% t(A)))) %*% A)
   }
 
   # Multivariate, for multiple partial autocorrelation matrices
@@ -56,7 +56,8 @@ TransformPAC <- function(P) {
       for (i in 1:(length(P) - 1)) {
         coeff_old <- coeff_new
         for (j in 1:i) {
-          coeff_new[j] <- coeff_old[j] - coeff_new[i + 1] * coeff_old[i - j + 1]
+          coeff_new[[j]] <- coeff_old[[j]] -
+            coeff_new[[i + 1]] * coeff_old[[i - j + 1]]
         }
       }
     }
@@ -65,19 +66,19 @@ TransformPAC <- function(P) {
 
   # Multivariate
   # Initialise with i = 0
-  sigma_new <- diag(dim(P)[1]) - coeff_new[, , 1] %*% t(coeff_new[, , 1])
+  sigma_new <- diag(dim(P)[[1]]) - coeff_new[, , 1] %*% t(coeff_new[, , 1])
 
-  if (dim(P)[3] > 1) {
+  if (dim(P)[[3]] > 1) {
 
     # i = 0
     coeff_star_new <- P
     coeff_star_new[, , 1] <- t(P[, , 1])
-    sigma_star_new <- diag(dim(P)[1]) -
+    sigma_star_new <- diag(dim(P)[[1]]) -
       coeff_star_new[, , 1] %*% t(coeff_star_new[, , 1])
     L <- t(chol(sigma_new))
     L_star <- t(chol(sigma_star_new))
 
-    for (i in 1:(dim(P)[3] - 1)) {
+    for (i in 1:(dim(P)[[3]] - 1)) {
 
       # Storing former values
       coeff_old <- coeff_new
@@ -89,7 +90,7 @@ TransformPAC <- function(P) {
       coeff_new[, , i + 1] <- L %*% P[, , i + 1] %*% solve(L_star)
       sigma_new <- sigma_old -
         coeff_new[, , i + 1] %*% sigma_star_old %*% t(coeff_new[, , i + 1])
-      if (i < (dim(P)[3] - 1)) {
+      if (i < (dim(P)[[3]] - 1)) {
         coeff_star_new[, , i + 1] <- L_star %*% t(P[, , i + 1]) %*% solve(L)
         sigma_star_new <- sigma_star_old -
           coeff_star_new[, , i + 1] %*% sigma_old %*% t(coeff_star_new[, , i + 1])
@@ -99,7 +100,7 @@ TransformPAC <- function(P) {
       for (j in 1:i) {
         coeff_new[, , j] <- coeff_old[, , j] -
           coeff_new[, , i + 1] %*% coeff_star_old[, , i - j + 1]
-        if (i < (dim(P)[3] - 1)) {
+        if (i < (dim(P)[[3]] - 1)) {
           coeff_star_new[, , j] <- coeff_star_old[, , j] -
             coeff_star_new[, , i + 1] %*% coeff_old[, , i - j + 1]
         }
@@ -161,7 +162,7 @@ CoeffARMA <- function(A, variance = NULL, ar = 1, ma = 0) {
 
   # Check if array contains square matrices
   if (is.array(A)) {
-    if (dim(A)[1] != dim(A)[2]) {
+    if (dim(A)[1] != dim(A)[[2]]) {
       stop("Matrices in `A` must be square matrices.", call. = FALSE)
     }
   }

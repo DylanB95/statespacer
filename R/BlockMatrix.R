@@ -2,81 +2,66 @@
 #'
 #' Creates a block diagonal matrix with its arguments as the blocks.
 #'
-#' @param A The first block matrix to be put on the diagonal.
-#' @param ... Other block matrices that should be put on the diagonal.
+#' @param ... Matrices that should be put on the diagonal.
 #'
 #' @details
 #' `BlockMatrix()` tries to coerce its arguments to a matrix,
 #' using \code{\link[base:matrix]{as.matrix}}.
 #'
-#' @return Block diagonal matrix consisting of the specified matrices.
+#' @return Block diagonal matrix having the specified matrices on its diagonal.
 #'
 #' @author Dylan Beijers, \email{dylanbeijers@@gmail.com}
 #'
 #' @examples
-#' BlockMatrix(diag(ceiling(50 * stats::runif(5))), matrix(1:8, 4, 2), c(14,8))
-#'
+#' BlockMatrix(diag(ceiling(9 * stats::runif(5))), matrix(1:8, 4, 2), c(14, 8))
 #' @export
-BlockMatrix <- function(A = NULL, ...) {
+BlockMatrix <- function(...) {
 
-  # Retrieve the other arguments and put them in a list
+  # Retrieve the arguments and put them in a list
   dots <- list(...)
 
-  # Initialise first matrix
-  new <- A
-  if (!is.null(new) & !is.matrix(new)) {
-    new <- as.matrix(new)
-  }
+  # Eliminate NULLs
+  dots[vapply(dots, is.null, logical(1))] <- NULL
 
-  # If no other block matrices are specified, return the first matrix
+  # If no block matrices are specified, return a 0 x 0 matrix
   if (length(dots) == 0) {
-    return(new)
+    return(matrix(nrow = 0, ncol = 0))
   }
 
-  # Add block matrices on the diagonal of the new matrix
-  for (block in dots) {
+  # Coerce arguments to matrices
+  dots <- lapply(dots, as.matrix)
 
-    # If current block is NULL, go to the next block
-    if (is.null(block)) {
-      next
-    }
+  # Dimensions of blocks
+  dim_blocks <- vapply(dots, dim, integer(2))
+
+  # Dimensions of result matrix
+  dim_result <- rowSums(dim_blocks)
+
+  # Initialise result matrix
+  result <- matrix(0, nrow = dim_result[[1]], ncol = dim_result[[2]])
+
+  # Indices of blocks in result matrix
+  row_1 <- cumsum(c(1, dim_blocks[1, ]))
+  col_1 <- cumsum(c(1, dim_blocks[2, ]))
+  row_2 <- cumsum(dim_blocks[1, ])
+  col_2 <- cumsum(dim_blocks[2, ])
+
+  # Add block matrices on the diagonal of the result matrix
+  for (i in seq_along(dots)) {
+
     # If current block has a 0 dimension, go to the next block
-    if (any(dim(block) == 0)) {
+    if (any(dim_blocks[, i] == 0)) {
       next
     }
-    if (!is.matrix(block)) {
-      block <- as.matrix(block)
-    }
 
-    # Store the matrix before adding a block to it
-    old <- new
+    # Indices of the block in the result
+    row_ind <- row_1[[i]]:row_2[[i]]
+    col_ind <- col_1[[i]]:col_2[[i]]
 
-    # Store the dimensions before adding the block
-    dim_old <- dim(old)
-
-    # If Null, dimensions equal 0
-    if (is.null(dim_old)) {
-      dim_old <- c(0, 0)
-    }
-
-    # How many rows and columns will be added?
-    dim_block <- dim(block)
-
-    # Dimensions after adding the block to the matrix
-    dim_new <- dim_old + dim_block
-
-    # Initialise the new matrix
-    new <- matrix(0, dim_new[1], dim_new[2])
-
-    # Store the old matrix into the new matrix, using the proper indices
-    if (dim_old[1] > 0 & dim_old[2] > 0) {
-      new[1:dim_old[1], 1:dim_old[2]] <- old
-    }
-
-    # Store the block into the new matrix, using the proper indices
-    new[(dim_old[1] + 1) : dim_new[1], (dim_old[2] + 1) : dim_new[2]] <- block
+    # Add the block into the result matrix
+    result[row_ind, col_ind] <- dots[[i]]
   }
 
   # Return the final constructed matrix
-  return(new)
+  return(result)
 }
