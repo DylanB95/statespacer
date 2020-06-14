@@ -77,7 +77,6 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
     a_new <- a
     P_new <- P
     loglik <- NA
-
   } else {
 
     # Inverse of Fmat
@@ -87,7 +86,7 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
     v <- y - c(Z %*% a)
 
     # Loglikelihood
-    loglik <- -0.5 * (log(2*pi) + log(Fmat) + v^2 * Finv)
+    loglik <- -0.5 * (log(2 * pi) + log(Fmat) + v^2 * Finv)
 
     # Kernel matrix
     K <- PtZ * Finv
@@ -211,7 +210,6 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
       P_inf_new <- P_inf
       P_star_new <- P_star
       loglik <- NA
-
     } else {
 
       # Inverse of Fmat
@@ -231,9 +229,8 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
       P_star_new <- P_star %*% t(L_0)
 
       # Loglikelihood
-      loglik <- -0.5 * (log(2*pi) + log(F_star) + v^2 * F_1)
+      loglik <- -0.5 * (log(2 * pi) + log(F_star) + v^2 * F_1)
     }
-
   } else {
 
     # Inverse of Fmat
@@ -256,7 +253,7 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
     P_star_new <- P_inf %*% t(L_1) + P_star %*% t(L_0)
 
     # Loglikelihood
-    loglik <- -0.5 * (log(2*pi) + log(F_inf))
+    loglik <- -0.5 * (log(2 * pi) + log(F_inf))
   }
 
   # If transition to next timepoint, do some additional multiplications
