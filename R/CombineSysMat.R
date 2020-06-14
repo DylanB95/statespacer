@@ -29,7 +29,7 @@ CombineZ <- function(Z1, Z2) {
   dimZ2 <- dim(Z2)
 
   # Check if rows match
-  if (dimZ1[1] != dimZ2[1]) {
+  if (dimZ1[[1]] != dimZ2[[1]]) {
     stop("Number of rows of Z matrices must match!", call. = FALSE)
   }
 
@@ -37,21 +37,21 @@ CombineZ <- function(Z1, Z2) {
   if (is_mat_Z1 & is_mat_Z2) {
     result <- cbind(Z1, Z2)
   } else if (is_mat_Z1 & !is_mat_Z2) {
-    result <- array(0, dim = c(dimZ1[1], dimZ1[2] + dimZ2[2], dimZ2[3]))
-    result[, 1:dimZ1[2], ] <- Z1
-    result[, (dimZ1[2] + 1):(dimZ1[2] + dimZ2[2]), ] <- Z2
+    result <- array(0, dim = c(dimZ1[[1]], dimZ1[[2]] + dimZ2[[2]], dimZ2[[3]]))
+    result[, 1:dimZ1[[2]], ] <- Z1
+    result[, (dimZ1[[2]] + 1):(dimZ1[[2]] + dimZ2[[2]]), ] <- Z2
   } else if (!is_mat_Z1 & is_mat_Z2) {
-    result <- array(0, dim = c(dimZ1[1], dimZ1[2] + dimZ2[2], dimZ1[3]))
-    result[, 1:dimZ1[2], ] <- Z1
-    result[, (dimZ1[2] + 1):(dimZ1[2] + dimZ2[2]), ] <- Z2
+    result <- array(0, dim = c(dimZ1[[1]], dimZ1[[2]] + dimZ2[[2]], dimZ1[[3]]))
+    result[, 1:dimZ1[[2]], ] <- Z1
+    result[, (dimZ1[[2]] + 1):(dimZ1[[2]] + dimZ2[[2]]), ] <- Z2
   } else {
     # Check if 3rd dimensions match
-    if (dimZ1[3] != dimZ2[3]) {
+    if (dimZ1[[3]] != dimZ2[[3]]) {
       stop("3rd dimensions of Z matrices must match!", call. = FALSE)
     }
-    result <- array(0, dim = c(dimZ1[1], dimZ1[2] + dimZ2[2], dimZ1[3]))
-    result[, 1:dimZ1[2], ] <- Z1
-    result[, (dimZ1[2] + 1):(dimZ1[2] + dimZ2[2]), ] <- Z2
+    result <- array(0, dim = c(dimZ1[[1]], dimZ1[[2]] + dimZ2[[2]], dimZ1[[3]]))
+    result[, 1:dimZ1[[2]], ] <- Z1
+    result[, (dimZ1[[2]] + 1):(dimZ1[[2]] + dimZ2[[2]]), ] <- Z2
   }
 
   return(result)
@@ -93,36 +93,36 @@ CombineTRQ <- function(S1, S2) {
   } else if (is_mat_S1 & !is_mat_S2) {
     result <- array(
       0,
-      dim = c(dimS1[1] + dimS2[1], dimS1[2] + dimS2[2], dimS2[3])
+      dim = c(dimS1[[1]] + dimS2[[1]], dimS1[[2]] + dimS2[[2]], dimS2[[3]])
     )
-    result[1:dimS1[1], 1:dimS1[2], ] <- S1
+    result[1:dimS1[[1]], 1:dimS1[[2]], ] <- S1
     result[
-      (dimS1[1] + 1):(dimS1[1] + dimS2[1]),
-      (dimS1[2] + 1):(dimS1[2] + dimS2[2]),
+      (dimS1[[1]] + 1):(dimS1[[1]] + dimS2[[1]]),
+      (dimS1[[2]] + 1):(dimS1[[2]] + dimS2[[2]]),
     ] <- S2
   } else if (!is_mat_S1 & is_mat_S2) {
     result <- array(
       0,
-      dim = c(dimS1[1] + dimS2[1], dimS1[2] + dimS2[2], dimS1[3])
+      dim = c(dimS1[[1]] + dimS2[[1]], dimS1[[2]] + dimS2[[2]], dimS1[[3]])
     )
-    result[1:dimS1[1], 1:dimS1[2], ] <- S1
+    result[1:dimS1[[1]], 1:dimS1[[2]], ] <- S1
     result[
-      (dimS1[1] + 1):(dimS1[1] + dimS2[1]),
-      (dimS1[2] + 1):(dimS1[2] + dimS2[2]),
+      (dimS1[[1]] + 1):(dimS1[[1]] + dimS2[[1]]),
+      (dimS1[[2]] + 1):(dimS1[[2]] + dimS2[[2]]),
     ] <- S2
   } else {
     # Check if 3rd dimensions match
-    if (dimS1[3] != dimS2[3]) {
+    if (dimS1[[3]] != dimS2[[3]]) {
       stop("3rd dimensions of S matrices must match!", call. = FALSE)
     }
     result <- array(
       0,
-      dim = c(dimS1[1] + dimS2[1], dimS1[2] + dimS2[2], dimS1[3])
+      dim = c(dimS1[[1]] + dimS2[[1]], dimS1[[2]] + dimS2[[2]], dimS1[[3]])
     )
-    result[1:dimS1[1], 1:dimS1[2], ] <- S1
+    result[1:dimS1[[1]], 1:dimS1[[2]], ] <- S1
     result[
-      (dimS1[1] + 1):(dimS1[1] + dimS2[1]),
-      (dimS1[2] + 1):(dimS1[2] + dimS2[2]),
+      (dimS1[[1]] + 1):(dimS1[[1]] + dimS2[[1]]),
+      (dimS1[[2]] + 1):(dimS1[[2]] + dimS2[[2]]),
     ] <- S2
   }
 

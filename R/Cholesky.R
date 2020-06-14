@@ -86,7 +86,7 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
     format_dim <- dim(format)
 
     # Number of columns must not exceed the number of rows
-    if (format_dim[1] < format_dim[2]) {
+    if (format_dim[[1]] < format_dim[[2]]) {
       stop(
         paste(
           "Number of columns of `format` must be less than",
@@ -142,7 +142,7 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
     }
 
     # Initialising L matrix with specified dimensions
-    chol_L <- diag(1, format_dim[1], format_dim[2])
+    chol_L <- diag(1, format_dim[[1]], format_dim[[2]])
 
     # Putting the parameters into the right places according to format
     if (lower > 0) {
@@ -152,9 +152,9 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
     # Constructing D matrix
     # Note: exp(-Inf) = 0. Using a magnitude equal to zero,
     #       where the diagonal entry of the format equals zero
-    param_diag <- rep(-Inf, format_dim[2])
+    param_diag <- rep(-Inf, format_dim[[2]])
     param_diag[format_n0_diag] <- param[1:diagonal]
-    chol_D <- diag(exp(2 * param_diag), format_dim[2], format_dim[2])
+    chol_D <- diag(exp(2 * param_diag), format_dim[[2]], format_dim[[2]])
   }
 
   # LDL Cholesky algorithm, resulting in a valid Variance - Covariance matrix
@@ -164,7 +164,7 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
   if (decompositions) {
 
     # Diagonal matrix containing the standard deviations
-    stdev_matrix <- diag(sqrt(diag(cov_mat)), dim(cov_mat)[1], dim(cov_mat)[2])
+    stdev_matrix <- diag(sqrt(diag(cov_mat)), dim(cov_mat)[[1]], dim(cov_mat)[[2]])
 
     # Inverse of stdev_matrix
     stdev_inv <- stdev_matrix
