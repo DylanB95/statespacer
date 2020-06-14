@@ -37,54 +37,27 @@ CombineZ <- function(Z1, Z2) {
   if (is_mat_Z1 & is_mat_Z2) {
     result <- cbind(Z1, Z2)
   } else if (is_mat_Z1 & !is_mat_Z2) {
-    result <- array(
-      apply(
-        Z2, 3,
-        function(x) {
-          cbind(
-            Z1,
-            matrix(x, dimZ2[1], dimZ2[2])
-          )
-        }
-      ),
-      dim = c(dimZ1[1], sum(dimZ1[2], dimZ2[2]), dimZ2[3])
-    )
+    result <- array(0, dim = c(dimZ1[1], dimZ1[2] + dimZ2[2], dimZ2[3]))
+    result[, 1:dimZ1[2], ] <- Z1
+    result[, (dimZ1[2] + 1):(dimZ1[2] + dimZ2[2]), ] <- Z2
   } else if (!is_mat_Z1 & is_mat_Z2) {
-    result <- array(
-      apply(
-        Z1, 3,
-        function(x) {
-          cbind(
-            matrix(x, dimZ1[1], dimZ1[2]),
-            Z2
-          )
-        }
-      ),
-      dim = c(dimZ2[1], sum(dimZ2[2], dimZ1[2]), dimZ1[3])
-    )
+    result <- array(0, dim = c(dimZ1[1], dimZ1[2] + dimZ2[2], dimZ1[3]))
+    result[, 1:dimZ1[2], ] <- Z1
+    result[, (dimZ1[2] + 1):(dimZ1[2] + dimZ2[2]), ] <- Z2
   } else {
-
     # Check if 3rd dimensions match
     if (dimZ1[3] != dimZ2[3]) {
       stop("3rd dimensions of Z matrices must match!", call. = FALSE)
     }
-
-    result <- sapply(
-      1:dimZ1[3],
-      FUN = function(i) {
-        cbind(
-          matrix(Z1[,,i], dimZ1[1], dimZ1[2]),
-          matrix(Z2[,,i], dimZ2[1], dimZ2[2])
-        )
-      },
-      simplify = "array"
-    )
+    result <- array(0, dim = c(dimZ1[1], dimZ1[2] + dimZ2[2], dimZ1[3]))
+    result[, 1:dimZ1[2], ] <- Z1
+    result[, (dimZ1[2] + 1):(dimZ1[2] + dimZ2[2]), ] <- Z2
   }
 
   return(result)
 }
 
-#' Combine non-Z System Matrices of two State Space Components
+#' Combine T, R, Q System Matrices of two State Space Components
 #'
 #' Combines the T, R, or Q system matrices of two State Space components.
 #'
@@ -119,32 +92,38 @@ CombineTRQ <- function(S1, S2) {
     result <- BlockMatrix(S1, S2)
   } else if (is_mat_S1 & !is_mat_S2) {
     result <- array(
-      apply(
-        S2, 3,
-        function(x) BlockMatrix(S1, as.matrix(x))
-      ),
-      dim = c(sum(dimS1[1], dimS2[1]), sum(dimS1[2], dimS2[2]), dimS2[3])
+      0,
+      dim = c(dimS1[1] + dimS2[1], dimS1[2] + dimS2[2], dimS2[3])
     )
+    result[1:dimS1[1], 1:dimS1[2], ] <- S1
+    result[
+      (dimS1[1] + 1):(dimS1[1] + dimS2[1]),
+      (dimS1[2] + 1):(dimS1[2] + dimS2[2]),
+    ] <- S2
   } else if (!is_mat_S1 & is_mat_S2) {
     result <- array(
-      apply(
-        S1, 3,
-        function(x) BlockMatrix(as.matrix(x), S2)
-      ),
-      dim = c(sum(dimS1[1], dimS2[1]), sum(dimS1[2], dimS2[2]), dimS1[3])
+      0,
+      dim = c(dimS1[1] + dimS2[1], dimS1[2] + dimS2[2], dimS1[3])
     )
+    result[1:dimS1[1], 1:dimS1[2], ] <- S1
+    result[
+      (dimS1[1] + 1):(dimS1[1] + dimS2[1]),
+      (dimS1[2] + 1):(dimS1[2] + dimS2[2]),
+    ] <- S2
   } else {
-
     # Check if 3rd dimensions match
     if (dimS1[3] != dimS2[3]) {
       stop("3rd dimensions of S matrices must match!", call. = FALSE)
     }
-
-    result <- sapply(
-      1:dimS1[3],
-      FUN = function(i) BlockMatrix(as.matrix(S1[,,i]), as.matrix(S2[,,i])),
-      simplify = "array"
+    result <- array(
+      0,
+      dim = c(dimS1[1] + dimS2[1], dimS1[2] + dimS2[2], dimS1[3])
     )
+    result[1:dimS1[1], 1:dimS1[2], ] <- S1
+    result[
+      (dimS1[1] + 1):(dimS1[1] + dimS2[1]),
+      (dimS1[2] + 1):(dimS1[2] + dimS2[2]),
+    ] <- S2
   }
 
   return(result)
