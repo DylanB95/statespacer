@@ -35,7 +35,13 @@ AddVar <- function(p = 1,
   diag_addvar <- sum(diag(format_addvar) != 0)
 
   # Number of coefficients
-  k <- sum(sapply(addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}}))
+  k <- sum(
+    vapply(
+      addvar_list,
+      function(X) if (is.null(X)) 0L else dim(X)[[2]],
+      integer(1)
+    )
+  )
 
   # Initialising the list to return
   result <- list()
@@ -43,27 +49,28 @@ AddVar <- function(p = 1,
   if (fixed_part) {
 
     # Number of observations
-    N <- max(sapply(addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}}))
+    N <- max(
+      vapply(
+        addvar_list,
+        function(X) if (is.null(X)) 0L else dim(X)[[1]],
+        integer(1)
+      )
+    )
 
     # Z = a p x k x N array
     Ztemp <- do.call(BlockMatrix, addvar_list)
     index <- 1:N
-    Ztemp2 <- NULL
-    null_mat <- matrix(0, N, k)
+    Ztemp2 <- matrix(0, p * N, k)
     for (i in seq_along(addvar_list)) {
-      if (is.null(addvar_list[[i]])) {
-        Ztemp2 <- rbind(Ztemp2, null_mat)
-      } else {
-        Ztemp2 <- rbind(Ztemp2, Ztemp[index,])
+      if (!is.null(addvar_list[[i]])) {
+        Ztemp2[1:N + (i - 1) * N, ] <- Ztemp[index, ]
         index <- index + N
       }
     }
-    result$Z <- array(
-      sapply(
-        seq(N),
-        function(i) {Ztemp2[seq(i, p * N, N),, drop = FALSE]},
-        simplify = "array"
-      ), dim = c(p, k, N)
+    result$Z <- vapply(
+      seq(N),
+      function(i) Ztemp2[seq(i, p * N, N), , drop = FALSE],
+      matrix(0, p, k)
     )
 
     # T matrix = a k x k diagonal matrix, containing ones on the diagonal
@@ -86,7 +93,7 @@ AddVar <- function(p = 1,
   if (update_part & diag_addvar > 0) {
 
     # Check whether the number of rows of format_addvar is valid
-    if (dim(format_addvar)[1] != k) {
+    if (dim(format_addvar)[[1]] != k) {
       stop(
         paste(
           "The number of rows of `format_addvar` for the explanatory variables",
@@ -165,16 +172,28 @@ LevelAddVar <- function(p = 1,
   # Variable that is used to check if Q_level_addvar should be a matrix of 0s
   diag_level_addvar <- sum(diag(format_level_addvar) != 0)
 
+  # Number of coefficients
+  k <- sum(
+    vapply(
+      level_addvar_list,
+      function(X) if (is.null(X)) 0L else dim(X)[[2]],
+      integer(1)
+    )
+  )
+
   # Initialising the list to return
   result <- list()
 
   if (fixed_part) {
 
-    # Number of coefficients
-    k <- sum(sapply(level_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[2]}}))
-
     # Number of observations
-    N <- max(sapply(level_addvar_list, function(X) {if (is.null(X)) {0} else {dim(X)[1]}}))
+    N <- max(
+      vapply(
+        level_addvar_list,
+        function(X) if (is.null(X)) 0L else dim(X)[[1]],
+        integer(1)
+      )
+    )
 
     # Z matrix = matrix of p rows and n_level + k columns
     #   First n_level columns containing one 1, 0s elsewhere
@@ -188,14 +207,10 @@ LevelAddVar <- function(p = 1,
     # Tmat = a (n_level + k) x (n_level + k) x N array
     Ttemp <- do.call(BlockMatrix, level_addvar_list)
     index <- 1:N
-    Ttemp2 <- NULL
-    null_mat <- matrix(0, N, k)
+    Ttemp2 <- matrix(0, n_level * N, k)
+    j <- 1
     for (i in seq_along(level_addvar_list)) {
-      if (is.null(level_addvar_list[[i]])) {
-        if (!(i %in% exclude_level)) {
-          Ttemp2 <- rbind(Ttemp2, null_mat)
-        }
-      } else {
+      if (!is.null(level_addvar_list[[i]])) {
         if (i %in% exclude_level) {
           stop(
             paste0(
@@ -206,24 +221,27 @@ LevelAddVar <- function(p = 1,
             call. = FALSE
           )
         } else {
-          Ttemp2 <- rbind(Ttemp2, Ttemp[index,])
+          Ttemp2[1:N + (j - 1) * N, ] <- Ttemp[index, ]
           index <- index + N
+          j <- j + 1
         }
       }
     }
-    result$Tmat <- sapply(
+    result$Tmat <- vapply(
       seq(N),
-      function(i) {rbind(
-        cbind(
-          diag(1, n_level, n_level),
-          Ttemp2[seq(i, n_level * N, N),, drop = FALSE]
-        ),
-        cbind(
-          matrix(0, k, n_level),
-          diag(1, k, k)
+      function(i) {
+        rbind(
+          cbind(
+            diag(1, n_level, n_level),
+            Ttemp2[seq(i, n_level * N, N), , drop = FALSE]
+          ),
+          cbind(
+            matrix(0, k, n_level),
+            diag(1, k, k)
+          )
         )
-      )},
-      simplify = "array"
+      },
+      matrix(0, k + n_level, k + n_level)
     )
 
     # R matrix = a (n_level + k) x (n_level + k) diagonal matrix containing 1s
@@ -246,11 +264,10 @@ LevelAddVar <- function(p = 1,
   }
 
   if (update_part & (diag_level + diag_level_addvar) > 0) {
-
     if (diag_level > 0) {
 
       # Check whether the number of rows of format_level is valid
-      if (dim(format_level)[1] != n_level) {
+      if (dim(format_level)[[1]] != n_level) {
         stop(
           paste(
             "The number of rows of `format_level` for the level +",
@@ -283,7 +300,6 @@ LevelAddVar <- function(p = 1,
       } else {
         result$Q_level <- Q_level
       }
-
     } else {
       split <- 0
     }
@@ -291,7 +307,7 @@ LevelAddVar <- function(p = 1,
     if (diag_level_addvar > 0) {
 
       # Check whether the number of rows of format_level_addvar is valid
-      if (dim(format_level_addvar)[1] != k) {
+      if (dim(format_level_addvar)[[1]] != k) {
         stop(
           paste(
             "The number of rows of `format_level_addvar` for the level +",
@@ -305,7 +321,7 @@ LevelAddVar <- function(p = 1,
       # Using Cholesky function to get a valid variance - covariance matrix
       # for the Q matrix for the level_addvar
       Q_level_addvar <- Cholesky(
-        param = param[(split + 1) : length(param)],
+        param = param[(split + 1):length(param)],
         format = format_level_addvar,
         decompositions = decompositions
       )
@@ -380,24 +396,26 @@ SlopeAddVar <- function(p = 1,
   # Variable that is used to check if Q_level_addvar should be a matrix of 0s
   diag_level_addvar <- sum(diag(format_level_addvar) != 0)
 
+  # Number of coefficients
+  k <- sum(
+    vapply(
+      level_addvar_list,
+      function(X) if (is.null(X)) 0L else dim(X)[[2]],
+      integer(1)
+    )
+  )
+
   # Initialising the list to return
   result <- list()
 
   if (fixed_part) {
 
-    # Number of coefficients
-    k <- sum(
-      sapply(
-        level_addvar_list,
-        function(X) {if (is.null(X)) {0} else {dim(X)[2]}}
-      )
-    )
-
     # Number of observations
     N <- max(
-      sapply(
+      vapply(
         level_addvar_list,
-        function(X) {if (is.null(X)) {0} else {dim(X)[1]}}
+        function(X) if (is.null(X)) 0L else dim(X)[[1]],
+        integer(1)
       )
     )
 
@@ -414,14 +432,10 @@ SlopeAddVar <- function(p = 1,
     # Tmat = a (n_level + n_slope + k) x (n_level + n_slope + k) x N array
     Ttemp <- do.call(BlockMatrix, level_addvar_list)
     index <- 1:N
-    Ttemp2 <- NULL
-    null_mat <- matrix(0, N, k)
+    Ttemp2 <- matrix(0, n_level * N, k)
+    j <- 1
     for (i in seq_along(level_addvar_list)) {
-      if (is.null(level_addvar_list[[i]])) {
-        if (!(i %in% exclude_level)) {
-          Ttemp2 <- rbind(Ttemp2, null_mat)
-        }
-      } else {
+      if (!is.null(level_addvar_list[[i]])) {
         if (i %in% exclude_level) {
           stop(
             paste0(
@@ -432,8 +446,9 @@ SlopeAddVar <- function(p = 1,
             call. = FALSE
           )
         } else {
-          Ttemp2 <- rbind(Ttemp2, Ttemp[index,])
+          Ttemp2[1:N + (j - 1) * N, ] <- Ttemp[index, ]
           index <- index + N
+          j <- j + 1
         }
       }
     }
@@ -451,22 +466,24 @@ SlopeAddVar <- function(p = 1,
       exclude <- c(exclude_level, p + exclude_slope)
       Ttemp3 <- Ttemp3[-exclude, -exclude, drop = FALSE]
     }
-    result$Tmat <- sapply(
+    result$Tmat <- vapply(
       seq(N),
-      function(i) {rbind(
-        cbind(
-          Ttemp3,
-          rbind(
-            Ttemp2[seq(i, n_level * N, N),, drop = FALSE],
-            matrix(0, n_slope, k)
+      function(i) {
+        rbind(
+          cbind(
+            Ttemp3,
+            rbind(
+              Ttemp2[seq(i, n_level * N, N), , drop = FALSE],
+              matrix(0, n_slope, k)
+            )
+          ),
+          cbind(
+            matrix(0, k, n_level + n_slope),
+            diag(1, k, k)
           )
-        ),
-        cbind(
-          matrix(0, k, n_level + n_slope),
-          diag(1, k, k)
         )
-      )},
-      simplify = "array"
+      },
+      matrix(0, k + n_level + n_slope, k + n_level + n_slope)
     )
 
     # R matrix = a (n_level + n_slope + k) x (n_level + n_slope + k)
@@ -495,11 +512,10 @@ SlopeAddVar <- function(p = 1,
   }
 
   if (update_part & (diag_level + diag_slope + diag_level_addvar) > 0) {
-
     if (diag_level > 0) {
 
       # Check whether the number of rows of format_level is valid
-      if (dim(format_level)[1] != n_level) {
+      if (dim(format_level)[[1]] != n_level) {
         stop(
           paste(
             "The number of rows of `format_level` for the level",
@@ -532,7 +548,6 @@ SlopeAddVar <- function(p = 1,
       } else {
         result$Q_level <- Q_level
       }
-
     } else {
       split <- 0
     }
@@ -540,7 +555,7 @@ SlopeAddVar <- function(p = 1,
     if (diag_slope > 0) {
 
       # Check whether the number of rows of format_slope is valid
-      if (dim(format_slope)[1] != n_slope) {
+      if (dim(format_slope)[[1]] != n_slope) {
         stop(
           paste(
             "The number of rows of `format_slope` for the level",
@@ -573,7 +588,6 @@ SlopeAddVar <- function(p = 1,
       } else {
         result$Q_slope <- Q_slope
       }
-
     } else {
       split2 <- 0
     }
@@ -581,7 +595,7 @@ SlopeAddVar <- function(p = 1,
     if (diag_level_addvar > 0) {
 
       # Check whether the number of rows of format_level_addvar is valid
-      if (dim(format_level_addvar)[1] != k) {
+      if (dim(format_level_addvar)[[1]] != k) {
         stop(
           paste(
             "The number of rows of `format_level_addvar` for the level",
@@ -595,7 +609,7 @@ SlopeAddVar <- function(p = 1,
       # Using Cholesky function to get a valid variance - covariance matrix
       # for the Q matrix for the level_addvar
       Q_level_addvar <- Cholesky(
-        param = param[(split + split2 + 1) : length(param)],
+        param = param[(split + split2 + 1):length(param)],
         format = format_level_addvar,
         decompositions = decompositions
       )
