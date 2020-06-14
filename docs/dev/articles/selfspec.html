@@ -155,7 +155,7 @@
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html">window</a></span>(<span class="no">FedYieldCurve</span>, <span class="kw">start</span> <span class="kw">=</span> <span class="st">"1984-12-31"</span>, <span class="kw">end</span> <span class="kw">=</span> <span class="st">"2000-12-01"</span>)
 <span class="no">years</span> <span class="kw">&lt;-</span> <span class="fu">index</span>(<span class="no">y</span>) <span class="co"># Used for plots later on</span>
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="no">y</span>)</pre></body></html></div>
-<p>To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> for extensive details about the format of this list!</p>
+<p>To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of <code><a href="../reference/statespacer.html">statespacer()</a></code> for extensive details about the format of this list!</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Specifying the list</span>
 <span class="no">self_spec_list</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>()
 
@@ -247,18 +247,19 @@
              <span class="fl">6.68658053</span>, <span class="fl">0.76975206</span>, <span class="fl">0.02852844</span>, <span class="fl">0.50448668</span>,
              <span class="fl">2.99984132</span>, <span class="fl">8.16851107</span>, -<span class="fl">2.28360681</span>, -<span class="fl">0.45333494</span>)</pre></body></html></div>
 <p>Next, we fit the model! Notice that we use <code>collapse = TRUE</code>. This saves about <span class="math inline">\(60\%\)</span> of the computation time compared to <code>collapse = FALSE</code>, see for yourself!</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/StateSpaceFit.html">StateSpaceFit</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
-                     <span class="kw">self_spec_list</span> <span class="kw">=</span> <span class="no">self_spec_list</span>,
-                     <span class="kw">collapse</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-                     <span class="kw">initial</span> <span class="kw">=</span> <span class="no">initial</span>,
-                     <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-24 13:46:22</span>
+<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
+                   <span class="kw">self_spec_list</span> <span class="kw">=</span> <span class="no">self_spec_list</span>,
+                   <span class="kw">collapse</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
+                   <span class="kw">initial</span> <span class="kw">=</span> <span class="no">initial</span>,
+                   <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
+                   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-14 23:00:32</span>
 <span class="co">#&gt; Parameter scaling: [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value -7.005119 </span>
 <span class="co">#&gt; final  value -7.005119 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-24 13:46:24</span>
-<span class="co">#&gt; Time difference of 1.75948214530945 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-14 23:00:34</span>
+<span class="co">#&gt; Time difference of 1.80129981040955 secs</span></pre></body></html></div>
 <p>Now, let us take a look at the smoothed factors:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The level beta_1</span>
 <span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">1</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,

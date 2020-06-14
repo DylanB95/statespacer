@@ -26,9 +26,8 @@ statespacer is a package for state space modelling and forecasting in R. It prov
 
 If you are new to statespacer, check out `vignette("intro", "statespacer")` for a quick start to the statespacer package! Also check out the references for the following functions:
 
-* `StateSpaceFit()` for fitting State Space models.
-* `StateSpaceForecast()` for producing forecasts using fitted State Space models.
-* `StateSpaceEval()` for evaluating State Space models at user specified parameters.
+* `statespacer()` for fitting State Space models.
+* `predict.statespacer()` for producing forecasts using fitted State Space models.
 
 ## State Space Components
 This package supports numerous state space components:
@@ -75,9 +74,9 @@ library(statespacer)
 library(datasets)
 y <- matrix(Nile)
 
-fit <- StateSpaceFit(y = y,
-                     local_level_ind = TRUE,
-                     initial = 0.5*log(var(y)))
+fit <- statespacer(y = y,
+                   local_level_ind = TRUE,
+                   initial = 0.5*log(var(y)))
 
 plot(1871:1970, fit$function_call$y, type = 'p', ylim = c(500, 1400), 
      xlab = NA, ylab = NA, 

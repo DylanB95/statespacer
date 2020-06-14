@@ -5,7 +5,7 @@
 #' @param fixed_part Boolean indicating whether the system matrices should be
 #'   constructed that do not depend on the parameters.
 #' @inheritParams GetSysMat
-#' @inheritParams StateSpaceFit
+#' @inheritParams statespacer
 #' @inheritParams StateSpaceEval
 #' @inheritParams Cholesky
 #'
@@ -101,7 +101,7 @@ LocalLevel <- function(p = 1,
 #' Constructs the system matrices of a Local Level + Slope component.
 #'
 #' @inheritParams GetSysMat
-#' @inheritParams StateSpaceFit
+#' @inheritParams statespacer
 #' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky

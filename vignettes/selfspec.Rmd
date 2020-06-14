@@ -55,7 +55,7 @@ years <- index(y) # Used for plots later on
 y <- as.matrix(y)
 ```
 
-To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of `StateSpaceFit()` for extensive details about the format of this list!
+To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of `statespacer()` for extensive details about the format of this list!
 
 ```{r}
 # Specifying the list
@@ -170,11 +170,12 @@ initial <- c(-1.27000018, -2.82637721, -1.35280609, -1.74569078,
 Next, we fit the model! Notice that we use `collapse = TRUE`. This saves about $60\%$ of the computation time compared to `collapse = FALSE`, see for yourself!
 
 ```{r}
-fit <- StateSpaceFit(y = y,
-                     self_spec_list = self_spec_list,
-                     collapse = TRUE,
-                     initial = initial,
-                     method = "BFGS")
+fit <- statespacer(y = y,
+                   self_spec_list = self_spec_list,
+                   collapse = TRUE,
+                   initial = initial,
+                   method = "BFGS",
+                   verbose = TRUE)
 ```
 
 Now, let us take a look at the smoothed factors:

@@ -25,9 +25,8 @@ home:
 reference:
 - title: State Space Model
   contents:
-  - StateSpaceFit
-  - StateSpaceForecast
-  - StateSpaceEval
+  - statespacer
+  - predict.statespacer
 - title: Parameter Transformations
   contents: 
   - Cholesky

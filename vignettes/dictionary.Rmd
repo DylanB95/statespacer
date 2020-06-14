@@ -1,8 +1,8 @@
 ---
 title: "Dictionary of statespacer"
 description: >
-  `StateSpaceFit()` returns an object containing many items. In this vignette, 
-  you will learn what exactly is returned by `StateSpaceFit()`, so that you 
+  `statespacer()` returns an object containing many items. In this vignette, 
+  you will learn what exactly is returned by `statespacer()`, so that you 
   can obtain more value out of the statespacer package.
 output: rmarkdown::html_vignette
 bibliography: ../inst/REFERENCES.bib
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This document provides extensive details about the object that is returned by `StateSpaceFit()`. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by @durbin2012time. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!
+This document provides extensive details about the object that is returned by `statespacer()`. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by @durbin2012time. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!
 
 ## The general linear Gaussian state space model
 There are many ways to write down the form of the general linear Gaussian state space model. We use the form used by @durbin2012time:
@@ -34,11 +34,11 @@ $$
 
 where $y_t$ is the *observation vector*, a $p ~ \times ~ 1$ vector of dependent variables at time $t$, $\alpha_t$ is the unobserved *state vector*, a $m ~ \times ~ 1$ vector of state variables at time $t$, and $\varepsilon_t$ and $\eta_t$ are disturbance vectors of respectively the observation equation, and the state equation. To initialise the model, $a_1$ is used as the initial guess of the state vector, and $P_1$ is the corresponding uncertainty of that guess. The matrices $Z_t$, $H_t$, $T_t$, $R_t$, and $Q_t$ are called the *system matrices* of the state space model. Different specifications of these system matrices, lead to different interpretations of the model at hand.
 
-## The object as returned by StateSpaceFit
-Having obtained a better understanding of the notation used, it is easier to find our way in the object that is returned by `StateSpaceFit()`. Let's say we store the object of StateSpaceFit in a variable called `fit`, that is, `fit <- StateSpaceFit(...)`. `fit` is then a list, containing many items, including other lists. This section describes the items that are included in `fit` one by one.
+## The object as returned by statespacer
+Having obtained a better understanding of the notation used, it is easier to find our way in the object that is returned by `statespacer()`. Let's say we store the object of statespacer in a variable called `fit`, that is, `fit <- statespacer(...)`. `fit` is then a list, containing many items, including other lists. This section describes the items that are included in `fit` one by one.
 
 ### function_call
-`function_call` is a list that contains, as the name suggests, the call to the `StateSpaceFit()` function, including default values for the input arguments that were not specified. For details about the various input arguments, check out `?StateSpaceFit`.
+`function_call` is a list that contains, as the name suggests, the call to the `statespacer()` function, including default values for the input arguments that were not specified. For details about the various input arguments, check out `?statespacer`.
 
 ### system_matrices
 `system_matrices` is a list containing all of the system matrices of each of the components. For the variance - covariance matrices $H$ and $Q$, it also contains 2 decompositions, namely the Cholesky $LDL^{\top}$ decomposition, where $L$ is the loading matrix and $D$ is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, `a1`, is also included, together with the corresponding uncertainty split out by its diffuse component, `P_inf`, and its stationary component `P_star`. Further, it contains `Z_padded`, which is a list containing the $Z$ matrices of the components augmented with zeroes, such that its dimension is $p ~ \times ~ m$. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There's also a vector called `state_label`, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are `lamba` (frequency) and `rho` (dampening factor) for the cycles, `AR` and `MA` for the ARIMA components, `SAR` and `SMA` for the SARIMA components, and `self_spec` for the self specified component. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter. 
@@ -109,7 +109,7 @@ Further, the smoothed values of the components are extracted separately.
 `standard_errors` is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from `system_matrices`, but only representing those system matrices that depend on the parameters.
 
 ## Order of parameter input
-This section provides details about the parameter vector that's supplied to `StateSpaceFit()`. It clarifies which elements are used for what components. 
+This section provides details about the parameter vector that's supplied to `statespacer()`. It clarifies which elements are used for what components. 
 
 Most components use a variance - covariance matrix, which are constructed using the Cholesky $LDL^{\top}$ decomposition. The parameters supplied to build the variance - covariance matrix are ordered as follows: First, parameters are used for the Diagonal matrix $D$ and transformed by $exp(2x)$. Second, the remaining parameters are assigned columnwise to the Loading matrix $L$, so first the $1_{st}$ column, then the $2_{nd}$ column, and so on.
 

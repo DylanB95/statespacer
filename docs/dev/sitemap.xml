@@ -13,16 +13,13 @@
     <loc>https://dylanb95.github.io/statespacer/reference/CoeffARMA.html</loc>
   </url>
   <url>
-    <loc>https://dylanb95.github.io/statespacer/reference/StateSpaceEval.html</loc>
-  </url>
-  <url>
-    <loc>https://dylanb95.github.io/statespacer/reference/StateSpaceFit.html</loc>
-  </url>
-  <url>
-    <loc>https://dylanb95.github.io/statespacer/reference/StateSpaceForecast.html</loc>
+    <loc>https://dylanb95.github.io/statespacer/reference/predict.statespacer.html</loc>
   </url>
   <url>
     <loc>https://dylanb95.github.io/statespacer/reference/statespacer-package.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/reference/statespacer.html</loc>
   </url>
   <url>
     <loc>https://dylanb95.github.io/statespacer/articles/boxjenkins.html</loc>

@@ -43,8 +43,7 @@ The parameters for the diagonal matrix are transformed using \code{exp(2 * x)}.
 \examples{
 format <- diag(1, 2, 2)
 format[2, 1] <- 1
-Cholesky(param = c(2,4,1), format = format, decompositions = TRUE)
-
+Cholesky(param = c(2, 4, 1), format = format, decompositions = TRUE)
 }
 \author{
 Dylan Beijers, \email{dylanbeijers@gmail.com}

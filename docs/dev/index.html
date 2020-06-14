@@ -120,11 +120,9 @@
 <p>If you are new to statespacer, check out <code><a href="articles/intro.html">vignette("intro", "statespacer")</a></code> for a quick start to the statespacer package! Also check out the references for the following functions:</p>
 <ul>
 <li>
-<code><a href="reference/StateSpaceFit.html">StateSpaceFit()</a></code> for fitting State Space models.</li>
+<code><a href="reference/statespacer.html">statespacer()</a></code> for fitting State Space models.</li>
 <li>
-<code><a href="reference/StateSpaceForecast.html">StateSpaceForecast()</a></code> for producing forecasts using fitted State Space models.</li>
-<li>
-<code><a href="reference/StateSpaceEval.html">StateSpaceEval()</a></code> for evaluating State Space models at user specified parameters.</li>
+<code><a href="reference/predict.statespacer.html">predict.statespacer()</a></code> for producing forecasts using fitted State Space models.</li>
 </ul>
 </div>
 <div id="state-space-components" class="section level2">
@@ -173,14 +171,9 @@
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">datasets</span>)
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="no">Nile</span>)
 
-<span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/StateSpaceFit.html">StateSpaceFit</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
-                     <span class="kw">local_level_ind</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-                     <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
-<span class="co">#&gt; Parameter scaling:[1] 1 1</span>
-<span class="co">#&gt; initial  value 6.623273 </span>
-<span class="co">#&gt; iter  10 value 6.334646</span>
-<span class="co">#&gt; final  value 6.334646 </span>
-<span class="co">#&gt; converged</span>
+<span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/statespacer.html">statespacer</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
+                   <span class="kw">local_level_ind</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
+                   <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
 
 <span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="fl">1871</span>:<span class="fl">1970</span>, <span class="no">fit</span>$<span class="no">function_call</span>$<span class="no">y</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">'p'</span>, <span class="kw">ylim</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">500</span>, <span class="fl">1400</span>),
      <span class="kw">xlab</span> <span class="kw">=</span> <span class="fl">NA</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="fl">NA</span>,

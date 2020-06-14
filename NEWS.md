@@ -1,6 +1,18 @@
 # statespacer 0.2.0 (in development)
 
-* Computation of standard_errors now optional.
+* Replaced `StateSpaceFit()` for `statespacer()`.
+
+* Replaced `StateSpaceEval(...)` for `statespacer(..., fit = FALSE)`.
+
+* Replaced `StateSpaceForecast()` for `predict.statespacer()`.
+
+* Printing progress now optional using `verbose = TRUE`.
+
+* Restyled code.
+
+* Some performance improvements.
+
+* Computation of standard_errors now optional using `standard_errors = TRUE`.
 
 * Improved efficiency of the computation of standard_errors.
 

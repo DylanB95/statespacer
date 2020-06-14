@@ -2,7 +2,7 @@
 title: "Introduction to statespacer"
 description: >
   Start here if this is your first time using statespacer. You'll learn how to 
-  use `StateSpaceFit()` to fit a simple State Space model, called the Local 
+  use `statespacer()` to fit a simple State Space model, called the Local 
   Level model, to the Nile dataset.
 output: rmarkdown::html_vignette
 bibliography: ../inst/REFERENCES.bib
@@ -43,12 +43,13 @@ library(datasets)
 y <- matrix(Nile)
 ```
 
-To fit a local level model, we simply call the `StateSpaceFit()` function. See `?StateSpaceFit` for further details.
+To fit a local level model, we simply call the `statespacer()` function. See `?statespacer` for further details.
 
 ```{r}
-fit <- StateSpaceFit(y = y,
-                     local_level_ind = TRUE,
-                     initial = 0.5*log(var(y)))
+fit <- statespacer(y = y,
+                   local_level_ind = TRUE,
+                   initial = 0.5*log(var(y)),
+                   verbose = TRUE)
 ```
 
 We get a warning message about the number of initial parameters, as we didn't specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don't need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify `initial = rnorm(1000)`, and not have to worry about if enough parameters were supplied.
@@ -94,6 +95,6 @@ lines(1871:1970, fit$smoothed$level - qnorm(0.95) * sqrt(fit$smoothed$V[1,1,]),
 )
 ```
 
-The object returned by `StateSpaceFit()` exhibits many other useful items. For more information about these items, please see `vignette("dictionary", "statespacer")`. For more exhibitions of the statespacer package, please see the other tutorials on <https://DylanB95.github.io/statespacer> or `browseVignettes("statespacer")`.
+The object returned by `statespacer()` exhibits many other useful items. For more information about these items, please see `vignette("dictionary", "statespacer")`. For more exhibitions of the statespacer package, please see the other tutorials on <https://DylanB95.github.io/statespacer> or `browseVignettes("statespacer")`.
 
 ## References

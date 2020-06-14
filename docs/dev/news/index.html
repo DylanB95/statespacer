@@ -163,7 +163,13 @@
 <a href="#statespacer-020-in-development" class="anchor"></a>statespacer 0.2.0 (in development)<small> Unreleased </small>
 </h1>
 <ul>
-<li><p>Computation of standard_errors now optional.</p></li>
+<li><p>Replaced <code>StateSpaceFit()</code> for <code><a href="../reference/statespacer.html">statespacer()</a></code>.</p></li>
+<li><p>Replaced <code>StateSpaceEval(...)</code> for <code><a href="../reference/statespacer.html">statespacer(..., fit = FALSE)</a></code>.</p></li>
+<li><p>Replaced <code>StateSpaceForecast()</code> for <code><a href="../reference/predict.statespacer.html">predict.statespacer()</a></code>.</p></li>
+<li><p>Printing progress now optional using <code>verbose = TRUE</code>.</p></li>
+<li><p>Restyled code.</p></li>
+<li><p>Some performance improvements.</p></li>
+<li><p>Computation of standard_errors now optional using <code>standard_errors = TRUE</code>.</p></li>
 <li><p>Improved efficiency of the computation of standard_errors.</p></li>
 <li><p>y_temp outside LogLikelihood function, minor efficiency gain.</p></li>
 <li><p>call. = FALSE in errors and warnings.</p></li>

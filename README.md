@@ -26,11 +26,9 @@ If you are new to statespacer, check out `vignette("intro",
 "statespacer")` for a quick start to the statespacer package\! Also
 check out the references for the following functions:
 
-  - `StateSpaceFit()` for fitting State Space models.
-  - `StateSpaceForecast()` for producing forecasts using fitted State
+  - `statespacer()` for fitting State Space models.
+  - `predict.statespacer()` for producing forecasts using fitted State
     Space models.
-  - `StateSpaceEval()` for evaluating State Space models at user
-    specified parameters.
 
 ## State Space Components
 
@@ -92,14 +90,9 @@ library(statespacer)
 library(datasets)
 y <- matrix(Nile)
 
-fit <- StateSpaceFit(y = y,
-                     local_level_ind = TRUE,
-                     initial = 0.5*log(var(y)))
-#> Parameter scaling:[1] 1 1
-#> initial  value 6.623273 
-#> iter  10 value 6.334646
-#> final  value 6.334646 
-#> converged
+fit <- statespacer(y = y,
+                   local_level_ind = TRUE,
+                   initial = 0.5*log(var(y)))
 
 plot(1871:1970, fit$function_call$y, type = 'p', ylim = c(500, 1400), 
      xlab = NA, ylab = NA, 

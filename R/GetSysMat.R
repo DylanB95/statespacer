@@ -8,7 +8,7 @@
 #'   constructed that depend on the parameters.
 #' @param add_residuals Boolean indicating whether the system matrices of the
 #'   residuals should be added to the full system matrices.
-#' @inheritParams StateSpaceFit
+#' @inheritParams statespacer
 #' @inheritParams StateSpaceEval
 #'
 #' @return
@@ -625,7 +625,7 @@ GetSysMat <- function(p,
     n_level <- p - length(exclude_level)
 
     # Number of coefficients
-    k <- sum(
+    k_level <- sum(
       vapply(
         level_addvar_list,
         function(X) if (is.null(X)) 0L else dim(X)[[2]],
@@ -770,7 +770,7 @@ GetSysMat <- function(p,
     n_slope <- p - length(exclude_slope)
 
     # Number of coefficients
-    k <- sum(
+    k_level <- sum(
       vapply(
         level_addvar_list,
         function(X) if (is.null(X)) 0L else dim(X)[[2]],

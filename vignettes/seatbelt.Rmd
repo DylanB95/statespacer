@@ -70,14 +70,15 @@ format_level <- matrix(0)
 format_BSM_list <- list(matrix(0))
 
 # Fitting the model
-fit <- StateSpaceFit(y = y,
-                     local_level_ind = TRUE,
-                     BSM_vec = BSM_vec,
-                     addvar_list = addvar_list,
-                     format_level = format_level, 
-                     format_BSM_list = format_BSM_list,
-                     method = "BFGS",
-                     initial = 0.5 * log(var(y)))
+fit <- statespacer(y = y,
+                   local_level_ind = TRUE,
+                   BSM_vec = BSM_vec,
+                   addvar_list = addvar_list,
+                   format_level = format_level, 
+                   format_BSM_list = format_BSM_list,
+                   method = "BFGS",
+                   initial = 0.5 * log(var(y)),
+                   verbose = TRUE)
 ```
 
 The warning can be ignored, it's a common warning that arises when calculating the square root of a variance that equals a small negative number, like -1e-13. Let's check out the estimates:
@@ -111,14 +112,15 @@ Now, let's specify a stochastic level and seasonal component. This can be done b
 # By setting the entries in the format to 1, the component becomes stochastic
 format_level <- matrix(1)
 format_BSM_list <- list(matrix(1))
-fit <- StateSpaceFit(y = y,
-                     local_level_ind = TRUE,
-                     BSM_vec = BSM_vec,
-                     addvar_list = addvar_list,
-                     format_level = format_level,
-                     format_BSM_list = format_BSM_list,
-                     method = "BFGS",
-                     initial = log(var(y)))
+fit <- statespacer(y = y,
+                   local_level_ind = TRUE,
+                   BSM_vec = BSM_vec,
+                   addvar_list = addvar_list,
+                   format_level = format_level,
+                   format_BSM_list = format_BSM_list,
+                   method = "BFGS",
+                   initial = log(var(y)),
+                   verbose = TRUE)
 
 # The estimated variance of the observation disturbance
 fit$system_matrices$H$H
@@ -196,15 +198,16 @@ format_BSM_list <- list(matrix(0, 2, 2))
 H_format <- matrix(1, 2, 2)
 
 # Fitting the model
-fit <- StateSpaceFit(y = y,
-                     H_format = H_format,
-                     local_level_ind = TRUE,
-                     BSM_vec = 12,
-                     addvar_list = addvar_list,
-                     format_level = format_level, 
-                     format_BSM_list = format_BSM_list,
-                     method = "BFGS",
-                     initial = 0.5 * log(diag(var(y))))
+fit <- statespacer(y = y,
+                   H_format = H_format,
+                   local_level_ind = TRUE,
+                   BSM_vec = 12,
+                   addvar_list = addvar_list,
+                   format_level = format_level, 
+                   format_BSM_list = format_BSM_list,
+                   method = "BFGS",
+                   initial = 0.5 * log(diag(var(y))),
+                   verbose = TRUE)
 ```
 
 Checking out the estimates and plotting the levels:

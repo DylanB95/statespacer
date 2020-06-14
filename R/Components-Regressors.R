@@ -3,7 +3,7 @@
 #' Constructs the system matrices of a explanatory variables component.
 #'
 #' @inheritParams GetSysMat
-#' @inheritParams StateSpaceFit
+#' @inheritParams statespacer
 #' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky
@@ -133,7 +133,7 @@ AddVar <- function(p = 1,
 #' in the level component.
 #'
 #' @inheritParams GetSysMat
-#' @inheritParams StateSpaceFit
+#' @inheritParams statespacer
 #' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky
@@ -349,7 +349,7 @@ LevelAddVar <- function(p = 1,
 #' level + slope component.
 #'
 #' @inheritParams GetSysMat
-#' @inheritParams StateSpaceFit
+#' @inheritParams statespacer
 #' @inheritParams StateSpaceEval
 #' @inheritParams LocalLevel
 #' @inheritParams Cholesky

@@ -21,7 +21,7 @@
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Introduction to statespacer">
-<meta property="og:description" content="Start here if this is your first time using statespacer. You'll learn how to  use `StateSpaceFit()` to fit a simple State Space model, called the Local  Level model, to the Nile dataset.
+<meta property="og:description" content="Start here if this is your first time using statespacer. You'll learn how to  use `statespacer()` to fit a simple State Space model, called the Local  Level model, to the Nile dataset.
 ">
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png">
 <meta name="twitter:card" content="summary">
@@ -135,20 +135,21 @@
 <span class="co"># Load the dataset</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">datasets</span>)
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="no">Nile</span>)</pre></body></html></div>
-<p>To fit a local level model, we simply call the <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> function. See <code><a href="../reference/StateSpaceFit.html">?StateSpaceFit</a></code> for further details.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/StateSpaceFit.html">StateSpaceFit</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
-                     <span class="kw">local_level_ind</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-                     <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)))
+<p>To fit a local level model, we simply call the <code><a href="../reference/statespacer.html">statespacer()</a></code> function. See <code><a href="../reference/statespacer.html">?statespacer</a></code> for further details.</p>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
+                   <span class="kw">local_level_ind</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
+                   <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)),
+                   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 <span class="co">#&gt; Warning: Number of initial parameters is less than the required amount of</span>
 <span class="co">#&gt; parameters (2), recycling the initial parameters the required amount of times.</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-24 13:44:07</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-14 22:58:51</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1</span>
 <span class="co">#&gt; initial  value 6.623273 </span>
 <span class="co">#&gt; iter  10 value 6.334646</span>
 <span class="co">#&gt; final  value 6.334646 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-24 13:44:07</span>
-<span class="co">#&gt; Time difference of 0.588106870651245 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-14 22:58:52</span>
+<span class="co">#&gt; Time difference of 0.373551845550537 secs</span></pre></body></html></div>
 <p>We get a warning message about the number of initial parameters, as we didn’t specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don’t need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify <code>initial = rnorm(1000)</code>, and not have to worry about if enough parameters were supplied.</p>
 <p>Now, let’s check the estimated values of <span class="math inline">\(\sigma_\varepsilon^2\)</span> and <span class="math inline">\(\sigma_\eta^2\)</span>.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>, <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">Q</span>$<span class="no">level</span>)
@@ -181,7 +182,7 @@
       <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="st">'gray'</span>
 )</pre></body></html></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
-<p>The object returned by <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> exhibits many other useful items. For more information about these items, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>. For more exhibitions of the statespacer package, please see the other tutorials on <a href="https://DylanB95.github.io/statespacer" class="uri">https://DylanB95.github.io/statespacer</a> or <code><a href="https://rdrr.io/r/utils/browseVignettes.html">browseVignettes("statespacer")</a></code>.</p>
+<p>The object returned by <code><a href="../reference/statespacer.html">statespacer()</a></code> exhibits many other useful items. For more information about these items, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>. For more exhibitions of the statespacer package, please see the other tutorials on <a href="https://DylanB95.github.io/statespacer" class="uri">https://DylanB95.github.io/statespacer</a> or <code><a href="https://rdrr.io/r/utils/browseVignettes.html">browseVignettes("statespacer")</a></code>.</p>
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h2>
