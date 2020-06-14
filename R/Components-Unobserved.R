@@ -62,7 +62,7 @@ LocalLevel <- function(p = 1,
   if (update_part & diag_level > 0) {
 
     # Check whether the number of rows of format_level is valid
-    if (dim(format_level)[1] != n_level) {
+    if (dim(format_level)[[1]] != n_level) {
       stop(
         paste0(
           "The number of rows of `format_level` for the local level component ",
@@ -184,11 +184,10 @@ Slope <- function(p = 1,
   }
 
   if (update_part & (diag_level + diag_slope) > 0) {
-
     if (diag_level > 0) {
 
       # Check whether the number of rows of format_level is valid
-      if (dim(format_level)[1] != n_level) {
+      if (dim(format_level)[[1]] != n_level) {
         stop(
           paste(
             "The number of rows of `format_level` for the level + slope component",
@@ -220,7 +219,6 @@ Slope <- function(p = 1,
       } else {
         result$Q_level <- Q_level
       }
-
     } else {
       split <- 0
     }
@@ -228,7 +226,7 @@ Slope <- function(p = 1,
     if (diag_slope > 0) {
 
       # Check whether the number of rows of format_slope is valid
-      if (dim(format_slope)[1] != n_slope) {
+      if (dim(format_slope)[[1]] != n_slope) {
         stop(
           paste(
             "The number of rows of `format_slope` for the level + slope component",
@@ -242,7 +240,7 @@ Slope <- function(p = 1,
       # Using Cholesky function to get a valid variance - covariance matrix
       # for the Q matrix for the slope
       Q_slope <- Cholesky(
-        param = param[(split + 1) : length(param)],
+        param = param[(split + 1):length(param)],
         format = format_slope,
         decompositions = decompositions
       )
@@ -339,14 +337,14 @@ Cycle <- function(p = 1,
   if (update_part) {
 
     # Frequency lambda (> 0)
-    result$lambda <- exp(param[1])
+    result$lambda <- exp(param[[1]])
     if (is.na(result$lambda)) {
       stop("Not enough parameters supplied.", call. = FALSE)
     }
 
     # Damping factor rho (between 0 and 1)
     if (damping_factor_ind) {
-      result$rho <- 1 / (1 + exp(param[2]))
+      result$rho <- 1 / (1 + exp(param[[2]]))
       if (is.na(result$rho)) {
         stop("Not enough parameters supplied.", call. = FALSE)
       }
@@ -358,7 +356,7 @@ Cycle <- function(p = 1,
     if (diag_cycle > 0) {
 
       # Check whether the number of rows of format_cycle is valid
-      if (dim(format_cycle)[1] != n_cycle) {
+      if (dim(format_cycle)[[1]] != n_cycle) {
         stop(
           paste(
             "The number of rows of `format_cycle` for the cycle component",
@@ -469,7 +467,6 @@ BSM <- function(p = 1,
 
     # If s is even then s/2 - 1 lambdas
     lambda_num <- s / 2 - 1
-
   } else {
 
     # If s is odd then (s-1)/2 lambdas
@@ -510,11 +507,11 @@ BSM <- function(p = 1,
     #            x n_BSM * 2 * lambda_num (+ n_BSM if s is even) matrix
     T1 <- do.call(
       BlockMatrix,
-      lapply(lambda, function(x) {diag(cos(x), n_BSM, n_BSM)})
+      lapply(lambda, function(x) diag(cos(x), n_BSM, n_BSM))
     )
     T2 <- do.call(
       BlockMatrix,
-      lapply(lambda, function(x) {diag(sin(x), n_BSM, n_BSM)})
+      lapply(lambda, function(x) diag(sin(x), n_BSM, n_BSM))
     )
     Tmat <- rbind(cbind(T1, T2), cbind(-T2, T1))
     if ((s %% 2) == 0) {
@@ -541,7 +538,7 @@ BSM <- function(p = 1,
   if (update_part & diag_BSM > 0) {
 
     # Check whether the number of rows of format_BSM is valid
-    if (dim(format_BSM)[1] != n_BSM) {
+    if (dim(format_BSM)[[1]] != n_BSM) {
       stop(
         paste0(
           "The number of rows of `format_BSM` for the BSM", s, " component ",
