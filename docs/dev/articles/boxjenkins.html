@@ -138,14 +138,14 @@
                    <span class="kw">format_level</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
                    <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">Data</span>)), <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>),
                    <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-14 22:58:37</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-14 23:33:05</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1</span>
 <span class="co">#&gt; initial  value 5.022561 </span>
 <span class="co">#&gt; iter  10 value 4.114363</span>
 <span class="co">#&gt; final  value 4.111163 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-14 22:58:38</span>
-<span class="co">#&gt; Time difference of 1.29243493080139 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-14 23:33:06</span>
+<span class="co">#&gt; Time difference of 1.30472707748413 secs</span></pre></body></html></div>
 <p>Note that we eliminate the observation error by setting its variance to 0, although it’s perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>.</p>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Coefficients of the ARMA component</span>
@@ -198,13 +198,13 @@
                    <span class="kw">sarima_list</span> <span class="kw">=</span> <span class="no">sarima_list</span>,
                    <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>*<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span>(<span class="no">Data</span>))), <span class="fl">0</span>, <span class="fl">0</span>),
                    <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-14 22:58:39</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-14 23:33:07</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -1.034434 </span>
 <span class="co">#&gt; final  value -1.616321 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-14 22:58:41</span>
-<span class="co">#&gt; Time difference of 1.59816408157349 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-14 23:33:08</span>
+<span class="co">#&gt; Time difference of 1.60154008865356 secs</span></pre></body></html></div>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># Coefficients of the ARMA component</span>
 <span class="no">arma_coeff</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(
