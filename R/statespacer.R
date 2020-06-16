@@ -928,7 +928,7 @@ statespacer <- function(y,
 
         # Calling the Kalman Filter with exact initialisation
         filter_output <- KalmanEI(
-          y = y_kal[t, row],
+          y = y_kal[[t, row]],
           a = matrix(a[i, ]),
           P_inf = as.matrix(P_inf[, , i]),
           P_star = as.matrix(P_star[, , i]),
@@ -952,7 +952,7 @@ statespacer <- function(y,
 
         # Calling the Kalman Filter
         filter_output <- KalmanUT(
-          y = y_kal[t, row],
+          y = y_kal[[t, row]],
           a = matrix(a[i, ]),
           P = as.matrix(P_star[, , i]),
           Z = Z_input,
