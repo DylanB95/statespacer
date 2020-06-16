@@ -45,9 +45,8 @@
 #'   the transformation used. Note: For multivariate models, the order of "s"
 #'   matters, as matrix multiplication is not commutative!
 #' @param self_spec_list A list containing the specification of the self
-#'   specified component. See the Details section of `statespacer()` for
-#'   extensive details about the format that must be followed for this
-#'   argument.
+#'   specified component. See the Details section for extensive details about
+#'   the format that must be followed for this argument.
 #' @param exclude_level Vector containing the dependent variables that should
 #'   not get a local level.
 #' @param exclude_slope Vector containing the dependent variables that should
@@ -168,7 +167,7 @@
 #' matrix instead of a matrix.
 #'
 #' @return
-#' A list containing:
+#' A statespacer object containing:
 #' * `function_call`: A list containing the input to the function.
 #' * `system_matrices`: A list containing the system matrices of
 #'   the State Space model.
