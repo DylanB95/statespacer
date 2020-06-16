@@ -2,7 +2,7 @@
 #'
 #' Produces forecasts using a fitted State Space Model.
 #'
-#' @param object A statespacer object as returned by \code{\link{statespacer()}}.
+#' @param object A statespacer object as returned by \code{\link{statespacer}}.
 #' @param addvar_list_fc A list containing the explanatory variables for each
 #'   of the dependent variables. The list should contain p (number of dependent
 #'   variables) elements. Each element of the list should be a
@@ -19,9 +19,9 @@
 #'   the corresponding element to `NULL`.
 #' @param self_spec_list_fc A list containing the specification of the self
 #'   specified component. Does not have to be specified if it does not differ
-#'   from `self_spec_list` as passed on to \code{\link{statespacer()}}. If some
+#'   from `self_spec_list` as passed on to \code{\link{statespacer}}. If some
 #'   system matrices are time-varying then you should specify this argument.
-#'   See \code{\link{statespacer()}} for details about the format that must be
+#'   See \code{\link{statespacer}} for details about the format that must be
 #'   followed for this argument.
 #' @param forecast_period Number of time steps to forecast ahead.
 #' @param ... Arguments passed on to the `predict` generic. Should not be used!

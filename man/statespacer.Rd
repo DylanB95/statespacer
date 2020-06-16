@@ -93,9 +93,8 @@ the transformation used. Note: For multivariate models, the order of "s"
 matters, as matrix multiplication is not commutative!}
 
 \item{self_spec_list}{A list containing the specification of the self
-specified component. See the Details section of \code{statespacer()} for
-extensive details about the format that must be followed for this
-argument.}
+specified component. See the Details section for extensive details about
+the format that must be followed for this argument.}
 
 \item{exclude_level}{Vector containing the dependent variables that should
 not get a local level.}
@@ -178,7 +177,7 @@ be returned. Only used if \code{fit = FALSE}.}
 printed. Only used if \code{fit = TRUE}.}
 }
 \value{
-A list containing:
+A statespacer object containing:
 \itemize{
 \item \code{function_call}: A list containing the input to the function.
 \item \code{system_matrices}: A list containing the system matrices of

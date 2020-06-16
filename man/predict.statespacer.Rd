@@ -34,10 +34,10 @@ the corresponding element to \code{NULL}.}
 
 \item{self_spec_list_fc}{A list containing the specification of the self
 specified component. Does not have to be specified if it does not differ
-from \code{self_spec_list} as passed on to \code{statespacer()}. If some system
-matrices are time-varying then you should specify this argument. See
-\code{statespacer()} for details about the format that must be followed for
-this argument.}
+from \code{self_spec_list} as passed on to \code{\link{statespacer}}. If some
+system matrices are time-varying then you should specify this argument.
+See \code{\link{statespacer}} for details about the format that must be
+followed for this argument.}
 
 \item{forecast_period}{Number of time steps to forecast ahead.}
 
