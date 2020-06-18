@@ -132,8 +132,6 @@
 <span class="no">Data</span> <span class="kw">&lt;-</span> <span class="no">Seatbelts</span>
 
 <span class="co"># Data preparation</span>
-<span class="no">Data</span> <span class="kw">&lt;-</span> <span class="no">Seatbelts</span>
-
 <span class="co"># The log of "drivers", "front", and "rear" will be used as dependent variables</span>
 <span class="co"># The log of "PetrolPrice" and "kms" will be used as explanatory variables</span>
 <span class="no">Data</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"drivers"</span>, <span class="st">"front"</span>, <span class="st">"rear"</span>, <span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span>)] <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="no">Data</span>[, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"drivers"</span>, <span class="st">"front"</span>, <span class="st">"rear"</span>, <span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span>)])</pre></body></html></div>
@@ -173,13 +171,13 @@
                    <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                    <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)),
                    <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-16 19:04:38</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-18 23:55:59</span>
 <span class="co">#&gt; Parameter scaling:[1] 1</span>
 <span class="co">#&gt; initial  value -0.443442 </span>
 <span class="co">#&gt; final  value -0.735372 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-16 19:04:39</span>
-<span class="co">#&gt; Time difference of 0.408574819564819 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-18 23:55:59</span>
+<span class="co">#&gt; Time difference of 0.31626296043396 secs</span>
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span>
 
 <span class="co">#&gt; Warning in sqrt(diag(as.matrix(Nmat[, , t + 1]))): NaNs produced</span></pre></body></html></div>
@@ -226,7 +224,7 @@
                    <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                    <span class="kw">initial</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>)),
                    <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-16 19:04:39</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-18 23:55:59</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -0.172423 </span>
 <span class="co">#&gt; iter  10 value -0.893962</span>
@@ -234,8 +232,8 @@
 <span class="co">#&gt; iter  30 value -0.915515</span>
 <span class="co">#&gt; final  value -0.915517 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-16 19:04:47</span>
-<span class="co">#&gt; Time difference of 7.69000387191772 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-18 23:56:05</span>
+<span class="co">#&gt; Time difference of 5.96672105789185 secs</span>
 
 <span class="co"># The estimated variance of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
@@ -318,14 +316,14 @@
 <span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
                    <span class="kw">H_format</span> <span class="kw">=</span> <span class="no">H_format</span>,
                    <span class="kw">local_level_ind</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-                   <span class="kw">BSM_vec</span> <span class="kw">=</span> <span class="fl">12</span>,
+                   <span class="kw">BSM_vec</span> <span class="kw">=</span> <span class="no">BSM_vec</span>,
                    <span class="kw">addvar_list</span> <span class="kw">=</span> <span class="no">addvar_list</span>,
                    <span class="kw">format_level</span> <span class="kw">=</span> <span class="no">format_level</span>,
                    <span class="kw">format_BSM_list</span> <span class="kw">=</span> <span class="no">format_BSM_list</span>,
                    <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                    <span class="kw">initial</span> <span class="kw">=</span> <span class="fl">0.5</span> * <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="no">y</span>))),
                    <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-16 19:04:49</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-18 23:56:07</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value 0.389588 </span>
 <span class="co">#&gt; iter  10 value -1.583528</span>
@@ -333,8 +331,8 @@
 <span class="co">#&gt; iter  30 value -1.676530</span>
 <span class="co">#&gt; final  value -1.676537 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-16 19:05:44</span>
-<span class="co">#&gt; Time difference of 55.1695790290833 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-18 23:56:54</span>
+<span class="co">#&gt; Time difference of 46.4155030250549 secs</span></pre></body></html></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The estimated variance - covariance matrix of the observation disturbance</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">H</span>$<span class="no">H</span>
@@ -358,11 +356,11 @@
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">coeff</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Variable"</span>, <span class="st">"Coefficient"</span>, <span class="st">"T-Stat"</span>)
 <span class="no">coeff</span>
 <span class="co">#&gt;      Variable            Coefficient            T-Stat              </span>
-<span class="co">#&gt; [1,] "front PetrolPrice" "-0.307614976368415"   "-2.8986113778144"  </span>
-<span class="co">#&gt; [2,] "front kms"         "0.151804327080036"    "1.16776361125407"  </span>
+<span class="co">#&gt; [1,] "front PetrolPrice" "-0.307614976368415"   "-2.89856089988228" </span>
+<span class="co">#&gt; [2,] "front kms"         "0.151804327080036"    "1.16776188610275"  </span>
 <span class="co">#&gt; [3,] "front law"         "-0.337045865872819"   "-6.84659512458969" </span>
-<span class="co">#&gt; [4,] "rear PetrolPrice"  "-0.0857576087847562"  "-0.764053664481983"</span>
-<span class="co">#&gt; [5,] "rear kms"          "0.550390286928824"    "3.79270161272422"  </span>
+<span class="co">#&gt; [4,] "rear PetrolPrice"  "-0.0857576087847562"  "-0.764047812517557"</span>
+<span class="co">#&gt; [5,] "rear kms"          "0.550390286928824"    "3.79269917709926"  </span>
 <span class="co">#&gt; [6,] "rear law"          "0.000887620255411288" "0.017133129436154"</span>
 
 <span class="co"># plot of level for "front"</span>
