@@ -34,6 +34,7 @@ To showcase the estimation of ARIMA models, we make use of the `sunspot.year` da
 library(statespacer)
 
 # Load the dataset
+library(datasets)
 Data <- matrix(window(sunspot.year, start = 1770, end = 1869))
 
 # Estimate the ARIMA model
