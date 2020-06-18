@@ -297,9 +297,12 @@ StateSpaceEval <- function(param,
         v[t, ] <- y[t, ] - yfit[t, ]
 
         # Storing Variance - Covariance matrix of fitted values
-        Fmat[, , t] <- Z_full %*% as.matrix(P_pred[, , t]) %*% t(Z_full)
+        Fmat[, , t] <- tcrossprod(Z_full %*% as.matrix(P_pred[, , t]), Z_full)
 
-        if (all(abs(Z_full %*% as.matrix(P_inf[, , i - (p - 1)]) %*% t(Z_full)) < 1e-7)) {
+        if (all(abs(tcrossprod(
+          Z_full %*% as.matrix(P_inf[, , i - (p - 1)]),
+          Z_full
+        )) < 1e-7)) {
 
           # Inverse of Fmat
           Finv <- solve(Fmat[, , t])
@@ -308,7 +311,10 @@ StateSpaceEval <- function(param,
           svd_Finv <- svd(Finv)
 
           # Square root of Inverse of Fmat
-          Finv_root <- svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)) %*% t(svd_Finv$u)
+          Finv_root <- tcrossprod(
+            svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)),
+            svd_Finv$u
+          )
 
           # Normalised prediction error
           v_0na <- v[t, ]
@@ -369,7 +375,7 @@ StateSpaceEval <- function(param,
         v[t, ] <- y[t, ] - yfit[t, ]
 
         # Storing Variance - Covariance matrix of fitted values
-        Fmat[, , t] <- Z_full %*% as.matrix(P_pred[, , t]) %*% t(Z_full)
+        Fmat[, , t] <- tcrossprod(Z_full %*% as.matrix(P_pred[, , t]), Z_full)
 
         # Inverse of Fmat
         Finv <- solve(Fmat[, , t])
@@ -378,7 +384,10 @@ StateSpaceEval <- function(param,
         svd_Finv <- svd(Finv)
 
         # Square root of Inverse of Fmat
-        Finv_root <- svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)) %*% t(svd_Finv$u)
+        Finv_root <- tcrossprod(
+          svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)),
+          svd_Finv$u
+        )
 
         # Normalised prediction error
         v_0na <- v[t, ]
@@ -433,7 +442,7 @@ StateSpaceEval <- function(param,
     Heteroscedasticity <- matrix(0, floor(obs / 3), p)
     group1 <- 0
     group2 <- 0
-    v_2 <- v_norm[!is.na(rowSums(v_norm)), , drop = FALSE]
+    v_2 <- v_norm[complete.cases(v_norm), , drop = FALSE]
     for (i in 1:floor(obs / 3)) {
       group1 <- group1 + v_2[i, ]^2
       group2 <- group2 + v_2[dim(v_2)[[1]] + 1 - i, ]^2
@@ -530,7 +539,7 @@ StateSpaceEval <- function(param,
       } else {
 
         # PZ' as in Kalman formulae
-        PtZ <- as.matrix(P_star[, , i]) %*% t(Z_input)
+        PtZ <- tcrossprod(as.matrix(P_star[, , i]), Z_input)
 
         # Variance of the current residual/fitted value
         F_scalar <- c(Z_input %*% PtZ)
@@ -552,9 +561,9 @@ StateSpaceEval <- function(param,
           L_UT <- diag(length(Z_input)) - K_UT %*% Z_input
 
           # r and N
-          r_UT[i, ] <- t(Z_input) * Finv * v_UT + t(L_UT) %*% r_UT[i + 1, ]
-          N_UT[, , i] <- t(Z_input) %*% Z_input * Finv +
-            t(L_UT) %*% N_UT[, , i + 1] %*% L_UT
+          r_UT[i, ] <- t(Z_input) * Finv * v_UT + crossprod(L_UT, r_UT[i + 1, ])
+          N_UT[, , i] <- crossprod(Z_input) * Finv +
+            crossprod(L_UT, N_UT[, , i + 1] %*% L_UT)
         }
       }
 
@@ -566,10 +575,12 @@ StateSpaceEval <- function(param,
         r_vec[t, ] <- r_UT[i, ]
         Nmat[, , t] <- N_UT[, , i]
         a_smooth[t, ] <- a_pred[t, ] + P_pred[, , t] %*% r_vec[t, ]
-        V[, , t] <- P_pred[, , t] - P_pred[, , t] %*% Nmat[, , t] %*% P_pred[, , t]
+        V[, , t] <- P_pred[, , t] -
+          P_pred[, , t] %*% Nmat[, , t] %*% P_pred[, , t]
 
         # T-statistic for the state equation
-        Tstat_state[t + 1, ] <- r_vec[t + 1, ] / sqrt(diag(as.matrix(Nmat[, , t + 1])))
+        Tstat_state[t + 1, ] <- r_vec[t + 1, ] /
+          sqrt(diag(as.matrix(Nmat[, , t + 1])))
 
         # Smoothing error e and corresponding variance D
         # Plus T-statistic for the observation equation
@@ -579,23 +590,24 @@ StateSpaceEval <- function(param,
           Z_full <- matrix(Z_kal[, , t], nrow = p)
         }
         Finv <- solve(Fmat[, , t])
-        K <- T_input %*% P_pred[, , t] %*% t(Z_full) %*% Finv # Kernel matrix
+        K <- T_input %*% P_pred[, , t] %*% crossprod(Z_full, Finv)
         v_0na <- v[t, ]
         v_0na[is.na(v_0na)] <- 0
-        e[t, ] <- Finv %*% matrix(v_0na) - t(K) %*% r_vec[t + 1, ]
+        e[t, ] <- Finv %*% matrix(v_0na) - crossprod(K, r_vec[t + 1, ])
         e[t, ][is.na(v[t, ])] <- NA
-        D[, , t] <- Finv + t(K) %*% Nmat[, , t + 1] %*% K
+        D[, , t] <- Finv + crossprod(K, Nmat[, , t + 1] %*% K)
         Tstat_observation[t, ] <- e[t, ] / sqrt(diag(as.matrix(D[, , t])))
 
         # Compute smoothed state disturbance and corresponding variance
-        eta[t, ] <- Q_input %*% t(R_input) %*% r_vec[t + 1, ]
+        QtR <- tcrossprod(Q_input, R_input)
+        eta[t, ] <- QtR %*% r_vec[t + 1, ]
         eta_var[, , t] <- Q_input -
-          Q_input %*% t(R_input) %*% Nmat[, , t + 1] %*% R_input %*% Q_input
+          tcrossprod(QtR %*% Nmat[, , t + 1], QtR)
 
         # r and N for the next step, not valid/needed for t = 1
         if (t > 1) {
-          r_UT[i, ] <- t(T_input) %*% r_UT[i, ]
-          N_UT[, , i] <- t(T_input) %*% N_UT[, , i] %*% T_input
+          r_UT[i, ] <- crossprod(T_input, r_UT[i, ])
+          N_UT[, , i] <- crossprod(T_input, N_UT[, , i] %*% T_input)
         }
       }
     } else {
@@ -607,8 +619,8 @@ StateSpaceEval <- function(param,
       } else {
 
         # PZ' as in Kalman formulae
-        M_inf <- as.matrix(P_inf[, , i]) %*% t(Z_input)
-        M_star <- as.matrix(P_star[, , i]) %*% t(Z_input)
+        M_inf <- tcrossprod(as.matrix(P_inf[, , i]), Z_input)
+        M_star <- tcrossprod(as.matrix(P_star[, , i]), Z_input)
 
         # Variance matrix of the current residual/fitted value
         F_inf <- c(Z_input %*% M_inf)
@@ -634,9 +646,9 @@ StateSpaceEval <- function(param,
             L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
 
             # r and N
-            r_UT[i, ] <- t(Z_input) * F_1 * v_UT + t(L_0) %*% r_UT[i + 1, ]
-            N_UT[, , i] <- t(Z_input) %*% Z_input * F_1 +
-              t(L_0) %*% N_UT[, , i + 1] %*% L_0
+            r_UT[i, ] <- t(Z_input) * F_1 * v_UT + crossprod(L_0, r_UT[i + 1, ])
+            N_UT[, , i] <- crossprod(Z_input) * F_1 +
+              crossprod(L_0, N_UT[, , i + 1] %*% L_0)
             N_1 <- N_1 %*% L_0
           }
         } else {
@@ -655,19 +667,18 @@ StateSpaceEval <- function(param,
           L_1 <- -K_1 %*% Z_input
 
           # r and N
-          r_UT[i, ] <- t(L_0) %*% r_UT[i + 1, ]
+          r_UT[i, ] <- crossprod(L_0, r_UT[i + 1, ])
           r_1 <- t(Z_input) * F_1 * v_UT +
-            t(L_0) %*% r_1 + t(L_1) %*% r_UT[i + 1, ]
-          N_UT[, , i] <- t(L_0) %*% N_UT[, , i + 1] %*% L_0
-          N_1 <- t(Z_input) %*% Z_input * F_1 +
-            t(L_0) %*% N_1 %*% L_0 +
-            t(L_1) %*% N_UT[, , i + 1] %*% L_0 +
-            t(L_0) %*% N_UT[, , i + 1] %*% L_1
-          N_2 <- t(Z_input) %*% Z_input * F_2 +
-            t(L_0) %*% N_2 %*% L_0 +
-            t(L_0) %*% N_1 %*% L_1 +
-            t(L_1) %*% t(N_1) %*% L_0 +
-            t(L_1) %*% N_UT[, , i + 1] %*% L_1
+            crossprod(L_0, r_1) + crossprod(L_1, r_UT[i + 1, ])
+          N_UT[, , i] <- crossprod(L_0, N_UT[, , i + 1] %*% L_0)
+          tZZ <- crossprod(Z_input)
+          N_1 <- tZZ * F_1 + crossprod(L_0, N_1 %*% L_0) +
+            crossprod(L_1, N_UT[, , i + 1] %*% L_0) +
+            crossprod(L_0, N_UT[, , i + 1] %*% L_1)
+          N_2 <- tZZ * F_2 + crossprod(L_0, N_2 %*% L_0) +
+            crossprod(L_0, N_1 %*% L_1) +
+            crossprod(N_1 %*% L_1, L_0) +
+            crossprod(L_1, N_UT[, , i + 1] %*% L_1)
         }
       }
 
@@ -678,8 +689,10 @@ StateSpaceEval <- function(param,
         # Save r and N for each timepoint and compute smoothed state and variance
         r_vec[t, ] <- r_UT[i, ]
         Nmat[, , t] <- N_UT[, , i]
-        a_smooth[t, ] <- a_pred[t, ] + P_star[, , i] %*% r_vec[t, ] + P_inf[, , i] %*% r_1
-        V[, , t] <- P_star[, , i] - P_star[, , i] %*% Nmat[, , t] %*% P_star[, , i] -
+        a_smooth[t, ] <- a_pred[t, ] + P_star[, , i] %*% r_vec[t, ] +
+          P_inf[, , i] %*% r_1
+        V[, , t] <- P_star[, , i] -
+          P_star[, , i] %*% Nmat[, , t] %*% P_star[, , i] -
           t(P_inf[, , i] %*% N_1 %*% P_star[, , i]) -
           P_inf[, , i] %*% N_1 %*% P_star[, , i] -
           P_inf[, , i] %*% N_2 %*% P_inf[, , i]
@@ -695,26 +708,27 @@ StateSpaceEval <- function(param,
           Z_full <- matrix(Z_kal[, , t], nrow = p)
         }
         Finv <- solve(Fmat[, , t])
-        K <- T_input %*% P_pred[, , t] %*% t(Z_full) %*% Finv # Kernel matrix
+        K <- T_input %*% P_pred[, , t] %*% crossprod(Z_full, Finv)
         v_0na <- v[t, ]
         v_0na[is.na(v_0na)] <- 0
-        e[t, ] <- Finv %*% matrix(v_0na) - t(K) %*% r_vec[t + 1, ]
+        e[t, ] <- Finv %*% matrix(v_0na) - crossprod(K, r_vec[t + 1, ])
         e[t, ][is.na(v[t, ])] <- NA
-        D[, , t] <- Finv + t(K) %*% Nmat[, , t + 1] %*% K
+        D[, , t] <- Finv + crossprod(K, Nmat[, , t + 1] %*% K)
         Tstat_observation[t, ] <- e[t, ] / sqrt(diag(as.matrix(D[, , t])))
 
         # Compute smoothed state disturbance and corresponding variance
-        eta[t, ] <- Q_input %*% t(R_input) %*% r_vec[t + 1, ]
+        QtR <- tcrossprod(Q_input, R_input)
+        eta[t, ] <- QtR %*% r_vec[t + 1, ]
         eta_var[, , t] <- Q_input -
-          Q_input %*% t(R_input) %*% Nmat[, , t + 1] %*% R_input %*% Q_input
+          tcrossprod(QtR %*% Nmat[, , t + 1], QtR)
 
         # r and N for the next step, not valid/needed for t = 1
         if (t > 1) {
-          r_UT[i, ] <- t(T_input) %*% r_UT[i, ]
-          r_1 <- t(T_input) %*% r_1
-          N_UT[, , i] <- t(T_input) %*% N_UT[, , i] %*% T_input
-          N_1 <- t(T_input) %*% N_1 %*% T_input
-          N_2 <- t(T_input) %*% N_2 %*% T_input
+          r_UT[i, ] <- crossprod(T_input, r_UT[i, ])
+          r_1 <- crossprod(T_input, r_1)
+          N_UT[, , i] <- crossprod(T_input, N_UT[, , i] %*% T_input)
+          N_1 <- crossprod(T_input, N_1 %*% T_input)
+          N_2 <- crossprod(T_input, N_2 %*% T_input)
         }
       }
     }

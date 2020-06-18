@@ -215,13 +215,13 @@ predict.statespacer <- function(object,
 
     # Forecast of y and corresponding uncertainty
     y_fc[i, ] <- Z_fc %*% matrix(a_fc[i, ])
-    Fmat_fc[, , i] <- Z_fc %*% as.matrix(P_fc[, , i]) %*% t(Z_fc) + H_fc
+    Fmat_fc[, , i] <- tcrossprod(Z_fc %*% as.matrix(P_fc[, , i]), Z_fc) + H_fc
 
     # Forecast of next state and corresponding uncertainty
     if (i < forecast_period) {
       a_fc[i + 1, ] <- T_fc %*% matrix(a_fc[i, ])
-      P_fc[, , i + 1] <- T_fc %*% as.matrix(P_fc[, , i]) %*% t(T_fc) +
-        R_fc %*% Q_fc %*% t(R_fc)
+      P_fc[, , i + 1] <- tcrossprod(T_fc %*% as.matrix(P_fc[, , i]), T_fc) +
+        tcrossprod(R_fc %*% Q_fc, R_fc)
     }
   }
 

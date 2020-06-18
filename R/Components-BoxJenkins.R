@@ -275,7 +275,7 @@ ARIMA <- function(p = 1,
       } else {
         T_kronecker <- kronecker(T_stationary, T_stationary)
         Tinv <- solve(diag(1, dim(T_kronecker)[[1]], dim(T_kronecker)[[2]]) - T_kronecker)
-        vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
+        vecRQR <- matrix(tcrossprod(R_stationary %*% result$Q, R_stationary))
         vecPstar <- Tinv %*% vecRQR
         result$P_star <- BlockMatrix(
           matrix(0, arima_spec[[2]] * n_arima, arima_spec[[2]] * n_arima),
@@ -719,7 +719,7 @@ SARIMA <- function(p = 1,
       } else {
         T_kronecker <- kronecker(T_stationary, T_stationary)
         Tinv <- solve(diag(1, dim(T_kronecker)[[1]], dim(T_kronecker)[[2]]) - T_kronecker)
-        vecRQR <- matrix(R_stationary %*% result$Q %*% t(R_stationary))
+        vecRQR <- matrix(tcrossprod(R_stationary %*% result$Q, R_stationary))
         vecPstar <- Tinv %*% vecRQR
         result$P_star <- BlockMatrix(
           matrix(

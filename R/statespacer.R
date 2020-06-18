@@ -795,17 +795,17 @@ statespacer <- function(y,
     if (collapse) {
       if (is.matrix(H) & is.matrix(Z_kal)) {
         Hinv <- solve(H)
-        ZtHinv <- t(Z_kal) %*% Hinv
+        ZtHinv <- crossprod(Z_kal, Hinv)
         A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
-        y_kal <- y_temp %*% t(A_star)
-        H_star <- A_star %*% H %*% t(A_star)
+        y_kal <- tcrossprod(y_temp, A_star)
+        H_star <- tcrossprod(A_star %*% H, A_star)
         P_star <- BlockMatrix(H_star, P_star)
         Q_kal <- CombineTRQ(H_star, Q_kal)
 
         # loglikelihood contribution
         for (i in 1:N) {
           e <- y_temp[i, ] - Z_kal %*% y_kal[i, ]
-          loglik_add <- loglik_add - 0.5 * t(e) %*% Hinv %*% e
+          loglik_add <- loglik_add - 0.5 * crossprod(e, Hinv %*% e)
         }
         y_kal[y_kal == 0] <- NA
         loglik_add <- loglik_add + N * 0.5 * log(det(H_star) / det(H)) -
@@ -817,14 +817,14 @@ statespacer <- function(y,
         detH <- det(H)
         for (i in 1:N) {
           Z_t <- matrix(Z_kal[, , i], nrow = p2)
-          ZtHinv <- t(Z_t) %*% Hinv
+          ZtHinv <- crossprod(Z_t, Hinv)
           A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
           y_kal[i, ] <- A_star %*% y_temp[i, ]
-          H_star[, , i] <- A_star %*% H %*% t(A_star)
+          H_star[, , i] <- tcrossprod(A_star %*% H, A_star)
           e <- y_temp[i, ] - Z_t %*% y_kal[i, ]
           loglik_add <- loglik_add +
             0.5 * log(det(H_star[, , i]) / detH) -
-            0.5 * t(e) %*% Hinv %*% e
+            0.5 * crossprod(e, Hinv %*% e)
         }
         y_kal[y_kal == 0] <- NA
         loglik_add <- loglik_add -
@@ -838,14 +838,14 @@ statespacer <- function(y,
           H_t <- as.matrix(H[, , i])
           Hinv <- solve(H_t)
           detH <- det(H_t)
-          ZtHinv <- t(Z_kal) %*% Hinv
+          ZtHinv <- crossprod(Z_kal, Hinv)
           A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
           y_kal[i, ] <- A_star %*% y_temp[i, ]
-          H_star[, , i] <- A_star %*% H_t %*% t(A_star)
+          H_star[, , i] <- tcrossprod(A_star %*% H_t, A_star)
           e <- y_temp[i, ] - Z_kal %*% y_kal[i, ]
           loglik_add <- loglik_add +
             0.5 * log(det(H_star[, , i]) / detH) -
-            0.5 * t(e) %*% Hinv %*% e
+            0.5 * crossprod(e, Hinv %*% e)
         }
         y_kal[y_kal == 0] <- NA
         loglik_add <- loglik_add -
@@ -860,14 +860,14 @@ statespacer <- function(y,
           Hinv <- solve(H_t)
           detH <- det(H_t)
           Z_t <- matrix(Z_kal[, , i], nrow = p2)
-          ZtHinv <- t(Z_t) %*% Hinv
+          ZtHinv <- crossprod(Z_t, Hinv)
           A_star <- solve(ZtHinv %*% Z_t) %*% ZtHinv
           y_kal[i, ] <- A_star %*% y_temp[i, ]
-          H_star[, , i] <- A_star %*% H_t %*% t(A_star)
+          H_star[, , i] <- tcrossprod(A_star %*% H_t, A_star)
           e <- y_temp[i, ] - Z_t %*% y_kal[i, ]
           loglik_add <- loglik_add +
             0.5 * log(det(H_star[, , i]) / detH) -
-            0.5 * t(e) %*% Hinv %*% e
+            0.5 * crossprod(e, Hinv %*% e)
         }
         y_kal[y_kal == 0] <- NA
         loglik_add <- loglik_add -
@@ -1106,7 +1106,7 @@ statespacer <- function(y,
           param_indices$level,
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
         dimQ <- dim(result$system_matrices$Q$level)[[1]]
         se_index <- 1:(dimQ * dimQ)
 
@@ -1174,7 +1174,7 @@ statespacer <- function(y,
           param_indices$level,
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
 
         # level
         if (param_num_list$level > 0) {
@@ -1282,7 +1282,7 @@ statespacer <- function(y,
             param_indices[[paste0("BSM", s)]],
             drop = FALSE
           ]
-          std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+          std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
           dimQ <- dim(result$system_matrices$Q[[paste0("BSM", s)]])[[1]]
           se_index <- 1:(dimQ * dimQ)
 
@@ -1346,7 +1346,7 @@ statespacer <- function(y,
           param_indices$addvar,
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
         dimQ <- dim(result$system_matrices$Q$addvar)[[1]]
         se_index <- 1:(dimQ * dimQ)
 
@@ -1418,7 +1418,7 @@ statespacer <- function(y,
           param_indices$level,
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
 
         # level
         if (param_num_list$level > 0) {
@@ -1540,7 +1540,7 @@ statespacer <- function(y,
           param_indices$level,
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
 
         # level
         if (param_num_list$level > 0) {
@@ -1683,7 +1683,7 @@ statespacer <- function(y,
           param_indices[[paste0("Cycle", i)]],
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
 
         # lambda
         standard_errors$lambda[[paste0("Cycle", i)]] <- std_errors[[1]]
@@ -1760,7 +1760,7 @@ statespacer <- function(y,
           param_indices[[paste0("ARIMA", i)]],
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
 
         # AR
         if (!is.null(result$system_matrices$AR[[paste0("ARIMA", i)]])) {
@@ -1864,7 +1864,7 @@ statespacer <- function(y,
           param_indices[[paste0("SARIMA", i)]],
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
 
         # SAR
         if (!is.null(result$system_matrices$SAR[[paste0("SARIMA", i)]])) {
@@ -1955,7 +1955,7 @@ statespacer <- function(y,
         drop = FALSE
       ]
       standard_errors$self_spec <- sqrt(
-        diag(jacobian %*% hess_subset %*% t(jacobian))
+        diag(tcrossprod(jacobian %*% hess_subset, jacobian))
       )
     }
 
@@ -1983,7 +1983,7 @@ statespacer <- function(y,
           param_indices$H,
           drop = FALSE
         ]
-        std_errors <- sqrt(diag(jacobian %*% hess_subset %*% t(jacobian)))
+        std_errors <- sqrt(diag(tcrossprod(jacobian %*% hess_subset, jacobian)))
         dimH <- dim(result$system_matrices$H$H)[[1]]
         se_index <- 1:(dimH * dimH)
 

@@ -158,7 +158,7 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
   }
 
   # LDL Cholesky algorithm, resulting in a valid Variance - Covariance matrix
-  cov_mat <- chol_L %*% chol_D %*% t(chol_L)
+  cov_mat <- tcrossprod(chol_L %*% chol_D, chol_L)
 
   # Returning the result
   if (decompositions) {

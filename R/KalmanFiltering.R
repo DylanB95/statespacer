@@ -48,7 +48,7 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
       # Estimated state vector and corresponding variance - covariance matrix
       # for the next step
       a_new <- Tmat %*% a_new
-      P_new <- Tmat %*% P_new %*% t(Tmat) + R %*% Q %*% t(R)
+      P_new <- tcrossprod(Tmat %*% P_new, Tmat) + tcrossprod(R %*% Q, R)
     }
 
     # Loglik not available
@@ -65,7 +65,7 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
   }
 
   # PZ' as in Kalman formulae
-  PtZ <- P %*% t(Z)
+  PtZ <- tcrossprod(P, Z)
 
   # Variance matrix of the current residual/fitted value
   Fmat <- c(Z %*% PtZ)
@@ -94,7 +94,7 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
     # Estimated state vector and corresponding variance - covariance matrix
     # for the next step
     a_new <- a + K * v
-    P_new <- P - K %*% t(K) * Fmat
+    P_new <- P - tcrossprod(K) * Fmat
   }
 
   # If transition to next timepoint, do some additional multiplications
@@ -107,7 +107,7 @@ KalmanUT <- function(y, a, P, Z, Tmat = NULL, R = NULL, Q = NULL, timestep) {
     # Estimated state vector and corresponding variance - covariance matrix
     # for the next step
     a_new <- Tmat %*% a_new
-    P_new <- Tmat %*% P_new %*% t(Tmat) + R %*% Q %*% t(R)
+    P_new <- tcrossprod(Tmat %*% P_new, Tmat) + tcrossprod(R %*% Q, R)
   }
 
   # Adding predicted state, variance and loglikelihood to the list that
@@ -173,8 +173,8 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
       # Estimated state vector and corresponding variance - covariance matrix
       # for the next step
       a_new <- Tmat %*% a_new
-      P_inf_new <- Tmat %*% P_inf_new %*% t(Tmat)
-      P_star_new <- Tmat %*% P_star_new %*% t(Tmat) + R %*% Q %*% t(R)
+      P_inf_new <- tcrossprod(Tmat %*% P_inf_new, Tmat)
+      P_star_new <- tcrossprod(Tmat %*% P_star_new, Tmat) + tcrossprod(R %*% Q, R)
     }
 
     # Loglik not available
@@ -192,8 +192,8 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
   }
 
   # PZ' as in Kalman formulae
-  M_inf <- P_inf %*% t(Z)
-  M_star <- P_star %*% t(Z)
+  M_inf <- tcrossprod(P_inf, Z)
+  M_star <- tcrossprod(P_star, Z)
 
   # Variance matrix of the current residual/fitted value
   F_inf <- c(Z %*% M_inf)
@@ -226,7 +226,7 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
       # for the next step
       a_new <- a + K_0 * v
       P_inf_new <- P_inf
-      P_star_new <- P_star %*% t(L_0)
+      P_star_new <- tcrossprod(P_star, L_0)
 
       # Loglikelihood
       loglik <- -0.5 * (log(2 * pi) + log(F_star) + v^2 * F_1)
@@ -249,8 +249,8 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
     # Estimated state vector and corresponding variance - covariance matrix
     # for the next step
     a_new <- a + K_0 * v
-    P_inf_new <- P_inf %*% t(L_0)
-    P_star_new <- P_inf %*% t(L_1) + P_star %*% t(L_0)
+    P_inf_new <- tcrossprod(P_inf, L_0)
+    P_star_new <- tcrossprod(P_inf, L_1) + tcrossprod(P_star, L_0)
 
     # Loglikelihood
     loglik <- -0.5 * (log(2 * pi) + log(F_inf))
@@ -267,8 +267,8 @@ KalmanEI <- function(y, a, P_inf, P_star, Z,
     # Estimated state vector and corresponding variance - covariance matrix
     # for the next step
     a_new <- Tmat %*% a_new
-    P_inf_new <- Tmat %*% P_inf_new %*% t(Tmat)
-    P_star_new <- Tmat %*% P_star_new %*% t(Tmat) + R %*% Q %*% t(R)
+    P_inf_new <- tcrossprod(Tmat %*% P_inf_new, Tmat)
+    P_star_new <- tcrossprod(Tmat %*% P_star_new, Tmat) + tcrossprod(R %*% Q, R)
   }
 
   # Adding predicted state, variance and loglikelihood to the list that
