@@ -442,7 +442,7 @@ StateSpaceEval <- function(param,
     Heteroscedasticity <- matrix(0, floor(obs / 3), p)
     group1 <- 0
     group2 <- 0
-    v_2 <- v_norm[complete.cases(v_norm), , drop = FALSE]
+    v_2 <- v_norm[stats::complete.cases(v_norm), , drop = FALSE]
     for (i in 1:floor(obs / 3)) {
       group1 <- group1 + v_2[i, ]^2
       group2 <- group2 + v_2[dim(v_2)[[1]] + 1 - i, ]^2
