@@ -37,8 +37,6 @@ library(datasets)
 Data <- Seatbelts
 
 # Data preparation
-Data <- Seatbelts
-
 # The log of "drivers", "front", and "rear" will be used as dependent variables
 # The log of "PetrolPrice" and "kms" will be used as explanatory variables
 Data[, c("drivers", "front", "rear", "PetrolPrice", "kms")] <- log(Data[, c("drivers", "front", "rear", "PetrolPrice", "kms")])
@@ -201,7 +199,7 @@ H_format <- matrix(1, 2, 2)
 fit <- statespacer(y = y,
                    H_format = H_format,
                    local_level_ind = TRUE,
-                   BSM_vec = 12,
+                   BSM_vec = BSM_vec,
                    addvar_list = addvar_list,
                    format_level = format_level, 
                    format_BSM_list = format_BSM_list,
