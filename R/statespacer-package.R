@@ -45,5 +45,7 @@
 #' @docType package
 #' @keywords internal
 #' @aliases statespacer-package
+#' @useDynLib statespacer, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 #' @importFrom Rdpack reprompt
 "_PACKAGE"

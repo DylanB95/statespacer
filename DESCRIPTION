@@ -18,7 +18,8 @@ RdMacros: Rdpack
 Depends: R (>= 3.6)
 Imports:
     Rdpack,
-    stats
+    stats,
+    Rcpp
 Suggests:
     datasets,
     graphics,
@@ -28,3 +29,6 @@ Suggests:
     rmarkdown,
     YieldCurve (>= 4.1)
 VignetteBuilder: knitr
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
