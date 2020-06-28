@@ -38,7 +38,7 @@
 Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
 
   # Check if at least one of param and format is specified
-  if (is.null(param) & is.null(format)) {
+  if (is.null(param) && is.null(format)) {
     stop(
       paste(
         "Both `param` and `format` were not specified.",
@@ -78,6 +78,9 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
     chol_L <- diag(1, dimension, dimension)
     chol_L[lower.tri(chol_L)] <- param[(dimension + 1):n_par]
     chol_D <- diag(exp(2 * param[1:dimension]), dimension, dimension)
+    if (any(chol_D <= 1e-7)) {
+      return(NA)
+    }
 
     # If format is specified
   } else {
@@ -150,11 +153,13 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
     }
 
     # Constructing D matrix
-    # Note: exp(-Inf) = 0. Using a magnitude equal to zero,
-    #       where the diagonal entry of the format equals zero
-    param_diag <- rep(-Inf, format_dim[[2]])
-    param_diag[format_n0_diag] <- param[1:diagonal]
-    chol_D <- diag(exp(2 * param_diag), format_dim[[2]], format_dim[[2]])
+    param_diag <- rep(0, format_dim[[2]])
+    param_diag_non0 <- exp(2 * param[1:diagonal])
+    if (any(param_diag_non0 <= 1e-7)) {
+      return(NA)
+    }
+    param_diag[format_n0_diag] <- param_diag_non0
+    chol_D <- diag(param_diag, format_dim[[2]], format_dim[[2]])
   }
 
   # LDL Cholesky algorithm, resulting in a valid Variance - Covariance matrix

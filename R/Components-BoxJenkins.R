@@ -81,7 +81,7 @@ ARIMA <- function(p = 1,
     )
 
     # T and R matrices are fixed if no coefficients are needed
-    if (arima_spec[[1]] == 0 & arima_spec[[3]] == 0) {
+    if (arima_spec[[1]] == 0 && arima_spec[[3]] == 0) {
       T1 <- matrix(0, n_arima, n_arima)
       if (arima_spec[[2]] > 0) {
         T1 <- cbind(
@@ -187,7 +187,7 @@ ARIMA <- function(p = 1,
     }
 
     # T matrix and coefficients in R matrix
-    if (arima_spec[[1]] > 0 | arima_spec[[3]] > 0) {
+    if (arima_spec[[1]] > 0 || arima_spec[[3]] > 0) {
 
       # Coefficients
       if (n_arima == 1) {
@@ -267,7 +267,7 @@ ARIMA <- function(p = 1,
     if (!transform_only) {
 
       # Initial uncertainty for the stationary part
-      if (arima_spec[[1]] == 0 & arima_spec[[3]] == 0) {
+      if (arima_spec[[1]] == 0 && arima_spec[[3]] == 0) {
         result$P_star <- BlockMatrix(
           matrix(0, arima_spec[[2]] * n_arima, arima_spec[[2]] * n_arima),
           result$Q
@@ -336,8 +336,8 @@ SARIMA <- function(p = 1,
       call. = FALSE
     )
   }
-  if (length(sarima_spec$s) != length(sarima_spec$ar) |
-    length(sarima_spec$s) != length(sarima_spec$i) |
+  if (length(sarima_spec$s) != length(sarima_spec$ar) ||
+    length(sarima_spec$s) != length(sarima_spec$i) ||
     length(sarima_spec$s) != length(sarima_spec$ma)) {
     stop(
       "The vectors in the SARIMA specification must be of equal length.",
@@ -389,7 +389,7 @@ SARIMA <- function(p = 1,
     )
 
     # T and R matrices are fixed if no coefficients are needed
-    if (sum(sarima_spec$ar) == 0 & sum(sarima_spec$ma) == 0) {
+    if (sum(sarima_spec$ar) == 0 && sum(sarima_spec$ma) == 0) {
       T1 <- matrix(0, n_sarima, n_sarima)
       if (sum(sarima_spec$i) > 0) {
         T1 <- cbind(
@@ -522,7 +522,7 @@ SARIMA <- function(p = 1,
     param <- param[-Q_indices]
 
     # T matrix and coefficients in R matrix
-    if (sum(sarima_spec$ar) > 0 | sum(sarima_spec$ma) > 0) {
+    if (sum(sarima_spec$ar) > 0 || sum(sarima_spec$ma) > 0) {
       if (!transform_only) {
 
         # Initialise coefficient vector/array for the AR part
@@ -707,7 +707,7 @@ SARIMA <- function(p = 1,
     if (!transform_only) {
 
       # Initial uncertainty for the stationary part
-      if (sum(sarima_spec$ar) == 0 & sum(sarima_spec$ma) == 0) {
+      if (sum(sarima_spec$ar) == 0 && sum(sarima_spec$ma) == 0) {
         result$P_star <- BlockMatrix(
           matrix(
             0,

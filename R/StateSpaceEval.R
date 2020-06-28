@@ -255,7 +255,7 @@ StateSpaceEval <- function(param,
       }
 
       # Saving predicted and filtered state and corresponding variance for each timestep
-      if (timestep & !loglik_only) {
+      if (timestep && !loglik_only) {
 
         # Predicted state and variance
         if (i < (N * p)) {
@@ -345,7 +345,7 @@ StateSpaceEval <- function(param,
 
       # Saving predicted and filtered state and corresponding variance
       # for each timestep
-      if (timestep & !loglik_only) {
+      if (timestep && !loglik_only) {
 
         # Predicted state and variance
         if (i < (N * p)) {
@@ -811,7 +811,7 @@ StateSpaceEval <- function(param,
   ## -- and adding fitted components of the model ---------##
 
   # Local Level
-  if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
+  if (local_level_ind && !slope_ind && is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)
@@ -826,7 +826,7 @@ StateSpaceEval <- function(param,
   }
 
   # Local Level + Slope
-  if (slope_ind & is.null(level_addvar_list)) {
+  if (slope_ind && is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)
@@ -881,7 +881,7 @@ StateSpaceEval <- function(param,
   }
 
   # level_addvar
-  if (!is.null(level_addvar_list) & !slope_ind) {
+  if (!is.null(level_addvar_list) && !slope_ind) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)
@@ -904,7 +904,7 @@ StateSpaceEval <- function(param,
   }
 
   # slope_addvar
-  if (!is.null(level_addvar_list) & slope_ind) {
+  if (!is.null(level_addvar_list) && slope_ind) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
     predicted$level <- matrix(0, N, p)

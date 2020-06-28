@@ -56,13 +56,13 @@ predict.statespacer <- function(object,
                                 ...) {
 
   # Check if specification of addvar_list_fc is in line with the object
-  if (!is.null(object$function_call$addvar_list) & is.null(addvar_list_fc)) {
+  if (!is.null(object$function_call$addvar_list) && is.null(addvar_list_fc)) {
     stop(
       "`addvar_list_fc` must be specified for the forecasting period.",
       call. = FALSE
     )
   }
-  if (is.null(object$function_call$addvar_list) & !is.null(addvar_list_fc)) {
+  if (is.null(object$function_call$addvar_list) && !is.null(addvar_list_fc)) {
     stop(
       paste(
         "`addvar_list_fc` was specified for the forecasting period,",
@@ -73,14 +73,14 @@ predict.statespacer <- function(object,
   }
 
   # Check if specification of level_addvar_list_fc is in line with the object
-  if (!is.null(object$function_call$level_addvar_list) &
+  if (!is.null(object$function_call$level_addvar_list) &&
     is.null(level_addvar_list_fc)) {
     stop(
       "`level_addvar_list_fc` must be specified for the forecasting period.",
       call. = FALSE
     )
   }
-  if (is.null(object$function_call$level_addvar_list) &
+  if (is.null(object$function_call$level_addvar_list) &&
     !is.null(level_addvar_list_fc)) {
     stop(
       paste(
@@ -229,7 +229,7 @@ predict.statespacer <- function(object,
   ## -- and adding predicted components of the model ------##
 
   # Local Level
-  if (object$function_call$local_level_ind & !object$function_call$slope_ind &
+  if (object$function_call$local_level_ind && !object$function_call$slope_ind &&
     is.null(level_addvar_list_fc)) {
     tempZ <- matrix(0, p, m)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
@@ -241,7 +241,7 @@ predict.statespacer <- function(object,
   }
 
   # Local Level + Slope
-  if (object$function_call$slope_ind & is.null(level_addvar_list_fc)) {
+  if (object$function_call$slope_ind && is.null(level_addvar_list_fc)) {
     tempZ <- matrix(0, p, m)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
     result$level <- matrix(0, forecast_period, p)
@@ -276,7 +276,7 @@ predict.statespacer <- function(object,
   }
 
   # level_addvar
-  if (!is.null(level_addvar_list_fc) & !object$function_call$slope_ind) {
+  if (!is.null(level_addvar_list_fc) && !object$function_call$slope_ind) {
     tempZ <- matrix(0, p, m)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
     result$level <- matrix(0, forecast_period, p)
@@ -287,7 +287,7 @@ predict.statespacer <- function(object,
   }
 
   # slope_addvar
-  if (!is.null(level_addvar_list_fc) & object$function_call$slope_ind) {
+  if (!is.null(level_addvar_list_fc) && object$function_call$slope_ind) {
     tempZ <- matrix(0, p, m)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
     result$level <- matrix(0, forecast_period, p)
