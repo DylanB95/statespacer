@@ -646,7 +646,7 @@ statespacer <- function(y,
             NA
           }
         )
-        if (is.na(update)) {
+        if (all(is.na(update))) {
           return(sqrt(.Machine$double.xmax))
         }
         if (param_num_list[[paste0("Cycle", i)]] > (1 + damping_factor_ind[[i]])) {
@@ -688,7 +688,7 @@ statespacer <- function(y,
             NA
           }
         )
-        if (is.na(update)) {
+        if (all(is.na(update))) {
           return(sqrt(.Machine$double.xmax))
         }
         Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
@@ -727,7 +727,7 @@ statespacer <- function(y,
             NA
           }
         )
-        if (is.na(update)) {
+        if (all(is.na(update))) {
           return(sqrt(.Machine$double.xmax))
         }
         Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
@@ -759,7 +759,7 @@ statespacer <- function(y,
             NA
           }
         )
-        if (is.na(update)) {
+        if (all(is.na(update))) {
           return(sqrt(.Machine$double.xmax))
         }
 
@@ -819,7 +819,7 @@ statespacer <- function(y,
           format = H_format,
           decompositions = FALSE
         )
-        if (is.na(H)) {
+        if (all(is.na(H))) {
           return(sqrt(.Machine$double.xmax))
         }
         if (!collapse) {
