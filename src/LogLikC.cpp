@@ -53,7 +53,6 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   double F_inf, F_star, F_1, F_2, v;
   double constant = -log(2 * M_PI) / 2;
 
-
   // Loop over timepoints
   for(int i = 0; i < N; i++) {
 
@@ -191,7 +190,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
 
   // Return NA if F equals 0 during all of the non-initialisation steps
   if (non_init == F_eq0) {
-    loglik = NA_REAL;
+    return NA_REAL;
   }
   return loglik / N;
 }
