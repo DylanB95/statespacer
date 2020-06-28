@@ -402,6 +402,9 @@ statespacer <- function(y,
   # Number of state parameters
   m <- length(sys_mat$state_label)
 
+  # NA in y
+  y_isna <- is.na(y)
+
   if (collapse) {
 
     # Parameters in the state that will not be used for collapsing
@@ -432,27 +435,15 @@ statespacer <- function(y,
 
     # Dealing with NA for collapsing transformation
     y_temp <- y
-    y_temp[is.na(y)] <- 0
+    y_temp[y_isna] <- 0
   }
   m <- m + p # Residuals in state
 
-  # Check if P_inf is already 0
-  initialisation <- !all(abs(sys_mat$P_inf_kal) < 1e-7)
-
   # Initialising state vector
   a <- sys_mat$a_kal
-  if (length(a) == m) {
-    a <- t(matrix(a, m, N * p)) # N*p x m
-  }
 
   # Initialise P_inf
-  P_inf <- array(sys_mat$P_inf_kal, dim = c(m, m, N * p)) # m x m x N*p
-
-  # Initialising loglikelihood vector
-  loglik <- rep(0, N * p)
-
-  # Number of non-initialisation steps
-  non_init <- 0
+  P_inf <- sys_mat$P_inf_kal
 
   # Initialising Q Matrix that depends on the parameters
   Q_kal <- NULL
@@ -778,7 +769,6 @@ statespacer <- function(y,
         }
         if (!is.null(update$a1)) {
           a <- rbind(a, update$a1)
-          a <- t(matrix(a, m, N * p))
         }
         if (!is.null(update$P_star)) {
           P_star <- BlockMatrix(P_star, update$P_star)
@@ -930,114 +920,44 @@ statespacer <- function(y,
         Q_kal <- CombineTRQ(H_star, Q_kal)
       }
       Z_kal <- Z_kal_tf
+      y_isna <- is.na(y_kal)
     }
 
-    # Initialise P_star
-    P_star <- array(P_star, dim = c(m, m, N * p)) # m x m x N*p
-
-    ###### Applying Kalman Filter with exact initialisation ######
-
-    # Keep track of which time index and row index to use
-    # For selection of system matrices
-    t <- 1
-    row <- 0
-
-    for (i in 1:(N * p)) {
-
-      # Updating indices
-      row <- row + 1
-      if (row == (p + 1)) {
-        row <- 1
-        t <- t + 1
-      }
-
-      # When should a transition to the next timepoint be made?
-      if (i %% p == 0) {
-        timestep <- TRUE
-
-        # T, R, and Q matrices only needed when a transition to
-        # the next timepoint is made
-        if (is.matrix(T_kal)) {
-          T_input <- T_kal
-        } else {
-          T_input <- as.matrix(T_kal[, , t])
-        }
-        R_input <- R_kal
-        Q_input <- Q_kal
-      } else {
-        timestep <- FALSE
-        T_input <- NULL
-        R_input <- NULL
-        Q_input <- NULL
-      }
-
-      if (is.matrix(Z_kal)) {
-        Z_input <- Z_kal[row, , drop = FALSE]
-      } else {
-        Z_input <- matrix(Z_kal[row, , t], nrow = 1)
-      }
-
-      # Apply KalmanEI in initialisation stage, else KalmanUT
-      if (initialisation) {
-
-        # Calling the Kalman Filter with exact initialisation
-        filter_output <- KalmanEI(
-          y = y_kal[[t, row]],
-          a = matrix(a[i, ]),
-          P_inf = as.matrix(P_inf[, , i]),
-          P_star = as.matrix(P_star[, , i]),
-          Z = Z_input,
-          Tmat = T_input,
-          R = R_input,
-          Q = Q_input,
-          timestep = timestep
-        )
-
-        # Storing next predicted state and variance used for the next iteration
-        if (i < (N * p)) {
-          a[i + 1, ] <- filter_output$a
-          P_inf[, , i + 1] <- filter_output$P_inf
-          P_star[, , i + 1] <- filter_output$P_star
-
-          # Check if P_inf converged to zero
-          initialisation <- !all(abs(filter_output$P_inf) < 1e-7)
-        }
-      } else {
-
-        # Increment non_init
-        non_init <- non_init + 1
-
-        # Calling the Kalman Filter
-        filter_output <- KalmanUT(
-          y = y_kal[[t, row]],
-          a = matrix(a[i, ]),
-          P = as.matrix(P_star[, , i]),
-          Z = Z_input,
-          Tmat = T_input,
-          R = R_input,
-          Q = Q_input,
-          timestep = timestep
-        )
-
-        # Storing next predicted state and variance used for the next iteration
-        if (i < (N * p)) {
-          a[i + 1, ] <- filter_output$a
-          P_star[, , i + 1] <- filter_output$P
-        }
-      }
-
-      # Store loglikelihood
-      loglik[[i]] <- filter_output$loglik
+    # Augment system matrices to arrays
+    if (is.matrix(Z_kal)) {
+      dim(Z_kal) <- c(dim(Z_kal), 1)
+    }
+    if (is.matrix(T_kal)) {
+      dim(T_kal) <- c(dim(T_kal), 1)
+    }
+    if (is.matrix(R_kal)) {
+      dim(R_kal) <- c(dim(R_kal), 1)
+    }
+    if (is.matrix(Q_kal)) {
+      dim(Q_kal) <- c(dim(Q_kal), 1)
     }
 
-    # Check for number of NAs in loglikelihood
-    if (sum(is.na(loglik)) == non_init) {
+    # Kalman Filter to obtain LogLikelihood
+    loglik <- LogLikC(
+      y = y_kal,
+      y_isna = y_isna,
+      a = a,
+      P_inf = P_inf,
+      P_star = P_star,
+      Z = Z_kal,
+      T = T_kal,
+      R = R_kal,
+      Q = Q_kal
+    )
+
+    # Check for NA returned by LogLikC
+    if (is.na(loglik)) {
       return(sqrt(.Machine$double.xmax))
     }
 
     # Return the negative average loglikelihood
     # Note: The average is computed as sum / N, using mean would divide by N*p
-    return(-sum(loglik, na.rm = TRUE) / N - loglik_add / N)
+    return(-loglik - loglik_add / N)
   }
 
   # Checking the number of initial parameters specified
