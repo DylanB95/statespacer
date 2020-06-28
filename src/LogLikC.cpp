@@ -51,7 +51,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   arma::colvec M_inf(m), M_star(m), K_0(m), K_1(m);
   arma::mat L_0(m, m), L_1(m, m);
   double F_inf, F_star, F_1, F_2, v;
-  double constant = -log(2 * M_PI)/2;
+  double constant = -log(2 * M_PI) / 2;
 
 
   // Loop over timepoints
