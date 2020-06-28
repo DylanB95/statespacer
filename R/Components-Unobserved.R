@@ -59,7 +59,7 @@ LocalLevel <- function(p = 1,
     }
   }
 
-  if (update_part & diag_level > 0) {
+  if (update_part && diag_level > 0) {
 
     # Check whether the number of rows of format_level is valid
     if (dim(format_level)[[1]] != n_level) {
@@ -183,7 +183,7 @@ Slope <- function(p = 1,
     }
   }
 
-  if (update_part & (diag_level + diag_slope) > 0) {
+  if (update_part && (diag_level + diag_slope) > 0) {
     if (diag_level > 0) {
 
       # Check whether the number of rows of format_level is valid
@@ -326,7 +326,7 @@ Cycle <- function(p = 1,
     }
 
     # Check when initial state of the cycle is diffuse
-    if (diag_cycle == 0 | !damping_factor_ind) {
+    if (diag_cycle == 0 || !damping_factor_ind) {
       result$P_star <- matrix(0, 2 * n_cycle, 2 * n_cycle)
       result$P_inf <- matrix(1, 2 * n_cycle, 2 * n_cycle)
     } else {
@@ -390,7 +390,7 @@ Cycle <- function(p = 1,
       }
 
       # Initial uncertainty of the state vector
-      if (damping_factor_ind & !transform_only) {
+      if (damping_factor_ind && !transform_only) {
         result$P_star <- result$Q / (1 - result$rho^2)
       }
     }
@@ -535,7 +535,7 @@ BSM <- function(p = 1,
     }
   }
 
-  if (update_part & diag_BSM > 0) {
+  if (update_part && diag_BSM > 0) {
 
     # Check whether the number of rows of format_BSM is valid
     if (dim(format_BSM)[[1]] != n_BSM) {

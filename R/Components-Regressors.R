@@ -90,7 +90,7 @@ AddVar <- function(p = 1,
     }
   }
 
-  if (update_part & diag_addvar > 0) {
+  if (update_part && diag_addvar > 0) {
 
     # Check whether the number of rows of format_addvar is valid
     if (dim(format_addvar)[[1]] != k) {
@@ -263,7 +263,7 @@ LevelAddVar <- function(p = 1,
     }
   }
 
-  if (update_part & (diag_level + diag_level_addvar) > 0) {
+  if (update_part && (diag_level + diag_level_addvar) > 0) {
     if (diag_level > 0) {
 
       # Check whether the number of rows of format_level is valid
@@ -511,7 +511,7 @@ SlopeAddVar <- function(p = 1,
     }
   }
 
-  if (update_part & (diag_level + diag_slope + diag_level_addvar) > 0) {
+  if (update_part && (diag_level + diag_slope + diag_level_addvar) > 0) {
     if (diag_level > 0) {
 
       # Check whether the number of rows of format_level is valid

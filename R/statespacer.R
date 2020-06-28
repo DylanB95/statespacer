@@ -209,11 +209,11 @@
 #' lines(1871:1970, 100 * fit$filtered$level, type = "l")
 #' lines(1871:1970, 100 * fit$filtered$level +
 #'   1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-#'   type = "l", col = "gray"
+#' type = "l", col = "gray"
 #' )
 #' lines(1871:1970, 100 * fit$filtered$level -
 #'   1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-#'   type = "l", col = "gray"
+#' type = "l", col = "gray"
 #' )
 #'
 #' # Plots the smoothed estimates
@@ -224,11 +224,11 @@
 #' lines(1871:1970, 100 * fit$smoothed$level, type = "l")
 #' lines(1871:1970, 100 * fit$smoothed$level +
 #'   1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-#'   type = "l", col = "gray"
+#' type = "l", col = "gray"
 #' )
 #' lines(1871:1970, 100 * fit$smoothed$level -
 #'   1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-#'   type = "l", col = "gray"
+#' type = "l", col = "gray"
 #' )
 #' @export
 statespacer <- function(y,
@@ -328,7 +328,7 @@ statespacer <- function(y,
   }
 
   # control$trace
-  if (verbose & is.null(control$trace)) {
+  if (verbose && is.null(control$trace)) {
     control$trace <- TRUE
   }
 
@@ -451,6 +451,9 @@ statespacer <- function(y,
   # Initialising loglikelihood vector
   loglik <- rep(0, N * p)
 
+  # Number of non-initialisation steps
+  non_init <- 0
+
   # Initialising Q Matrix that depends on the parameters
   Q_kal <- NULL
 
@@ -476,7 +479,7 @@ statespacer <- function(y,
     ## Constructing Q Matrix ##
 
     # Local Level
-    if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
+    if (local_level_ind && !slope_ind && is.null(level_addvar_list)) {
       if (param_num_list$level > 0) {
         update <- LocalLevel(
           p = p2,
@@ -494,7 +497,7 @@ statespacer <- function(y,
     }
 
     # Local Level + Slope
-    if (slope_ind & is.null(level_addvar_list)) {
+    if (slope_ind && is.null(level_addvar_list)) {
       if ((param_num_list$level + param_num_list$slope) > 0) {
         update <- Slope(
           p = p2,
@@ -561,7 +564,7 @@ statespacer <- function(y,
     }
 
     # Local Level + Explanatory Variables
-    if (!is.null(level_addvar_list) & !slope_ind) {
+    if (!is.null(level_addvar_list) && !slope_ind) {
       if ((param_num_list$level + param_num_list$level_addvar) > 0) {
         update <- LevelAddVar(
           p = p2,
@@ -588,7 +591,7 @@ statespacer <- function(y,
     }
 
     # Local Level + Explanatory Variables + Slope
-    if (!is.null(level_addvar_list) & slope_ind) {
+    if (!is.null(level_addvar_list) && slope_ind) {
       if ((param_num_list$level +
         param_num_list$slope +
         param_num_list$level_addvar) > 0) {
@@ -626,19 +629,32 @@ statespacer <- function(y,
     # Cycle
     if (cycle_ind) {
       for (i in seq_along(format_cycle_list)) {
-        update <- Cycle(
-          p = p2,
-          exclude_cycle = exclude_cycle_list[[i]],
-          damping_factor_ind = damping_factor_ind[[i]],
-          fixed_part = FALSE,
-          update_part = TRUE,
-          param = param[param_indices[[paste0("Cycle", i)]]],
-          format_cycle = format_cycle_list[[i]],
-          decompositions = FALSE
+        update <- tryCatch(
+          {
+            Cycle(
+              p = p2,
+              exclude_cycle = exclude_cycle_list[[i]],
+              damping_factor_ind = damping_factor_ind[[i]],
+              fixed_part = FALSE,
+              update_part = TRUE,
+              param = param[param_indices[[paste0("Cycle", i)]]],
+              format_cycle = format_cycle_list[[i]],
+              decompositions = FALSE
+            )
+          },
+          error = function(e) {
+            NA
+          }
         )
+        if (is.na(update)) {
+          return(sqrt(.Machine$double.xmax))
+        }
         if (param_num_list[[paste0("Cycle", i)]] > (1 + damping_factor_ind[[i]])) {
           Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
           if (damping_factor_ind[[i]]) {
+            if (update$rho >= (1 - 1e-7) || update$rho <= 1e-7) {
+              return(sqrt(.Machine$double.xmax))
+            }
             P_star <- BlockMatrix(P_star, update$P_star)
           }
         } else {
@@ -651,23 +667,33 @@ statespacer <- function(y,
     # ARIMA
     if (!is.null(arima_list)) {
       for (i in seq_along(arima_list)) {
-        update <- ARIMA(
-          p = p2,
-          arima_spec = arima_list[[i]],
-          exclude_arima = exclude_arima_list[[i]],
-          fixed_part = FALSE,
-          update_part = TRUE,
-          param = param[param_indices[[paste0("ARIMA", i)]]],
-          decompositions = FALSE,
-          T1 = temp_list[[paste0("ARIMA", i)]]$T1,
-          T2 = temp_list[[paste0("ARIMA", i)]]$T2,
-          T3 = temp_list[[paste0("ARIMA", i)]]$T3,
-          R1 = temp_list[[paste0("ARIMA", i)]]$R1,
-          R2 = temp_list[[paste0("ARIMA", i)]]$R2
+        update <- tryCatch(
+          {
+            ARIMA(
+              p = p2,
+              arima_spec = arima_list[[i]],
+              exclude_arima = exclude_arima_list[[i]],
+              fixed_part = FALSE,
+              update_part = TRUE,
+              param = param[param_indices[[paste0("ARIMA", i)]]],
+              decompositions = FALSE,
+              T1 = temp_list[[paste0("ARIMA", i)]]$T1,
+              T2 = temp_list[[paste0("ARIMA", i)]]$T2,
+              T3 = temp_list[[paste0("ARIMA", i)]]$T3,
+              R1 = temp_list[[paste0("ARIMA", i)]]$R1,
+              R2 = temp_list[[paste0("ARIMA", i)]]$R2
+            )
+          },
+          error = function(e) {
+            NA
+          }
         )
+        if (is.na(update)) {
+          return(sqrt(.Machine$double.xmax))
+        }
         Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         P_star <- BlockMatrix(P_star, update$P_star)
-        if (arima_list[[i]][[1]] == 0 & arima_list[[i]][[3]] == 0) {
+        if (arima_list[[i]][[1]] == 0 && arima_list[[i]][[3]] == 0) {
           T_kal <- CombineTRQ(T_kal, T_list[[paste0("ARIMA", i)]])
           R_kal <- BlockMatrix(R_kal, R_list[[paste0("ARIMA", i)]])
         } else {
@@ -680,23 +706,33 @@ statespacer <- function(y,
     # SARIMA
     if (!is.null(sarima_list)) {
       for (i in seq_along(sarima_list)) {
-        update <- SARIMA(
-          p = p2,
-          sarima_spec = sarima_list[[i]],
-          exclude_sarima = exclude_sarima_list[[i]],
-          fixed_part = FALSE,
-          update_part = TRUE,
-          param = param[param_indices[[paste0("SARIMA", i)]]],
-          decompositions = FALSE,
-          T1 = temp_list[[paste0("SARIMA", i)]]$T1,
-          T2 = temp_list[[paste0("SARIMA", i)]]$T2,
-          T3 = temp_list[[paste0("SARIMA", i)]]$T3,
-          R1 = temp_list[[paste0("SARIMA", i)]]$R1,
-          R2 = temp_list[[paste0("SARIMA", i)]]$R2
+        update <- tryCatch(
+          {
+            SARIMA(
+              p = p2,
+              sarima_spec = sarima_list[[i]],
+              exclude_sarima = exclude_sarima_list[[i]],
+              fixed_part = FALSE,
+              update_part = TRUE,
+              param = param[param_indices[[paste0("SARIMA", i)]]],
+              decompositions = FALSE,
+              T1 = temp_list[[paste0("SARIMA", i)]]$T1,
+              T2 = temp_list[[paste0("SARIMA", i)]]$T2,
+              T3 = temp_list[[paste0("SARIMA", i)]]$T3,
+              R1 = temp_list[[paste0("SARIMA", i)]]$R1,
+              R2 = temp_list[[paste0("SARIMA", i)]]$R2
+            )
+          },
+          error = function(e) {
+            NA
+          }
         )
+        if (is.na(update)) {
+          return(sqrt(.Machine$double.xmax))
+        }
         Q_kal <- BlockMatrix(Q_kal, update[["Q"]])
         P_star <- BlockMatrix(P_star, update$P_star)
-        if (sum(sarima_list[[i]]$ar) == 0 & sum(sarima_list[[i]]$ma) == 0) {
+        if (sum(sarima_list[[i]]$ar) == 0 && sum(sarima_list[[i]]$ma) == 0) {
           T_kal <- CombineTRQ(T_kal, T_list[[paste0("SARIMA", i)]])
           R_kal <- BlockMatrix(R_kal, R_list[[paste0("SARIMA", i)]])
         } else {
@@ -715,7 +751,17 @@ statespacer <- function(y,
         if (!is.null(self_spec_list$sys_mat_input)) {
           input <- c(input, self_spec_list$sys_mat_input)
         }
-        update <- do.call(self_spec_list$sys_mat_fun, input)
+        update <- tryCatch(
+          {
+            do.call(self_spec_list$sys_mat_fun, input)
+          },
+          error = function(e) {
+            NA
+          }
+        )
+        if (is.na(update)) {
+          return(sqrt(.Machine$double.xmax))
+        }
 
         # Adding to full system matrices
         if (!is.null(update$Z)) {
@@ -754,7 +800,7 @@ statespacer <- function(y,
       }
 
       # Check for state only parameters
-      if (!is.null(self_spec_list$state_only) & collapse) {
+      if (!is.null(self_spec_list$state_only) && collapse) {
         state_only_indices <- dim(a)[[2]] - p - self_spec_list$state_num +
           self_spec_list$state_only
         if (is.matrix(Z_kal)) {
@@ -773,6 +819,9 @@ statespacer <- function(y,
           format = H_format,
           decompositions = FALSE
         )
+        if (is.na(H)) {
+          return(sqrt(.Machine$double.xmax))
+        }
         if (!collapse) {
           P_star <- BlockMatrix(H, P_star)
         }
@@ -791,9 +840,14 @@ statespacer <- function(y,
       Q_kal <- CombineTRQ(H, Q_kal)
     }
 
+    # Check for finite values in Q_kal and H
+    if (!all(is.finite(Q_kal)) || !all(is.finite(H))) {
+      return(sqrt(.Machine$double.xmax))
+    }
+
     # Collapse observation vector
     if (collapse) {
-      if (is.matrix(H) & is.matrix(Z_kal)) {
+      if (is.matrix(H) && is.matrix(Z_kal)) {
         Hinv <- solve(H)
         ZtHinv <- crossprod(Z_kal, Hinv)
         A_star <- solve(ZtHinv %*% Z_kal) %*% ZtHinv
@@ -810,7 +864,7 @@ statespacer <- function(y,
         y_kal[y_kal == 0] <- NA
         loglik_add <- loglik_add + N * 0.5 * log(det(H_star) / det(H)) -
           0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
-      } else if (is.matrix(H) & !is.matrix(Z_kal)) {
+      } else if (is.matrix(H) && !is.matrix(Z_kal)) {
         y_kal <- matrix(0, N, m2)
         H_star <- array(0, dim = c(m2, m2, N))
         Hinv <- solve(H)
@@ -831,7 +885,7 @@ statespacer <- function(y,
           0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
         P_star <- BlockMatrix(H_star[, , 1], P_star)
         Q_kal <- CombineTRQ(H_star, Q_kal)
-      } else if (!is.matrix(H) & is.matrix(Z_kal)) {
+      } else if (!is.matrix(H) && is.matrix(Z_kal)) {
         y_kal <- matrix(0, N, m2)
         H_star <- array(0, dim = c(m2, m2, N))
         for (i in 1:N) {
@@ -950,6 +1004,9 @@ statespacer <- function(y,
         }
       } else {
 
+        # Increment non_init
+        non_init <- non_init + 1
+
         # Calling the Kalman Filter
         filter_output <- KalmanUT(
           y = y_kal[[t, row]],
@@ -971,6 +1028,11 @@ statespacer <- function(y,
 
       # Store loglikelihood
       loglik[[i]] <- filter_output$loglik
+    }
+
+    # Check for number of NAs in loglikelihood
+    if (sum(is.na(loglik)) == non_init) {
+      return(sqrt(.Machine$double.xmax))
     }
 
     # Return the negative average loglikelihood
@@ -1079,7 +1141,7 @@ statespacer <- function(y,
     min_hessian_inv <- -solve(hessian)
 
     # Local Level
-    if (local_level_ind & !slope_ind & is.null(level_addvar_list)) {
+    if (local_level_ind && !slope_ind && is.null(level_addvar_list)) {
       if (param_num_list$level > 0) {
         TransformFun <- function(param) {
           update <- LocalLevel(
@@ -1142,7 +1204,7 @@ statespacer <- function(y,
     }
 
     # Local Level + Slope
-    if (slope_ind & is.null(level_addvar_list)) {
+    if (slope_ind && is.null(level_addvar_list)) {
       if ((param_num_list$level + param_num_list$slope) > 0) {
         TransformFun <- function(param) {
           update <- Slope(
@@ -1382,7 +1444,7 @@ statespacer <- function(y,
     }
 
     # Local Level + Explanatory Variables
-    if (!is.null(level_addvar_list) & !slope_ind) {
+    if (!is.null(level_addvar_list) && !slope_ind) {
       if ((param_num_list$level + param_num_list$level_addvar) > 0) {
         TransformFun <- function(param) {
           update <- LevelAddVar(
@@ -1495,7 +1557,7 @@ statespacer <- function(y,
     }
 
     # Local Level + Explanatory Variables + Slope
-    if (!is.null(level_addvar_list) & slope_ind) {
+    if (!is.null(level_addvar_list) && slope_ind) {
       if ((param_num_list$level +
         param_num_list$slope +
         param_num_list$level_addvar) > 0) {

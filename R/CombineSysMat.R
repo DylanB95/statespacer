@@ -34,13 +34,13 @@ CombineZ <- function(Z1, Z2) {
   }
 
   # Compute result
-  if (is_mat_Z1 & is_mat_Z2) {
+  if (is_mat_Z1 && is_mat_Z2) {
     result <- cbind(Z1, Z2)
-  } else if (is_mat_Z1 & !is_mat_Z2) {
+  } else if (is_mat_Z1 && !is_mat_Z2) {
     result <- array(0, dim = c(dimZ1[[1]], dimZ1[[2]] + dimZ2[[2]], dimZ2[[3]]))
     result[, 1:dimZ1[[2]], ] <- Z1
     result[, (dimZ1[[2]] + 1):(dimZ1[[2]] + dimZ2[[2]]), ] <- Z2
-  } else if (!is_mat_Z1 & is_mat_Z2) {
+  } else if (!is_mat_Z1 && is_mat_Z2) {
     result <- array(0, dim = c(dimZ1[[1]], dimZ1[[2]] + dimZ2[[2]], dimZ1[[3]]))
     result[, 1:dimZ1[[2]], ] <- Z1
     result[, (dimZ1[[2]] + 1):(dimZ1[[2]] + dimZ2[[2]]), ] <- Z2
@@ -88,9 +88,9 @@ CombineTRQ <- function(S1, S2) {
   dimS2 <- dim(S2)
 
   # Compute result
-  if (is_mat_S1 & is_mat_S2) {
+  if (is_mat_S1 && is_mat_S2) {
     result <- BlockMatrix(S1, S2)
-  } else if (is_mat_S1 & !is_mat_S2) {
+  } else if (is_mat_S1 && !is_mat_S2) {
     result <- array(
       0,
       dim = c(dimS1[[1]] + dimS2[[1]], dimS1[[2]] + dimS2[[2]], dimS2[[3]])
@@ -100,7 +100,7 @@ CombineTRQ <- function(S1, S2) {
       (dimS1[[1]] + 1):(dimS1[[1]] + dimS2[[1]]),
       (dimS1[[2]] + 1):(dimS1[[2]] + dimS2[[2]]),
     ] <- S2
-  } else if (!is_mat_S1 & is_mat_S2) {
+  } else if (!is_mat_S1 && is_mat_S2) {
     result <- array(
       0,
       dim = c(dimS1[[1]] + dimS2[[1]], dimS1[[2]] + dimS2[[2]], dimS1[[3]])
