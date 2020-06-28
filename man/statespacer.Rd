@@ -278,11 +278,11 @@ plot(1871:1970, 100 * fit$function_call$y,
 lines(1871:1970, 100 * fit$filtered$level, type = "l")
 lines(1871:1970, 100 * fit$filtered$level +
   1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-  type = "l", col = "gray"
+type = "l", col = "gray"
 )
 lines(1871:1970, 100 * fit$filtered$level -
   1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-  type = "l", col = "gray"
+type = "l", col = "gray"
 )
 
 # Plots the smoothed estimates
@@ -293,11 +293,11 @@ plot(1871:1970, 100 * fit$function_call$y,
 lines(1871:1970, 100 * fit$smoothed$level, type = "l")
 lines(1871:1970, 100 * fit$smoothed$level +
   1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-  type = "l", col = "gray"
+type = "l", col = "gray"
 )
 lines(1871:1970, 100 * fit$smoothed$level -
   1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-  type = "l", col = "gray"
+type = "l", col = "gray"
 )
 }
 \references{
