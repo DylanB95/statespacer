@@ -195,7 +195,6 @@
   <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
   <span class='kw'>collapse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>standard_errors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>loglik_only</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
@@ -358,14 +357,15 @@ state equation.</p></td>
     </tr>
     <tr>
       <th>fit</th>
-      <td><p>Boolean indicating whether the model should be fit. If <code>FALSE</code>,
-the model is only evaluated at the initial values.</p></td>
+      <td><p>Boolean indicating whether the model should be fit by an
+iterative optimisation procedure. If <code>FALSE</code>, the model is only evaluated
+at the initial values.</p></td>
     </tr>
     <tr>
       <th>initial</th>
       <td><p>Vector of initial values for the parameter search.
-The initial values are recycled or truncated if <code>fit = TRUE</code> and too few
-or too many values are specified.</p></td>
+The initial values are recycled or truncated if too few or too many values
+have been specified.</p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -385,24 +385,18 @@ used if <code>fit = TRUE</code>.</p></td>
 collapsed. Should only be set to <code>TRUE</code> if the dimensionality of the
 observation vector exceeds the dimensionality of the state vector.
 If this is the case, computational gains can be achieved by collapsing
-the observation vector. Only used if <code>fit = TRUE</code>.</p></td>
+the observation vector.</p></td>
     </tr>
     <tr>
       <th>standard_errors</th>
       <td><p>Boolean indicating whether standard errors should be
 computed. <span class="pkg">numDeriv</span> must be installed in order to compute the
-standard errors! Defaults to TRUE if <span class="pkg">numDeriv</span> is available. Only
-used if <code>fit = TRUE</code>.</p></td>
-    </tr>
-    <tr>
-      <th>loglik_only</th>
-      <td><p>Boolean indicating whether only the loglikelihood should
-be returned. Only used if <code>fit = FALSE</code>.</p></td>
+standard errors! Defaults to TRUE if <span class="pkg">numDeriv</span> is available.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>Boolean indicating whether details of the progress should be
-printed. Only used if <code>fit = TRUE</code>.</p></td>
+      <td><p>Boolean indicating whether the progress of the optimisation
+procedure should be printed. Only used if <code>fit = TRUE</code>.</p></td>
     </tr>
     </table>
 
@@ -421,7 +415,7 @@ the State Space model.</p></li>
 <li><p><code>diagnostics</code>: A list containing items useful for diagnostical tests.</p></li>
 <li><p><code>optim</code> (if <code>fit = TRUE</code>): A list containing the variables that are returned
 by the <code><a href='https://rdrr.io/r/stats/optim.html'>optim</a></code> or <code><a href='https://rdrr.io/pkg/optimx/man/optimr.html'>optimr</a></code> function.</p></li>
-<li><p><code>loglik_fun</code> (if <code>fit = TRUE</code>): Function that returns the loglikelihood of the
+<li><p><code>loglik_fun</code>: Function that returns the loglikelihood of the
 specified State Space model, as a function of its parameters.</p></li>
 <li><p><code>standard_errors</code> (if <code>standard_errors = TRUE</code>): A list containing the
 standard errors of the parameters of the State Space model.</p></li>
@@ -500,28 +494,34 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>statespacer</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>statespacer</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='co'># Plots the filtered estimates</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>,
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"p"</span>,
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>), <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> +
-  <span class='fl'>1.644854</span> * <span class='fl'>100</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(
+  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"p"</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>),
+  <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>
+)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> +
+    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> -
-  <span class='fl'>1.644854</span> * <span class='fl'>100</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> -
+    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
 )</div><div class='img'><img src='statespacer-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Plots the smoothed estimates</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>,
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"p"</span>,
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>), <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span> +
-  <span class='fl'>1.644854</span> * <span class='fl'>100</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(
+  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"p"</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>),
+  <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>
+)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span> +
+    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='fl'>100</span> * <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span> -
-  <span class='fl'>1.644854</span> * <span class='fl'>100</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span> -
+    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
 )</div><div class='img'><img src='statespacer-2.png' alt='' width='700' height='433' /></div></pre>
   </div>

@@ -16,7 +16,7 @@
 
 * Major:
 
-  * Calculation of loglikelihood now done using cpp. Major performance improvement as the loglikelihood potentially gets calculated a lot of times by the optimisation procedure.
+  * Calculation of loglikelihood now done using c++. Major performance improvement as the loglikelihood potentially gets calculated a lot of times by the optimisation procedure.
 
 * Minor:
   

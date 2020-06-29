@@ -40,13 +40,13 @@
 #' # Fits a local level model for the Nile data
 #' library(datasets)
 #' y <- matrix(Nile)
-#' fit <- statespacer(initial = 1, y = y / 100, local_level_ind = TRUE)
+#' fit <- statespacer(initial = 10, y = y, local_level_ind = TRUE)
 #'
 #' # Obtain forecasts for 10 steps ahead using the fitted model
 #' fc <- predict(fit, forecast_period = 10)
 #'
 #' # Plot the forecasts
-#' plot(1:10, fc$y_fc * 100, type = "l")
+#' plot(1:10, fc$y_fc, type = "l")
 #' @export
 predict.statespacer <- function(object,
                                 addvar_list_fc = NULL,

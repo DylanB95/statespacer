@@ -13,3 +13,5 @@
 ^\.travis\.yml$
 ^cran-comments\.md$
 ^CRAN-RELEASE$
+^src-i386$
+^src-x64$

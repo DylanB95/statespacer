@@ -19,3 +19,5 @@ vignettes/*.pdf
 inst/doc
 doc
 Meta
+src-i386
+src-x64

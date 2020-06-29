@@ -35,7 +35,6 @@ statespacer(
   control = list(),
   collapse = FALSE,
   standard_errors = NULL,
-  loglik_only = FALSE,
   verbose = FALSE
 )
 }
@@ -144,12 +143,13 @@ variance - covariance matrix of the explanatory variables state equation.}
 variance - covariance matrix of the explanatory variables of the level
 state equation.}
 
-\item{fit}{Boolean indicating whether the model should be fit. If \code{FALSE},
-the model is only evaluated at the initial values.}
+\item{fit}{Boolean indicating whether the model should be fit by an
+iterative optimisation procedure. If \code{FALSE}, the model is only evaluated
+at the initial values.}
 
 \item{initial}{Vector of initial values for the parameter search.
-The initial values are recycled or truncated if \code{fit = TRUE} and too few
-or too many values are specified.}
+The initial values are recycled or truncated if too few or too many values
+have been specified.}
 
 \item{method}{Method that should be used by the \code{\link[stats]{optim}}
 or \code{\link[optimx]{optimr}} function to estimate the parameters. Only
@@ -163,18 +163,14 @@ used if \code{fit = TRUE}.}
 collapsed. Should only be set to \code{TRUE} if the dimensionality of the
 observation vector exceeds the dimensionality of the state vector.
 If this is the case, computational gains can be achieved by collapsing
-the observation vector. Only used if \code{fit = TRUE}.}
+the observation vector.}
 
 \item{standard_errors}{Boolean indicating whether standard errors should be
 computed. \pkg{numDeriv} must be installed in order to compute the
-standard errors! Defaults to TRUE if \pkg{numDeriv} is available. Only
-used if \code{fit = TRUE}.}
+standard errors! Defaults to TRUE if \pkg{numDeriv} is available.}
 
-\item{loglik_only}{Boolean indicating whether only the loglikelihood should
-be returned. Only used if \code{fit = FALSE}.}
-
-\item{verbose}{Boolean indicating whether details of the progress should be
-printed. Only used if \code{fit = TRUE}.}
+\item{verbose}{Boolean indicating whether the progress of the optimisation
+procedure should be printed. Only used if \code{fit = TRUE}.}
 }
 \value{
 A statespacer object containing:
@@ -191,7 +187,7 @@ the State Space model.
 \item \code{diagnostics}: A list containing items useful for diagnostical tests.
 \item \code{optim} (if \code{fit = TRUE}): A list containing the variables that are returned
 by the \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
-\item \code{loglik_fun} (if \code{fit = TRUE}): Function that returns the loglikelihood of the
+\item \code{loglik_fun}: Function that returns the loglikelihood of the
 specified State Space model, as a function of its parameters.
 \item \code{standard_errors} (if \code{standard_errors = TRUE}): A list containing the
 standard errors of the parameters of the State Space model.
@@ -268,36 +264,42 @@ matrix instead of a matrix.
 # Fits a local level model for the Nile data
 library(datasets)
 y <- matrix(Nile)
-fit <- statespacer(initial = 1, y = y / 100, local_level_ind = TRUE)
+fit <- statespacer(initial = 10, y = y, local_level_ind = TRUE)
 
 # Plots the filtered estimates
-plot(1871:1970, 100 * fit$function_call$y,
-  type = "p",
-  ylim = c(500, 1400), xlab = NA, ylab = NA
+plot(
+  1871:1970, fit$function_call$y,
+  type = "p", ylim = c(500, 1400),
+  xlab = NA, ylab = NA
 )
-lines(1871:1970, 100 * fit$filtered$level, type = "l")
-lines(1871:1970, 100 * fit$filtered$level +
-  1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-type = "l", col = "gray"
+lines(1871:1970, fit$filtered$level, type = "l")
+lines(
+  1871:1970, fit$filtered$level +
+    1.644854 * sqrt(fit$filtered$P[1, 1, ]),
+  type = "l", col = "gray"
 )
-lines(1871:1970, 100 * fit$filtered$level -
-  1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-type = "l", col = "gray"
+lines(
+  1871:1970, fit$filtered$level -
+    1.644854 * sqrt(fit$filtered$P[1, 1, ]),
+  type = "l", col = "gray"
 )
 
 # Plots the smoothed estimates
-plot(1871:1970, 100 * fit$function_call$y,
-  type = "p",
-  ylim = c(500, 1400), xlab = NA, ylab = NA
+plot(
+  1871:1970, fit$function_call$y,
+  type = "p", ylim = c(500, 1400),
+  xlab = NA, ylab = NA
 )
-lines(1871:1970, 100 * fit$smoothed$level, type = "l")
-lines(1871:1970, 100 * fit$smoothed$level +
-  1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-type = "l", col = "gray"
+lines(1871:1970, fit$smoothed$level, type = "l")
+lines(
+  1871:1970, fit$smoothed$level +
+    1.644854 * sqrt(fit$smoothed$V[1, 1, ]),
+  type = "l", col = "gray"
 )
-lines(1871:1970, 100 * fit$smoothed$level -
-  1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-type = "l", col = "gray"
+lines(
+  1871:1970, fit$smoothed$level -
+    1.644854 * sqrt(fit$smoothed$V[1, 1, ]),
+  type = "l", col = "gray"
 )
 }
 \references{

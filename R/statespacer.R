@@ -197,36 +197,42 @@
 #' # Fits a local level model for the Nile data
 #' library(datasets)
 #' y <- matrix(Nile)
-#' fit <- statespacer(initial = 1, y = y / 100, local_level_ind = TRUE)
+#' fit <- statespacer(initial = 10, y = y, local_level_ind = TRUE)
 #'
 #' # Plots the filtered estimates
-#' plot(1871:1970, 100 * fit$function_call$y,
-#'   type = "p",
-#'   ylim = c(500, 1400), xlab = NA, ylab = NA
+#' plot(
+#'   1871:1970, fit$function_call$y,
+#'   type = "p", ylim = c(500, 1400),
+#'   xlab = NA, ylab = NA
 #' )
-#' lines(1871:1970, 100 * fit$filtered$level, type = "l")
-#' lines(1871:1970, 100 * fit$filtered$level +
-#'   1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-#' type = "l", col = "gray"
+#' lines(1871:1970, fit$filtered$level, type = "l")
+#' lines(
+#'   1871:1970, fit$filtered$level +
+#'     1.644854 * sqrt(fit$filtered$P[1, 1, ]),
+#'   type = "l", col = "gray"
 #' )
-#' lines(1871:1970, 100 * fit$filtered$level -
-#'   1.644854 * 100 * sqrt(fit$filtered$P[1, 1, ]),
-#' type = "l", col = "gray"
+#' lines(
+#'   1871:1970, fit$filtered$level -
+#'     1.644854 * sqrt(fit$filtered$P[1, 1, ]),
+#'   type = "l", col = "gray"
 #' )
 #'
 #' # Plots the smoothed estimates
-#' plot(1871:1970, 100 * fit$function_call$y,
-#'   type = "p",
-#'   ylim = c(500, 1400), xlab = NA, ylab = NA
+#' plot(
+#'   1871:1970, fit$function_call$y,
+#'   type = "p", ylim = c(500, 1400),
+#'   xlab = NA, ylab = NA
 #' )
-#' lines(1871:1970, 100 * fit$smoothed$level, type = "l")
-#' lines(1871:1970, 100 * fit$smoothed$level +
-#'   1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-#' type = "l", col = "gray"
+#' lines(1871:1970, fit$smoothed$level, type = "l")
+#' lines(
+#'   1871:1970, fit$smoothed$level +
+#'     1.644854 * sqrt(fit$smoothed$V[1, 1, ]),
+#'   type = "l", col = "gray"
 #' )
-#' lines(1871:1970, 100 * fit$smoothed$level -
-#'   1.644854 * 100 * sqrt(fit$smoothed$V[1, 1, ]),
-#' type = "l", col = "gray"
+#' lines(
+#'   1871:1970, fit$smoothed$level -
+#'     1.644854 * sqrt(fit$smoothed$V[1, 1, ]),
+#'   type = "l", col = "gray"
 #' )
 #' @export
 statespacer <- function(y,
@@ -983,18 +989,17 @@ statespacer <- function(y,
       message(paste0("Time difference of ", t2 - t1, " ", units(t2 - t1), "\n"))
     }
 
-    # Obtain various components
-    result <- do.call(
-      StateSpaceEval,
-      c(list(param = fit_model$par, y = y), sys_mat$function_call)
-    )
-    result$optim <- fit_model
+    model_par <- fit_model$par
   } else {
-    result <- do.call(
-      StateSpaceEval,
-      c(list(param = initial, y = y), sys_mat$function_call)
-    )
+    model_par <- initial
   }
+
+  # Obtain components of the state space model
+  result <- do.call(
+    StateSpaceEval,
+    c(list(param = model_par, y = y), sys_mat$function_call)
+  )
+  if (fit) result$optim <- fit_model
 
   # (Adjusted) Input parameters that were passed on to statespacer
   result$function_call <- c(
@@ -1026,7 +1031,7 @@ statespacer <- function(y,
     # Hessian of the loglikelihood evaluated at the ML estimates
     hessian <- numDeriv::hessian(
       func = result$loglik_fun,
-      x = fit_model$par
+      x = model_par
     )
     result$diagnostics$hessian <- hessian
     min_hessian_inv <- -solve(hessian)
@@ -1053,7 +1058,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices$level]
+          x = model_par[param_indices$level]
         )
         hess_subset <- min_hessian_inv[param_indices$level,
           param_indices$level,
@@ -1121,7 +1126,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices$level]
+          x = model_par[param_indices$level]
         )
         hess_subset <- min_hessian_inv[param_indices$level,
           param_indices$level,
@@ -1229,7 +1234,7 @@ statespacer <- function(y,
           }
           jacobian <- numDeriv::jacobian(
             func = TransformFun,
-            x = fit_model$par[param_indices[[paste0("BSM", s)]]]
+            x = model_par[param_indices[[paste0("BSM", s)]]]
           )
           hess_subset <- min_hessian_inv[param_indices[[paste0("BSM", s)]],
             param_indices[[paste0("BSM", s)]],
@@ -1293,7 +1298,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices$addvar]
+          x = model_par[param_indices$addvar]
         )
         hess_subset <- min_hessian_inv[param_indices$addvar,
           param_indices$addvar,
@@ -1365,7 +1370,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices$level]
+          x = model_par[param_indices$level]
         )
         hess_subset <- min_hessian_inv[param_indices$level,
           param_indices$level,
@@ -1487,7 +1492,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices$level]
+          x = model_par[param_indices$level]
         )
         hess_subset <- min_hessian_inv[param_indices$level,
           param_indices$level,
@@ -1630,7 +1635,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices[[paste0("Cycle", i)]]]
+          x = model_par[param_indices[[paste0("Cycle", i)]]]
         )
         hess_subset <- min_hessian_inv[param_indices[[paste0("Cycle", i)]],
           param_indices[[paste0("Cycle", i)]],
@@ -1707,7 +1712,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices[[paste0("ARIMA", i)]]]
+          x = model_par[param_indices[[paste0("ARIMA", i)]]]
         )
         hess_subset <- min_hessian_inv[param_indices[[paste0("ARIMA", i)]],
           param_indices[[paste0("ARIMA", i)]],
@@ -1811,7 +1816,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices[[paste0("SARIMA", i)]]]
+          x = model_par[param_indices[[paste0("SARIMA", i)]]]
         )
         hess_subset <- min_hessian_inv[param_indices[[paste0("SARIMA", i)]],
           param_indices[[paste0("SARIMA", i)]],
@@ -1897,7 +1902,7 @@ statespacer <- function(y,
     if (!is.null(self_spec_list$transform_fun)) {
       input <- list(
         func = self_spec_list$transform_fun,
-        x = fit_model$par[param_indices$self_spec]
+        x = model_par[param_indices$self_spec]
       )
       if (!is.null(self_spec_list$transform_input)) {
         input <- c(input, self_spec_list$transform_input)
@@ -1930,7 +1935,7 @@ statespacer <- function(y,
         }
         jacobian <- numDeriv::jacobian(
           func = TransformFun,
-          x = fit_model$par[param_indices$H]
+          x = model_par[param_indices$H]
         )
         hess_subset <- min_hessian_inv[param_indices$H,
           param_indices$H,

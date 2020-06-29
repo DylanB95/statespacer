@@ -79,7 +79,7 @@ fit <- statespacer(y = y,
                    verbose = TRUE)
 ```
 
-The warning can be ignored, it's a common warning that arises when calculating the square root of a variance that equals a small negative number, like -1e-13. Let's check out the estimates:
+Let's check out the estimates:
 
 ```{r, fig.height = 4.5, fig.width = 7}
 # The estimated variance of the observation disturbance

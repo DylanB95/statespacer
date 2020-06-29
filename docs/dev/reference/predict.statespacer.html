@@ -235,13 +235,13 @@ Oxford university press.</p>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
 <span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span> / <span class='fl'>100</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='co'># Obtain forecasts for 10 steps ahead using the fitted model</span>
 <span class='no'>fc</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>fit</span>, <span class='kw'>forecast_period</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 
 <span class='co'># Plot the forecasts</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='no'>fc</span>$<span class='no'>y_fc</span> * <span class='fl'>100</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='img'><img src='predict.statespacer-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='no'>fc</span>$<span class='no'>y_fc</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='img'><img src='predict.statespacer-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
