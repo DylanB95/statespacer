@@ -44,8 +44,7 @@ StateSpaceEval <- function(param,
                            format_BSM_list = lapply(BSM_vec, function(x) NULL),
                            format_cycle_list = lapply(exclude_cycle_list, function(x) NULL),
                            format_addvar = NULL,
-                           format_level_addvar = NULL,
-                           loglik_only = FALSE) {
+                           format_level_addvar = NULL) {
 
   ##### Initialising lists to return #####
   filtered <- list()
@@ -255,7 +254,7 @@ StateSpaceEval <- function(param,
       }
 
       # Saving predicted and filtered state and corresponding variance for each timestep
-      if (timestep && !loglik_only) {
+      if (timestep) {
 
         # Predicted state and variance
         if (i < (N * p)) {
@@ -345,7 +344,7 @@ StateSpaceEval <- function(param,
 
       # Saving predicted and filtered state and corresponding variance
       # for each timestep
-      if (timestep && !loglik_only) {
+      if (timestep) {
 
         # Predicted state and variance
         if (i < (N * p)) {
@@ -399,11 +398,6 @@ StateSpaceEval <- function(param,
 
     # Store loglikelihood
     loglik[[i]] <- filter_output$loglik
-  }
-
-  # Should only the loglikelihood be returned?
-  if (loglik_only) {
-    return(sum(loglik, na.rm = TRUE))
   }
 
   #### Diagnostics ####

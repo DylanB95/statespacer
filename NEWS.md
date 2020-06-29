@@ -1,24 +1,36 @@
 # statespacer 0.2.0 (in development)
 
-* Replaced `StateSpaceFit()` for `statespacer()`.
+## Breaking changes
 
-* Replaced `StateSpaceEval(...)` for `statespacer(..., fit = FALSE)`.
+* API change by making use of S3 classes and methods:
 
-* Replaced `StateSpaceForecast()` for `predict.statespacer()`.
+  * Replaced `StateSpaceFit()` for `statespacer()`.
+
+  * Replaced `StateSpaceEval(...)` for `statespacer(..., fit = FALSE)`.
+
+  * `statespacer()` returns a list object of class `statespacer`.
+
+  * Replaced `StateSpaceForecast()` for the S3 method `predict.statespacer()`.
+
+## Performance improvements
+
+* Major:
+
+  * Calculation of loglikelihood now done using cpp. Major performance improvement as the loglikelihood potentially gets calculated a lot of times by the optimisation procedure.
+
+* Minor:
+  
+  * Making use of crossprod and tcrossprod.
+
+  * Improved efficiency of the computation of standard_errors.
+  
+  * y_temp outside of LogLikelihood function.
+
+## Extra functionality
 
 * Printing progress now optional using `verbose = TRUE`.
 
-* Restyled code.
-
-* Some performance improvements.
-
 * Computation of standard_errors now optional using `standard_errors = TRUE`.
-
-* Improved efficiency of the computation of standard_errors.
-
-* y_temp outside LogLikelihood function, minor efficiency gain.
-
-* call. = FALSE in errors and warnings.
 
 # statespacer 0.1.0
 

@@ -82,11 +82,12 @@
 #' @param format_level_addvar Format of the Q_level_addvar system matrix, the
 #'   variance - covariance matrix of the explanatory variables of the level
 #'   state equation.
-#' @param fit Boolean indicating whether the model should be fit. If `FALSE`,
-#'   the model is only evaluated at the initial values.
+#' @param fit Boolean indicating whether the model should be fit by an
+#'   iterative optimisation procedure. If `FALSE`, the model is only evaluated
+#'   at the initial values.
 #' @param initial Vector of initial values for the parameter search.
-#'   The initial values are recycled or truncated if `fit = TRUE` and too few
-#'   or too many values are specified.
+#'   The initial values are recycled or truncated if too few or too many values
+#'   have been specified.
 #' @param method Method that should be used by the \code{\link[stats]{optim}}
 #'   or \code{\link[optimx]{optimr}} function to estimate the parameters. Only
 #'   used if `fit = TRUE`.
@@ -97,15 +98,12 @@
 #'   collapsed. Should only be set to `TRUE` if the dimensionality of the
 #'   observation vector exceeds the dimensionality of the state vector.
 #'   If this is the case, computational gains can be achieved by collapsing
-#'   the observation vector. Only used if `fit = TRUE`.
+#'   the observation vector.
 #' @param standard_errors Boolean indicating whether standard errors should be
 #'   computed. \pkg{numDeriv} must be installed in order to compute the
-#'   standard errors! Defaults to TRUE if \pkg{numDeriv} is available. Only
-#'   used if `fit = TRUE`.
-#' @param loglik_only Boolean indicating whether only the loglikelihood should
-#'   be returned. Only used if `fit = FALSE`.
-#' @param verbose Boolean indicating whether details of the progress should be
-#'   printed. Only used if `fit = TRUE`.
+#'   standard errors! Defaults to TRUE if \pkg{numDeriv} is available.
+#' @param verbose Boolean indicating whether the progress of the optimisation
+#'   procedure should be printed. Only used if `fit = TRUE`.
 #'
 #' @details
 #' To fit the specified State Space model, one occasionally has to pay careful
@@ -180,7 +178,7 @@
 #' * `diagnostics`: A list containing items useful for diagnostical tests.
 #' * `optim` (if `fit = TRUE`): A list containing the variables that are returned
 #'   by the \code{\link[stats]{optim}} or \code{\link[optimx]{optimr}} function.
-#' * `loglik_fun` (if `fit = TRUE`): Function that returns the loglikelihood of the
+#' * `loglik_fun`: Function that returns the loglikelihood of the
 #'   specified State Space model, as a function of its parameters.
 #' * `standard_errors` (if `standard_errors = TRUE`): A list containing the
 #'   standard errors of the parameters of the State Space model.
@@ -261,42 +259,7 @@ statespacer <- function(y,
                         control = list(),
                         collapse = FALSE,
                         standard_errors = NULL,
-                        loglik_only = FALSE,
                         verbose = FALSE) {
-
-  # Run only StateSpaceEval if fit = FALSE
-  if (!fit) {
-    result <- StateSpaceEval(
-      param = initial,
-      y = y,
-      H_format = H_format,
-      local_level_ind = local_level_ind,
-      slope_ind = slope_ind,
-      BSM_vec = BSM_vec,
-      cycle_ind = cycle_ind,
-      addvar_list = addvar_list,
-      level_addvar_list = level_addvar_list,
-      arima_list = arima_list,
-      sarima_list = sarima_list,
-      self_spec_list = self_spec_list,
-      exclude_level = exclude_level,
-      exclude_slope = exclude_slope,
-      exclude_BSM_list = exclude_BSM_list,
-      exclude_cycle_list = exclude_cycle_list,
-      exclude_arima_list = exclude_arima_list,
-      exclude_sarima_list = exclude_sarima_list,
-      damping_factor_ind = damping_factor_ind,
-      format_level = format_level,
-      format_slope = format_slope,
-      format_BSM_list = format_BSM_list,
-      format_cycle_list = format_cycle_list,
-      format_addvar = format_addvar,
-      format_level_addvar = format_level_addvar,
-      loglik_only = loglik_only
-    )
-    class(result) <- "statespacer"
-    return(result)
-  }
 
   # Check whether standard_errors should be computed
   if (is.null(standard_errors)) {
@@ -990,37 +953,51 @@ statespacer <- function(y,
     initial <- initial[1:sys_mat$param_num]
   }
 
-  if (verbose) {
-    # Keeping track of the elapsed time of the optim function
-    t1 <- Sys.time()
-    message(paste0("Starting the optimisation procedure at: ", t1))
-  }
+  if (fit) {
+    if (verbose) {
+      # Keeping track of the elapsed time of the optim function
+      t1 <- Sys.time()
+      message(paste0("Starting the optimisation procedure at: ", t1))
+    }
 
-  # Optimising parameters
-  fit_model <- optim_fun(
-    par = initial,
-    fn = LogLikelihood,
-    method = method,
-    control = control
-  )
+    # Optimising parameters
+    fit_model <- optim_fun(
+      par = initial,
+      fn = LogLikelihood,
+      method = method,
+      control = control
+    )
 
-  # Check if optim returned NA values as optimal parameters
-  if (any(is.na(fit_model$par))) {
-    stop(
-      "NA values returned by `optim`. Please try different initial values.",
-      call. = FALSE
+    # Check if optim returned NA values as optimal parameters
+    if (any(is.na(fit_model$par))) {
+      stop(
+        "NA values returned by `optim`. Please try different initial values.",
+        call. = FALSE
+      )
+    }
+
+    if (verbose) {
+      # Elapsed time
+      t2 <- Sys.time()
+      message(paste("Finished the optimisation procedure at:", t2))
+      message(paste0("Time difference of ", t2 - t1, " ", units(t2 - t1), "\n"))
+    }
+
+    # Obtain various components
+    result <- do.call(
+      StateSpaceEval,
+      c(list(param = fit_model$par, y = y), sys_mat$function_call)
+    )
+    result$optim <- fit_model
+  } else {
+    result <- do.call(
+      StateSpaceEval,
+      c(list(param = initial, y = y), sys_mat$function_call)
     )
   }
 
-  if (verbose) {
-    # Elapsed time
-    t2 <- Sys.time()
-    message(paste("Finished the optimisation procedure at:", t2))
-    message(paste0("Time difference of ", t2 - t1, " ", units(t2 - t1), "\n"))
-  }
-
   # (Adjusted) Input parameters that were passed on to statespacer
-  function_call <- c(
+  result$function_call <- c(
     list(y = y),
     sys_mat$function_call,
     list(
@@ -1034,13 +1011,7 @@ statespacer <- function(y,
     )
   )
 
-  # List that will be returned by the function
-  result <- do.call(
-    StateSpaceEval,
-    c(list(param = fit_model$par, y = y), sys_mat$function_call)
-  )
-  result$function_call <- function_call
-  result$optim <- fit_model
+  # Loglikelihood function
   result$loglik_fun <- function(param) -N * LogLikelihood(param)
 
   # Indices of the parameters for each of the components
