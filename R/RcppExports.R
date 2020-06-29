@@ -14,6 +14,8 @@
 #' @param T T system matrix of the State Space model.
 #' @param R R system matrix of the State Space model.
 #' @param Q Q system matrix of the State Space model.
+#'
+#' @noRd
 LogLikC <- function(y, y_isna, a, P_inf, P_star, Z, T, R, Q) {
     .Call(`_statespacer_LogLikC`, y, y_isna, a, P_inf, P_star, Z, T, R, Q)
 }

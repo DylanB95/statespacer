@@ -791,7 +791,7 @@ statespacer <- function(y,
 
       # Check for state only parameters
       if (!is.null(self_spec_list$state_only) && collapse) {
-        state_only_indices <- dim(a)[[2]] - p - self_spec_list$state_num +
+        state_only_indices <- dim(a)[[1]] - p - self_spec_list$state_num +
           self_spec_list$state_only
         if (is.matrix(Z_kal)) {
           Z_kal <- Z_kal[, -state_only_indices, drop = FALSE]

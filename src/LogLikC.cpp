@@ -14,6 +14,8 @@
 //' @param T T system matrix of the State Space model.
 //' @param R R system matrix of the State Space model.
 //' @param Q Q system matrix of the State Space model.
+//'
+//' @noRd
 // [[Rcpp::export]]
 double LogLikC(const Rcpp::NumericMatrix& y,
                const Rcpp::LogicalMatrix& y_isna,
@@ -137,8 +139,8 @@ double LogLikC(const Rcpp::NumericMatrix& y,
           // Estimated state vector and corresponding variance - covariance
           // matrix for the next step
           a = a + K_0 * v;
-          P_inf = P_inf * L_0.t();
           P_star = P_inf * L_1.t() + P_star * L_0.t();
+          P_inf = P_inf * L_0.t();
           loglik += constant - log(F_inf) / 2;
         }
 
@@ -158,7 +160,10 @@ double LogLikC(const Rcpp::NumericMatrix& y,
 
         // Check if F_star is nearly 0
         if (F_star < 1e-7) {
+
+          // Increment number of times F = 0
           F_eq0++;
+
         } else {
 
           // Inverse of Fmat
