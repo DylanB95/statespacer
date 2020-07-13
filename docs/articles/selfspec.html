@@ -45,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
 
       
 
-      </header><script src="selfspec_files/header-attrs-2.1/header-attrs.js"></script><div class="row">
+      </header><script src="selfspec_files/header-attrs-2.3/header-attrs.js"></script><script src="selfspec_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Specify it yourself!</h1>
@@ -139,7 +139,6 @@
 <p>First, we load the data. We use the dataset that is provided by the YieldCurve package, see <span class="citation">Guirreri (2010)</span> for details. This dataset consists of the monthly US interest rates for 8 different maturities from January 1982 up to December 2012. The maturities are 3, 6, 12, 24, 36, 60, 84, and 120 months. For this exhibition, we make use of the period from January 1985 up to December 2000.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co"># Load statespacer</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">statespacer</span>)
-<span class="co">#&gt; Welcome to the statespacer package!</span>
 
 <span class="co"># Load the dataset</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">YieldCurve</span>)
@@ -154,7 +153,7 @@
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html">window</a></span>(<span class="no">FedYieldCurve</span>, <span class="kw">start</span> <span class="kw">=</span> <span class="st">"1984-12-31"</span>, <span class="kw">end</span> <span class="kw">=</span> <span class="st">"2000-12-01"</span>)
 <span class="no">years</span> <span class="kw">&lt;-</span> <span class="fu">index</span>(<span class="no">y</span>) <span class="co"># Used for plots later on</span>
 <span class="no">y</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="no">y</span>)</pre></body></html></div>
-<p>To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> for extensive details about the format of this list!</p>
+<p>To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of <code><a href="../reference/statespacer.html">statespacer()</a></code> for extensive details about the format of this list!</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Specifying the list</span>
 <span class="no">self_spec_list</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>()
 
@@ -246,31 +245,32 @@
              <span class="fl">6.68658053</span>, <span class="fl">0.76975206</span>, <span class="fl">0.02852844</span>, <span class="fl">0.50448668</span>,
              <span class="fl">2.99984132</span>, <span class="fl">8.16851107</span>, -<span class="fl">2.28360681</span>, -<span class="fl">0.45333494</span>)</pre></body></html></div>
 <p>Next, we fit the model! Notice that we use <code>collapse = TRUE</code>. This saves about <span class="math inline">\(60\%\)</span> of the computation time compared to <code>collapse = FALSE</code>, see for yourself!</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/StateSpaceFit.html">StateSpaceFit</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
-                     <span class="kw">self_spec_list</span> <span class="kw">=</span> <span class="no">self_spec_list</span>,
-                     <span class="kw">collapse</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-                     <span class="kw">initial</span> <span class="kw">=</span> <span class="no">initial</span>,
-                     <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-05-08 23:20:34</span>
+<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span>(<span class="kw">y</span> <span class="kw">=</span> <span class="no">y</span>,
+                   <span class="kw">self_spec_list</span> <span class="kw">=</span> <span class="no">self_spec_list</span>,
+                   <span class="kw">collapse</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
+                   <span class="kw">initial</span> <span class="kw">=</span> <span class="no">initial</span>,
+                   <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
+                   <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-07-13 14:04:17</span>
 <span class="co">#&gt; Parameter scaling: [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value -7.005119 </span>
 <span class="co">#&gt; final  value -7.005119 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-05-08 23:20:36</span>
-<span class="co">#&gt; Time difference of 1.66033101081848 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-07-13 14:04:17</span>
+<span class="co">#&gt; Time difference of 0.232373952865601 secs</span></pre></body></html></div>
 <p>Now, let us take a look at the smoothed factors:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The level beta_1</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">1</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,
+<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">1</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,
      <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"year"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"level of yield curve"</span>)</pre></body></html></div>
 <p><img src="selfspec_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <div class="sourceCode" id="cb9"><html><body><pre class="r">
 <span class="co"># The slope beta_2</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">2</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,
+<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">2</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,
      <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"year"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"slope of yield curve"</span>)</pre></body></html></div>
 <p><img src="selfspec_files/figure-html/unnamed-chunk-8-2.png" width="700"></p>
 <div class="sourceCode" id="cb10"><html><body><pre class="r">
 <span class="co"># The shape beta_3</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">3</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,
+<span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">3</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,
      <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"year"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"shape of yield curve"</span>)</pre></body></html></div>
 <p><img src="selfspec_files/figure-html/unnamed-chunk-8-3.png" width="700"></p>
 <p>And the fitted parameters:</p>
@@ -282,11 +282,11 @@
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">parameters</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Parameter"</span>, <span class="st">"Value"</span>, <span class="st">"Standard Error"</span>)
 <span class="no">parameters</span>
 <span class="co">#&gt;      Parameter Value                 Standard Error        </span>
-<span class="co">#&gt; [1,] "lambda"  "0.078868031244135"   "0.00166081522202678" </span>
-<span class="co">#&gt; [2,] "sigma2"  "0.00350791974797521" "0.000152454450860929"</span>
-<span class="co">#&gt; [3,] "mu1"     "8.16851324553413"    "3.21497258343168"    </span>
-<span class="co">#&gt; [4,] "mu2"     "-2.28360714382463"   "2.18547069514087"    </span>
-<span class="co">#&gt; [5,] "mu3"     "-0.453332999643271"  "0.847782785190047"</span>
+<span class="co">#&gt; [1,] "lambda"  "0.0788680312441378"  "0.00166081522213677" </span>
+<span class="co">#&gt; [2,] "sigma2"  "0.00350791974797472" "0.000152454450860636"</span>
+<span class="co">#&gt; [3,] "mu1"     "8.16851324553417"    "3.21497260089687"    </span>
+<span class="co">#&gt; [4,] "mu2"     "-2.28360714382468"   "2.18547070109234"    </span>
+<span class="co">#&gt; [5,] "mu3"     "-0.453332999643289"  "0.847782784608084"</span>
 
 <span class="co"># Vector autoregressive coefficient matrix</span>
 <span class="no">fit</span>$<span class="no">system_matrices</span>$<span class="no">T</span>$<span class="no">self_spec</span>[<span class="fl">1</span>:<span class="fl">3</span>, <span class="fl">1</span>:<span class="fl">3</span>]

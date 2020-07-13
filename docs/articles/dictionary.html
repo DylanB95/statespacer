@@ -21,7 +21,7 @@
 <link href="../docsearch.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Dictionary of statespacer">
-<meta property="og:description" content="`StateSpaceFit()` returns an object containing many items. In this vignette,  you will learn what exactly is returned by `StateSpaceFit()`, so that you  can obtain more value out of the statespacer package.
+<meta property="og:description" content="`statespacer()` returns an object containing many items. In this vignette,  you will learn what exactly is returned by `statespacer()`, so that you  can obtain more value out of the statespacer package.
 ">
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png">
 <meta name="twitter:card" content="summary">
@@ -45,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
 
       
 
-      </header><script src="dictionary_files/header-attrs-2.1/header-attrs.js"></script><div class="row">
+      </header><script src="dictionary_files/header-attrs-2.3/header-attrs.js"></script><script src="dictionary_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Dictionary of statespacer</h1>
@@ -117,7 +117,7 @@
 
     
     
-<p>This document provides extensive details about the object that is returned by <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code>. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by <span class="citation">Durbin and Koopman (2012)</span>. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!</p>
+<p>This document provides extensive details about the object that is returned by <code><a href="../reference/statespacer.html">statespacer()</a></code>. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by <span class="citation">Durbin and Koopman (2012)</span>. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!</p>
 <div id="the-general-linear-gaussian-state-space-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-general-linear-gaussian-state-space-model" class="anchor"></a>The general linear Gaussian state space model</h2>
@@ -131,14 +131,14 @@
 \]</span></p>
 <p>where <span class="math inline">\(y_t\)</span> is the <em>observation vector</em>, a <span class="math inline">\(p ~ \times ~ 1\)</span> vector of dependent variables at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\alpha_t\)</span> is the unobserved <em>state vector</em>, a <span class="math inline">\(m ~ \times ~ 1\)</span> vector of state variables at time <span class="math inline">\(t\)</span>, and <span class="math inline">\(\varepsilon_t\)</span> and <span class="math inline">\(\eta_t\)</span> are disturbance vectors of respectively the observation equation, and the state equation. To initialise the model, <span class="math inline">\(a_1\)</span> is used as the initial guess of the state vector, and <span class="math inline">\(P_1\)</span> is the corresponding uncertainty of that guess. The matrices <span class="math inline">\(Z_t\)</span>, <span class="math inline">\(H_t\)</span>, <span class="math inline">\(T_t\)</span>, <span class="math inline">\(R_t\)</span>, and <span class="math inline">\(Q_t\)</span> are called the <em>system matrices</em> of the state space model. Different specifications of these system matrices, lead to different interpretations of the model at hand.</p>
 </div>
-<div id="the-object-as-returned-by-statespacefit" class="section level2">
+<div id="the-object-as-returned-by-statespacer" class="section level2">
 <h2 class="hasAnchor">
-<a href="#the-object-as-returned-by-statespacefit" class="anchor"></a>The object as returned by StateSpaceFit</h2>
-<p>Having obtained a better understanding of the notation used, it is easier to find our way in the object that is returned by <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code>. Let’s say we store the object of StateSpaceFit in a variable called <code>fit</code>, that is, <code>fit &lt;- StateSpaceFit(...)</code>. <code>fit</code> is then a list, containing many items, including other lists. This section describes the items that are included in <code>fit</code> one by one.</p>
+<a href="#the-object-as-returned-by-statespacer" class="anchor"></a>The object as returned by statespacer</h2>
+<p>Having obtained a better understanding of the notation used, it is easier to find our way in the object that is returned by <code><a href="../reference/statespacer.html">statespacer()</a></code>. Let’s say we store the object of statespacer in a variable called <code>fit</code>, that is, <code>fit &lt;- statespacer(...)</code>. <code>fit</code> is then a list, containing many items, including other lists. This section describes the items that are included in <code>fit</code> one by one.</p>
 <div id="function_call" class="section level3">
 <h3 class="hasAnchor">
 <a href="#function_call" class="anchor"></a>function_call</h3>
-<p><code>function_call</code> is a list that contains, as the name suggests, the call to the <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code> function, including default values for the input arguments that were not specified. For details about the various input arguments, check out <code><a href="../reference/StateSpaceFit.html">?StateSpaceFit</a></code>.</p>
+<p><code>function_call</code> is a list that contains, as the name suggests, the call to the <code><a href="../reference/statespacer.html">statespacer()</a></code> function, including default values for the input arguments that were not specified. For details about the various input arguments, check out <code><a href="../reference/statespacer.html">?statespacer</a></code>.</p>
 </div>
 <div id="system_matrices" class="section level3">
 <h3 class="hasAnchor">
@@ -266,7 +266,7 @@
 <div id="order-of-parameter-input" class="section level2">
 <h2 class="hasAnchor">
 <a href="#order-of-parameter-input" class="anchor"></a>Order of parameter input</h2>
-<p>This section provides details about the parameter vector that’s supplied to <code><a href="../reference/StateSpaceFit.html">StateSpaceFit()</a></code>. It clarifies which elements are used for what components.</p>
+<p>This section provides details about the parameter vector that’s supplied to <code><a href="../reference/statespacer.html">statespacer()</a></code>. It clarifies which elements are used for what components.</p>
 <p>Most components use a variance - covariance matrix, which are constructed using the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition. The parameters supplied to build the variance - covariance matrix are ordered as follows: First, parameters are used for the Diagonal matrix <span class="math inline">\(D\)</span> and transformed by <span class="math inline">\(exp(2x)\)</span>. Second, the remaining parameters are assigned columnwise to the Loading matrix <span class="math inline">\(L\)</span>, so first the <span class="math inline">\(1_{st}\)</span> column, then the <span class="math inline">\(2_{nd}\)</span> column, and so on.</p>
 <p>The parameters are assigned to the components in the following order:</p>
 <ol style="list-style-type: decimal">

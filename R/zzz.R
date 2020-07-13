@@ -1,3 +1,3 @@
-.onAttach <- function(libname, pkgname) {
-  packageStartupMessage(paste("Welcome to the", pkgname, "package!"))
+.onUnload <- function (libpath) {
+  library.dynam.unload("statespacer", libpath)
 }

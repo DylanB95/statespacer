@@ -1,4 +1,4 @@
-# statespacer 0.2.0 (in development)
+# statespacer 0.2.0
 
 ## Breaking changes
 
@@ -25,6 +25,8 @@
   * Improved efficiency of the computation of standard_errors.
   
   * y_temp outside of LogLikelihood function.
+
+  * Easier to find proper initial values, reducing time spent on trial and error by the user.
 
 ## Extra functionality
 
