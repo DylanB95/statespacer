@@ -46,7 +46,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.1.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -140,7 +140,6 @@
 <p>First, we load the data. We use the dataset that is provided by the YieldCurve package, see <span class="citation">Guirreri (2010)</span> for details. This dataset consists of the monthly US interest rates for 8 different maturities from January 1982 up to December 2012. The maturities are 3, 6, 12, 24, 36, 60, 84, and 120 months. For this exhibition, we make use of the period from January 1985 up to December 2000.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co"># Load statespacer</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">statespacer</span>)
-<span class="co">#&gt; Welcome to the statespacer package!</span>
 
 <span class="co"># Load the dataset</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">YieldCurve</span>)
@@ -253,13 +252,13 @@
                    <span class="kw">initial</span> <span class="kw">=</span> <span class="no">initial</span>,
                    <span class="kw">method</span> <span class="kw">=</span> <span class="st">"BFGS"</span>,
                    <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-06-30 01:02:50</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-07-13 17:27:15</span>
 <span class="co">#&gt; Parameter scaling: [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value -7.005119 </span>
 <span class="co">#&gt; final  value -7.005119 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-06-30 01:02:50</span>
-<span class="co">#&gt; Time difference of 0.233332872390747 secs</span></pre></body></html></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-07-13 17:27:15</span>
+<span class="co">#&gt; Time difference of 0.233763933181763 secs</span></pre></body></html></div>
 <p>Now, let us take a look at the smoothed factors:</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># The level beta_1</span>
 <span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span>(<span class="no">years</span>, <span class="no">fit</span>$<span class="no">smoothed</span>$<span class="no">a</span>[, <span class="fl">1</span>], <span class="kw">type</span> <span class="kw">=</span> <span class="st">'l'</span>,
