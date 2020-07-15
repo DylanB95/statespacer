@@ -166,7 +166,7 @@
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
 <ul>
-<li>Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if <code>first &lt;- list()</code>, then assigning <code>first$second[[["third"]] &lt;- 1</code> returns on Windows (and other platforms) a list named <code>first</code> containing a list named <code>second</code> containing a named element <code>third</code> equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named <code>first</code> containing a named element <code>second</code> equal to a named (<code>third</code>) length 1 numerical vector. So <code>second</code> is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.</li>
+<li>Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if <code>first &lt;- list()</code>, then assigning <code>first$second[[["third"]] &lt;- 1</code> returns on Windows (and other platforms) a list named <code>first</code>, that contains another list named <code>second</code>, that contains a named element <code>third</code> equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named <code>first</code>, that contains a named element <code>second</code> equal to a named (<code>third</code>) length 1 numerical vector. So <code>second</code> is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.</li>
 </ul>
 </div>
 </div>

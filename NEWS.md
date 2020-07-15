@@ -1,7 +1,7 @@
 # statespacer 0.2.1
 
 ## Bug fixes
-* Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if `first <- list()`, then assigning `first$second[[["third"]] <- 1` returns on Windows (and other platforms) a list named `first` containing a list named `second` containing a named element `third` equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named `first` containing a named element `second` equal to a named (`third`) length 1 numerical vector. So `second` is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.
+* Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if `first <- list()`, then assigning `first$second[[["third"]] <- 1` returns on Windows (and other platforms) a list named `first`, that contains another list named `second`, that contains a named element `third` equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named `first`, that contains a named element `second` equal to a named (`third`) length 1 numerical vector. So `second` is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.
 
 # statespacer 0.2.0
 
