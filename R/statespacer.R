@@ -1027,6 +1027,18 @@ statespacer <- function(y,
 
     # Initialise standard_errors list
     standard_errors <- list()
+    standard_errors$Q <- list()
+    standard_errors$Q_loading_matrix <- list()
+    standard_errors$Q_diagonal_matrix <- list()
+    standard_errors$Q_correlation_matrix <- list()
+    standard_errors$Q_stdev_matrix <- list()
+    standard_errors$lambda <- list()
+    standard_errors$rho <- list()
+    standard_errors$AR <- list()
+    standard_errors$MA <- list()
+    standard_errors$SAR <- list()
+    standard_errors$SMA <- list()
+    standard_errors$H <- list()
 
     # Hessian of the loglikelihood evaluated at the ML estimates
     hessian <- numDeriv::hessian(
@@ -1826,6 +1838,7 @@ statespacer <- function(y,
 
         # SAR
         if (!is.null(result$system_matrices$SAR[[paste0("SARIMA", i)]])) {
+          standard_errors$SAR[[paste0("SARIMA", i)]] <- list()
           for (j in seq_along(result$system_matrices$SAR[[paste0("SARIMA", i)]])) {
             sar <- result$system_matrices$SAR[[paste0("SARIMA", i)]][[j]]
             se_index <- 1:length(sar)
@@ -1846,6 +1859,7 @@ statespacer <- function(y,
 
         # SMA
         if (!is.null(result$system_matrices$SMA[[paste0("SARIMA", i)]])) {
+          standard_errors$SMA[[paste0("SARIMA", i)]] <- list()
           for (j in seq_along(result$system_matrices$SMA[[paste0("SARIMA", i)]])) {
             sma <- result$system_matrices$SMA[[paste0("SARIMA", i)]][[j]]
             se_index <- 1:length(sma)
@@ -1974,6 +1988,44 @@ statespacer <- function(y,
           std_errors[se_index], dimH, dimH
         )
       }
+    }
+
+    # Remove 0 length elements from standard_errors list
+    if (length(standard_errors$Q) == 0) {
+      standard_errors$Q <- NULL
+    }
+    if (length(standard_errors$Q_loading_matrix) == 0) {
+      standard_errors$Q_loading_matrix <- NULL
+    }
+    if (length(standard_errors$Q_diagonal_matrix) == 0) {
+      standard_errors$Q_diagonal_matrix <- NULL
+    }
+    if (length(standard_errors$Q_correlation_matrix) == 0) {
+      standard_errors$Q_correlation_matrix <- NULL
+    }
+    if (length(standard_errors$Q_stdev_matrix) == 0) {
+      standard_errors$Q_stdev_matrix <- NULL
+    }
+    if (length(standard_errors$lambda) == 0) {
+      standard_errors$lambda <- NULL
+    }
+    if (length(standard_errors$rho) == 0) {
+      standard_errors$rho <- NULL
+    }
+    if (length(standard_errors$AR) == 0) {
+      standard_errors$AR <- NULL
+    }
+    if (length(standard_errors$MA) == 0) {
+      standard_errors$MA <- NULL
+    }
+    if (length(standard_errors$SAR) == 0) {
+      standard_errors$SAR <- NULL
+    }
+    if (length(standard_errors$SMA) == 0) {
+      standard_errors$SMA <- NULL
+    }
+    if (length(standard_errors$H) == 0) {
+      standard_errors$H <- NULL
     }
 
     # Add standard_errors to result
