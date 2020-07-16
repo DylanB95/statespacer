@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.2.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.2.1.9000</span>
       </span>
     </div>
 
@@ -158,10 +158,30 @@
       <small>Source: <a href='https://github.com/DylanB95/statespacer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="statespacer-0209000-development-version" class="section level1">
-<h1 class="page-header" data-toc-text="0.2.0.9000">
-<a href="#statespacer-0209000-development-version" class="anchor"></a>statespacer 0.2.0.9000 (Development version)<small> Unreleased </small>
+    <div id="statespacer-0219000-development-version" class="section level1">
+<h1 class="page-header" data-toc-text="0.2.1.9000">
+<a href="#statespacer-0219000-development-version" class="anchor"></a>statespacer 0.2.1.9000 (Development version)<small> Unreleased </small>
 </h1>
+<div id="to-do" class="section level2">
+<h2 class="hasAnchor">
+<a href="#to-do" class="anchor"></a>To do</h2>
+<ul>
+<li><p>Rewrite parts of StateSpaceEval in c++</p></li>
+<li><p>Implement Simulation Smoother</p></li>
+</ul>
+</div>
+</div>
+    <div id="statespacer-021" class="section level1">
+<h1 class="page-header" data-toc-text="0.2.1">
+<a href="#statespacer-021" class="anchor"></a>statespacer 0.2.1<small> 2020-07-15 </small>
+</h1>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if <code>first &lt;- list()</code>, then assigning <code>first$second[[["third"]] &lt;- 1</code> returns on Windows (and other platforms) a list named <code>first</code>, that contains another list named <code>second</code>, that contains a named element <code>third</code> equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named <code>first</code>, that contains a named element <code>second</code> equal to a named (<code>third</code>) length 1 numerical vector. So <code>second</code> is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.</li>
+</ul>
+</div>
 </div>
     <div id="statespacer-020" class="section level1">
 <h1 class="page-header" data-toc-text="0.2.0">
