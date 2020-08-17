@@ -272,7 +272,7 @@ predict.statespacer <- function(object,
       tempZ[, , i][1:length(Z_padded$addvar[, , i])] <- Z_padded$addvar[, , i]
       result$addvar[i, ] <- matrix(tempZ[, , i], nrow = p) %*% matrix(a_fc[i, ])
     }
-    Z_padded$addvar[, , i] <- tempZ
+    Z_padded$addvar <- tempZ
   }
 
   # level_addvar
