@@ -99,6 +99,8 @@
 #'   observation vector exceeds the dimensionality of the state vector.
 #'   If this is the case, computational gains can be achieved by collapsing
 #'   the observation vector.
+#' @param diagnostics Boolean indicating whether diagnostical tests should be
+#'   computed. Defaults to TRUE.
 #' @param standard_errors Boolean indicating whether standard errors should be
 #'   computed. \pkg{numDeriv} must be installed in order to compute the
 #'   standard errors! Defaults to TRUE if \pkg{numDeriv} is available.
@@ -264,6 +266,7 @@ statespacer <- function(y,
                         method = "BFGS",
                         control = list(),
                         collapse = FALSE,
+                        diagnostics = TRUE,
                         standard_errors = NULL,
                         verbose = FALSE) {
 
@@ -997,7 +1000,12 @@ statespacer <- function(y,
   # Obtain components of the state space model
   result <- do.call(
     StateSpaceEval,
-    c(list(param = model_par, y = y), sys_mat$function_call)
+    c(
+      list(
+        param = model_par, y = y, diagnostics = diagnostics
+      ),
+      sys_mat$function_call
+    )
   )
   if (fit) result$optim <- fit_model
 
@@ -1011,6 +1019,7 @@ statespacer <- function(y,
       method = method,
       control = control,
       collapse = collapse,
+      diagnostics = diagnostics,
       standard_errors = standard_errors,
       verbose = verbose
     )

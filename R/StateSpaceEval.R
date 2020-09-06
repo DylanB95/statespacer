@@ -44,9 +44,10 @@ StateSpaceEval <- function(param,
                            format_BSM_list = lapply(BSM_vec, function(x) NULL),
                            format_cycle_list = lapply(exclude_cycle_list, function(x) NULL),
                            format_addvar = NULL,
-                           format_level_addvar = NULL) {
+                           format_level_addvar = NULL,
+                           diagnostics = TRUE) {
 
-  ##### Initialising lists to return #####
+  # Initialising lists to return
   filtered <- list()
   predicted <- list()
   smoothed <- list()
@@ -126,6 +127,27 @@ StateSpaceEval <- function(param,
   a <- sys_mat$a_kal
   P_inf <- sys_mat$P_inf_kal
   P_star <- sys_mat$P_star_kal
+
+  # NA in y
+  y_isna <- is.na(y)
+
+  # Augment system matrices to arrays
+  Z_cube <- Z_kal
+  if (is.matrix(Z_cube)) {
+    dim(Z_cube) <- c(dim(Z_cube), 1)
+  }
+  T_cube <- T_kal
+  if (is.matrix(T_cube)) {
+    dim(T_cube) <- c(dim(T_cube), 1)
+  }
+  R_cube <- R_kal
+  if (is.matrix(R_cube)) {
+    dim(R_cube) <- c(dim(R_cube), 1)
+  }
+  Q_cube <- Q_kal
+  if (is.matrix(Q_cube)) {
+    dim(Q_cube) <- c(dim(Q_cube), 1)
+  }
 
   # Uncertainty of initial 'guess' of state vector
   kappa <- 1e7
@@ -400,47 +422,49 @@ StateSpaceEval <- function(param,
     loglik[[i]] <- filter_output$loglik
   }
 
-  #### Diagnostics ####
+  # Diagnostics
+  if (diagnostics) {
 
-  # Calculating test statistics based on the normalised prediction errors
-  obs_vec <- colSums(!is.na(v_norm))
-  m1 <- colMeans(v_norm, na.rm = TRUE)
-  v_norm_centered <- t(t(v_norm) - m1)
-  m2 <- colMeans(v_norm_centered^2, na.rm = TRUE)
-  m3 <- colMeans(v_norm_centered^3, na.rm = TRUE)
-  m4 <- colMeans(v_norm_centered^4, na.rm = TRUE)
-  Sstat <- m3 / sqrt(m2^3)
-  Kstat <- m4 / m2^2
-  Nstat <- obs_vec * (Sstat^2 / 6 + (Kstat - 3)^2 / 24)
+    # Calculating test statistics based on the normalised prediction errors
+    obs_vec <- colSums(!is.na(v_norm))
+    m1 <- colMeans(v_norm, na.rm = TRUE)
+    v_norm_centered <- t(t(v_norm) - m1)
+    m2 <- colMeans(v_norm_centered^2, na.rm = TRUE)
+    m3 <- colMeans(v_norm_centered^3, na.rm = TRUE)
+    m4 <- colMeans(v_norm_centered^4, na.rm = TRUE)
+    Sstat <- m3 / sqrt(m2^3)
+    Kstat <- m4 / m2^2
+    Nstat <- obs_vec * (Sstat^2 / 6 + (Kstat - 3)^2 / 24)
 
-  # Number of observations after initialisation
-  obs <- min(obs_vec)
+    # Number of observations after initialisation
+    obs <- min(obs_vec)
 
-  # Correlogram and Box-Ljung statistic
-  if (obs > 0) {
-    correlogram <- matrix(0, floor(obs / 2), p)
-    Box_Ljung <- matrix(0, floor(obs / 2), p)
-    BL_running <- 0
-    for (i in 1:floor(obs / 2)) {
-      correlogram[i, ] <- colSums(
-        v_norm_centered[(i + 1):N, , drop = FALSE] *
-          v_norm_centered[1:(N - i), , drop = FALSE],
-        na.rm = TRUE
-      ) / (obs_vec * m2)
-      BL_running <- BL_running +
-        obs_vec * (obs_vec + 2) * correlogram[i, ]^2 / (obs_vec - i)
-      Box_Ljung[i, ] <- BL_running
-    }
+    # Correlogram and Box-Ljung statistic
+    if (obs > 0) {
+      correlogram <- matrix(0, floor(obs / 2), p)
+      Box_Ljung <- matrix(0, floor(obs / 2), p)
+      BL_running <- 0
+      for (i in 1:floor(obs / 2)) {
+        correlogram[i, ] <- colSums(
+          v_norm_centered[(i + 1):N, , drop = FALSE] *
+            v_norm_centered[1:(N - i), , drop = FALSE],
+          na.rm = TRUE
+        ) / (obs_vec * m2)
+        BL_running <- BL_running +
+          obs_vec * (obs_vec + 2) * correlogram[i, ]^2 / (obs_vec - i)
+        Box_Ljung[i, ] <- BL_running
+      }
 
-    # Heteroscedasticity test
-    Heteroscedasticity <- matrix(0, floor(obs / 3), p)
-    group1 <- 0
-    group2 <- 0
-    v_2 <- v_norm[stats::complete.cases(v_norm), , drop = FALSE]
-    for (i in 1:floor(obs / 3)) {
-      group1 <- group1 + v_2[i, ]^2
-      group2 <- group2 + v_2[dim(v_2)[[1]] + 1 - i, ]^2
-      Heteroscedasticity[i, ] <- group2 / group1
+      # Heteroscedasticity test
+      Heteroscedasticity <- matrix(0, floor(obs / 3), p)
+      group1 <- 0
+      group2 <- 0
+      v_2 <- v_norm[stats::complete.cases(v_norm), , drop = FALSE]
+      for (i in 1:floor(obs / 3)) {
+        group1 <- group1 + v_2[i, ]^2
+        group2 <- group2 + v_2[dim(v_2)[[1]] + 1 - i, ]^2
+        Heteroscedasticity[i, ] <- group2 / group1
+      }
     }
   }
   ################################ Kalman Smoother ################################
@@ -802,7 +826,7 @@ StateSpaceEval <- function(param,
   ######################################################################################
 
   #### Adjusting dimensions of Z matrices of components ####
-  ## -- and adding fitted components of the model ---------##
+  ## -- and adding fitted components of the model --------##
 
   # Local Level
   if (local_level_ind && !slope_ind && is.null(level_addvar_list)) {
