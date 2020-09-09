@@ -96,14 +96,14 @@ Rcpp::List KalmanC(const arma::mat& y,
   arma::cube N_UT(m, m, Np + 1, arma::fill::zeros),
              Nmat(m, m, N + 1, arma::fill::zeros);
 
-  // Initialise helpers r_1, N_1, N_2, tZZ for smoother
-  arma::rowvec r_1(m, arma::fill::zeros);
+  // Initialise helpers r_1, N_1, N_2, tZZ, K, e_row, RtQ for smoother
+  arma::rowvec r_1(m, arma::fill::zeros), e_row(p);
   arma::mat N_1(m, m, arma::fill::zeros), N_2(m, m, arma::fill::zeros),
-            tZZ(m, m);
+            tZZ(m, m), K(m, p), RtQ(m, r);
 
   // Kalman Filter
   // Loop over timepoints
-  for(int i = 0; i < N; i++) {
+  for (int i = 0; i < N; i++) {
 
     // Get system matrices of current timepoint
     if (Z_tv && i > 0) {
@@ -160,7 +160,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     }
 
     // Loop over dependent variables
-    for(int j = 0; j < p; j++, index++) {
+    for (int j = 0; j < p; j++, index++) {
 
       // Check for missing value
       if (y_isna(i, j)) {
@@ -309,7 +309,6 @@ Rcpp::List KalmanC(const arma::mat& y,
             a_fc = a_mat.row(index).t();
             P_star_fc = P_star_cube.slice(index);
           }
-          continue;
         } else {
 
           // Inverse of Fmat
@@ -336,7 +335,6 @@ Rcpp::List KalmanC(const arma::mat& y,
           }
           loglik(index) = constant -
             (log(F_star(index)) + pow(v_UT(index), 2.0) * F_1(index)) / 2;
-          continue;
         }
       }
     }
@@ -351,7 +349,7 @@ Rcpp::List KalmanC(const arma::mat& y,
       } else {
         P_fil.slice(i) = P_star_cube.slice(index);
       }
-      a_mat.row(index) = T_mat * a_mat.row(index);
+      a_mat.row(index) = arma::trans(T_mat * a_mat.row(index).t());
       P_star_cube.slice(index) =
         T_mat * P_star_cube.slice(index) * T_mat.t() + R_mat * Q_mat * R_mat.t();
       if (initialisation) {
@@ -384,7 +382,7 @@ Rcpp::List KalmanC(const arma::mat& y,
 
   // Kalman Smoother
   // Loop backwards over timepoints
-  for(int i = N_min1; i >= 0; i--) {
+  for (int i = N_min1; i >= 0; i--) {
 
     // Get system matrix of current timepoint for Z
     if (Z_tv && i < N_min1) {
@@ -403,7 +401,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     }
 
     // Loop backwards over dependent variables
-    for(int j = p_min1; j >= 0; j--, index--) {
+    for (int j = p_min1; j >= 0; j--, index--) {
 
       // Check for missing value
       if (y_isna(i, j)) {
@@ -429,7 +427,6 @@ Rcpp::List KalmanC(const arma::mat& y,
             // No new information
             r_UT.row(index) = r_UT.row(index + 1);
             N_UT.slice(index) = N_UT.slice(index + 1);
-            continue;
           } else {
 
             // New r and N
@@ -438,7 +435,6 @@ Rcpp::List KalmanC(const arma::mat& y,
             N_UT.slice(index) = Z_row.t() * Z_row * F_1(index) +
               L_0.slice(index).t() * N_UT.slice(index + 1) * L_0.slice(index);
             N_1 = N_1 * L_0.slice(index);
-            continue;
           }
         } else {
 
@@ -460,98 +456,75 @@ Rcpp::List KalmanC(const arma::mat& y,
         }
       } else {
 
-        // PZ' as in Kalman formulae
-        M_star.col(index) = P_star_cube.slice(index) * Z_row.t();
-
-        // Variance matrix of the current residual/fitted value
-        F_star(index) = arma::as_scalar(Z_row * M_star.col(index));
-
         // Check if F_star is nearly 0
         if (F_star(index) < 1e-7) {
 
           // No new information
-          loglik(index) = NA_REAL;
-          if (index < Np_min1) {
-            a_mat.row(index + 1) = a_mat.row(index);
-            P_star_cube.slice(index + 1) = P_star_cube.slice(index);
-          } else {
-            a_fc = a_mat.row(index).t();
-            P_star_fc = P_star_cube.slice(index);
-          }
-          continue;
+          r_UT.row(index) = r_UT.row(index + 1);
+          N_UT.slice(index) = N_UT.slice(index + 1);
         } else {
 
-          // Inverse of Fmat
-          F_1(index) = 1 / F_star(index);
-
-          // Current residual
-          v_UT(index) = y(i, j) - arma::as_scalar(Z_row * a_mat.row(index).t());
-
-          // Auxiliary matrices
-          K_0.col(index) = M_star.col(index) * F_1(index);
-          L_0.slice(index) =
-            arma::mat(m, m, arma::fill::eye) - K_0.col(index) * Z_row;
-
-          // Estimated state vector and corresponding variance - covariance
-          // matrix for the next step
-          if (index < Np_min1) {
-            a_mat.row(index + 1) =
-              a_mat.row(index) + K_0.col(index).t() * v_UT(index);
-            P_star_cube.slice(index + 1) =
-              P_star_cube.slice(index) * L_0.slice(index).t();
-          } else {
-            a_fc = a_mat.row(index).t() + K_0.col(index) * v_UT(index);
-            P_star_fc = P_star_cube.slice(index) * L_0.slice(index).t();
-          }
-          loglik(index) = constant -
-            (log(F_star(index)) + pow(v_UT(index), 2.0) * F_1(index)) / 2;
-          continue;
+          // New r and N
+          r_UT.row(index) = Z_row * F_1(index) * v_UT(index) +
+            r_UT.row(index + 1) * L_0.slice(index);
+          N_UT.slice(index) = Z_row.t() * Z_row * F_1(index) +
+            L_0.slice(index).t() * N_UT.slice(index + 1) * L_0.slice(index);
         }
       }
     }
 
-    // Filtered state and corresponding uncertainty
-    // Followed by transition to the next timepoint
-    if (index < Np) {
-      a_fil.row(i) = a_mat.row(index);
-      if (initialisation) {
-        P_fil.slice(i) =
-          kappa * P_inf_cube.slice(index) + P_star_cube.slice(index);
-      } else {
-        P_fil.slice(i) = P_star_cube.slice(index);
-      }
-      a_mat.row(index) = T_mat * a_mat.row(index);
-      P_star_cube.slice(index) =
-        T_mat * P_star_cube.slice(index) * T_mat.t() + R_mat * Q_mat * R_mat.t();
-      if (initialisation) {
-        P_inf_cube.slice(index) = T_mat * P_inf_cube.slice(index) * T_mat.t();
-        // Check if P_inf converged to 0
-        initialisation = !arma::all(
-          arma::vectorise(arma::abs(P_inf_cube.slice(index))) < 1e-7
-        );
-      }
+    // Save r and N for each timepoint
+    r_vec.row(i) = r_UT.row(index + 1);
+    Nmat.slice(i) = N_UT.slice(index + 1);
+
+    // Compute smoothed state and variance
+    if ((index + 1) < initialisation_steps) {
+      a_smooth.row(i) = a_pred.row(i) +
+        r_vec.row(i) * P_star_cube.slice(index + 1) +
+        r_1 * P_inf_cube.slice(index + 1);
+      V.slice(i) = P_star_cube.slice(index + 1) -
+        P_star_cube.slice(index + 1) * Nmat.slice(i) * P_star_cube.slice(index + 1) -
+        P_star_cube.slice(index + 1) * N_1.t() * P_inf_cube.slice(index + 1) -
+        P_inf_cube.slice(index + 1) * N_1 * P_star_cube.slice(index + 1) -
+        P_inf_cube.slice(index + 1) * N_2 * P_inf_cube.slice(index + 1);
     } else {
-      a_fil.row(i) = a_fc.t();
-      if (initialisation) {
-        P_fil.slice(i) = kappa * P_inf_fc + P_star_fc;
-      } else {
-        P_fil.slice(i) = P_star_fc;
-      }
-      a_fc = T_mat * a_fc;
-      P_star_fc = T_mat * P_star_fc * T_mat.t() + R_mat * Q_mat * R_mat.t();
-      if (initialisation) {
-        P_inf_fc = T_mat * P_inf_fc * T_mat.t();
-        P_fc = kappa * P_inf_fc + P_star_fc;
-      } else {
-        P_fc = P_star_fc;
+      a_smooth.row(i) = a_pred.row(i) +
+        r_vec.row(i) * P_pred.slice(i);
+      V.slice(i) = P_pred.slice(i) -
+        P_pred.slice(i) * Nmat.slice(i) * P_pred.slice(i);
+    }
+
+    // Tstat for the state equation
+    Tstat_state.row(i + 1) = r_vec.row(i + 1) /
+      arma::sqrt(arma::diagvec(Nmat.slice(i + 1)).t());
+
+    // Smoothing error e and corresponding variance D
+    K = T_mat * P_pred.slice(i) * Z_mat.t() * Finv.slice(i);
+    e_row = v_0na.row(i) * Finv.slice(i) - r_vec.row(i + 1) * K;
+    e_row.elem(arma::find_nonfinite(v.row(i))).fill(NA_REAL);
+    e.row(i) = e_row;
+    D.slice(i) = Finv.slice(i) + K.t() * Nmat.slice(i + 1) * K;
+
+    // Tstat for the observation equation
+    Tstat_observation.row(i + 1) = e.row(i) /
+      arma::sqrt(arma::diagvec(D.slice(i)).t());
+
+    // Compute smoothed state disturbance and corresponding variance
+    RtQ = R_mat * Q_mat.t();
+    eta.row(i) = r_vec.row(i + 1) * RtQ;
+    eta_var.slice(i) = Q_mat - RtQ.t() * Nmat.slice(i + 1) * RtQ;
+
+    // r and N for the previous timepoint, not valid for i = 0
+    if (i > 0) {
+      r_UT.row(index + 1) = r_UT.row(index + 1) * T_mat;
+      N_UT.slice(index + 1) = T_mat.t() * N_UT.slice(index + 1) * T_mat;
+      if ((index + 1) < initialisation_steps) {
+        r_1 = r_1 * T_mat;
+        N_1 = T_mat.t() * N_1 * T_mat;
+        N_2 = T_mat.t() * N_2 * T_mat;
       }
     }
   }
-
-
-
-
-
 
   // List to return
   return Rcpp::List::create(Rcpp::Named("coefficients") = coef,

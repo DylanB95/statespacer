@@ -56,7 +56,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   double constant = -log(2 * M_PI) / 2;
 
   // Loop over timepoints
-  for(int i = 0; i < N; i++) {
+  for (int i = 0; i < N; i++) {
 
     // Get system matrices of current timepoint
     if (Z_tv && i > 0) {
@@ -73,7 +73,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
     }
 
     // Loop over dependent variables
-    for(int j = 0; j < p; j++) {
+    for (int j = 0; j < p; j++) {
 
       // Check for missing value
       if (y_isna(i, j)) {
