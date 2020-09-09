@@ -72,6 +72,10 @@ AddVar <- function(p = 1,
       function(i) Ztemp2[seq(i, p * N, N), , drop = FALSE],
       matrix(0, p, k)
     )
+    # edge case if p = 1 and k = 1
+    if (p == 1 && k == 1) {
+      result$Z <- array(result$Z, dim = c(1, 1, N))
+    }
 
     # T matrix = a k x k diagonal matrix, containing ones on the diagonal
     result$Tmat <- diag(1, k, k)
