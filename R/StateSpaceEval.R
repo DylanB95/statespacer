@@ -145,277 +145,50 @@ StateSpaceEval <- function(param,
     dim(Q_kal) <- c(dim(Q_kal), 1)
   }
 
-  # Uncertainty of initial 'guess' of state vector
-  kappa <- 1e7
-
   # Number of state parameters
   m <- dim(a)[[1]]
-
-  # Number of disturbances in the state equation
-  r <- dim(R_kal)[[2]]
 
   # Number of diffuse elements
   diffuse_num <- sum(P_inf)
 
-  # Check if P_inf is already 0
-  initialisation <- !all(abs(P_inf) < 1e-7)
+  # Kalman Filter and Smoother
+  kalman <- KalmanC(
+    y = y,
+    y_isna = y_isna,
+    a = a,
+    P_inf = P_inf,
+    P_star = P_star,
+    Z = Z_kal,
+    T = T_kal,
+    R = R_kal,
+    Q = Q_kal,
+    diagnostics = diagnostics
+  )
 
-  # Initial P
-  P <- kappa * P_inf + P_star
-
-  # Initialise (filtered) state and corresponding variance
-  a <- t(matrix(a, m, N * p)) # N*p x m
-  P_inf <- array(P_inf, dim = c(m, m, N * p)) # m x m x N*p
-  P_inf[, , 2:(N * p)] <- 0
-  P_star <- array(P_star, dim = c(m, m, N * p)) # m x m x N*p
-  a_pred <- t(matrix(sys_mat$a_kal, m, N)) # N x m
-  P_pred <- array(P, dim = c(m, m, N)) # m x m x N
-  a_fil <- a_pred # N x m
-  P_fil <- P_pred # m x m x N
-
-  ################################# Kalman Filter #################################
-
-  # Initialising residuals and variance
-  v <- matrix(0, N, p) # N x p
-  Fmat <- array(0, dim = c(p, p, N)) # p x p x N
-
-  # Initialising normalised residuals
-  v_norm <- matrix(NA, N, p) # N x p
-
-  # Initialising loglikelihood vector
-  loglik <- rep(0, N * p)
-
-  # Initialising fitted values matrix
-  yfit <- matrix(0, N, p) # N x p
-
-  ###### Applying Kalman Filter with exact initialisation ######
-
-  # Keep track of the number of initialisation steps
-  initialisation_steps <- 0
-
-  # Keep track of which time index and row index to use
-  # For selection of system matrices
-  t <- 1
-  row <- 0
-
-  # Applying Kalman Filter
-  for (i in 1:(N * p)) {
-
-    # Updating indices
-    row <- row + 1
-    if (row == (p + 1)) {
-      row <- 1
-      t <- t + 1
-    }
-
-    # When should a transition to the next timepoint be made?
-    if (i %% p == 0) {
-      timestep <- TRUE
-
-      # T, R, and Q matrices only needed when a transition to
-      # the next timepoint is made
-      if (is.matrix(T_kal)) {
-        T_input <- T_kal
-      } else {
-        T_input <- as.matrix(T_kal[, , t])
-      }
-      if (is.matrix(R_kal)) {
-        R_input <- R_kal
-      } else {
-        R_input <- matrix(R_kal[, , t], nrow = m)
-      }
-      if (is.matrix(Q_kal)) {
-        Q_input <- Q_kal
-      } else {
-        Q_input <- as.matrix(Q_kal[, , t])
-      }
-    } else {
-      timestep <- FALSE
-      T_input <- NULL
-      R_input <- NULL
-      Q_input <- NULL
-    }
-
-    if (is.matrix(Z_kal)) {
-      Z_input <- Z_kal[row, , drop = FALSE]
-    } else {
-      Z_input <- matrix(Z_kal[row, , t], nrow = 1)
-    }
-
-    # Apply KalmanEI in initialisation stage, else KalmanUT
-    if (initialisation) {
-
-      # Keep track of the number of initialisation steps
-      initialisation_steps <- initialisation_steps + 1
-
-      # Calling the Kalman Filter with exact initialisation
-      filter_output <- KalmanEI(
-        y = y[[t, row]],
-        a = matrix(a[i, ]),
-        P_inf = as.matrix(P_inf[, , i]),
-        P_star = as.matrix(P_star[, , i]),
-        Z = Z_input,
-        Tmat = T_input,
-        R = R_input,
-        Q = Q_input,
-        timestep = timestep
-      )
-
-      # Storing next predicted state and variance used for the next iteration
-      if (i < (N * p)) {
-        a[i + 1, ] <- filter_output$a
-        P_inf[, , i + 1] <- filter_output$P_inf
-        P_star[, , i + 1] <- filter_output$P_star
-
-        # Check if P_inf converged to zero
-        initialisation <- !all(abs(filter_output$P_inf) < 1e-7)
-      }
-
-      # Saving predicted and filtered state and corresponding variance for each timestep
-      if (timestep) {
-
-        # Predicted state and variance
-        if (i < (N * p)) {
-          a_pred[t + 1, ] <- filter_output$a
-          if (initialisation) {
-            P_pred[, , t + 1] <- kappa * filter_output$P_inf + filter_output$P_star
-          } else {
-            P_pred[, , t + 1] <- filter_output$P_star
-          }
-        } else {
-
-          # Store out of sample forecast separately
-          a_fc <- filter_output$a
-          if (initialisation) {
-            P_fc <- kappa * filter_output$P_inf + filter_output$P_star
-          } else {
-            P_fc <- filter_output$P_star
-          }
-        }
-
-        # Filtered state and variance
-        a_fil[t, ] <- filter_output$a_fil
-        if (initialisation) {
-          P_fil[, , t] <- kappa * filter_output$P_inf_fil + filter_output$P_star_fil
-        } else {
-          P_fil[, , t] <- filter_output$P_star_fil
-        }
-
-        if (is.matrix(Z_kal)) {
-          Z_full <- Z_kal
-        } else {
-          Z_full <- matrix(Z_kal[, , t], nrow = p)
-        }
-
-        # Storing fitted values
-        yfit[t, ] <- Z_full %*% matrix(a_pred[t, ])
-
-        # Storing residuals
-        v[t, ] <- y[t, ] - yfit[t, ]
-
-        # Storing Variance - Covariance matrix of fitted values
-        Fmat[, , t] <- tcrossprod(Z_full %*% as.matrix(P_pred[, , t]), Z_full)
-
-        if (all(abs(tcrossprod(
-          Z_full %*% as.matrix(P_inf[, , i - (p - 1)]),
-          Z_full
-        )) < 1e-7)) {
-
-          # Inverse of Fmat
-          Finv <- solve(Fmat[, , t])
-
-          # Singular Value decomposition to obtain square root of the inverse of Fmat
-          svd_Finv <- svd(Finv)
-
-          # Square root of Inverse of Fmat
-          Finv_root <- tcrossprod(
-            svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)),
-            svd_Finv$u
-          )
-
-          # Normalised prediction error
-          v_0na <- v[t, ]
-          v_0na[is.na(v_0na)] <- 0
-          v_norm[t, ] <- Finv_root %*% matrix(v_0na)
-          v_norm[t, ][is.na(v[t, ])] <- NA
-        }
-      }
-    } else {
-
-      # Calling the Kalman Filter
-      filter_output <- KalmanUT(
-        y = y[[t, row]],
-        a = matrix(a[i, ]),
-        P = as.matrix(P_star[, , i]),
-        Z = Z_input,
-        Tmat = T_input,
-        R = R_input,
-        Q = Q_input,
-        timestep = timestep
-      )
-
-      # Storing next predicted state and variance used for the next iteration
-      if (i < (N * p)) {
-        a[i + 1, ] <- filter_output$a
-        P_star[, , i + 1] <- filter_output$P
-      }
-
-      # Saving predicted and filtered state and corresponding variance
-      # for each timestep
-      if (timestep) {
-
-        # Predicted state and variance
-        if (i < (N * p)) {
-          a_pred[t + 1, ] <- filter_output$a
-          P_pred[, , t + 1] <- filter_output$P
-        } else {
-
-          # Store out of sample forecast separately
-          a_fc <- filter_output$a
-          P_fc <- filter_output$P
-        }
-
-        # Filtered state and variance
-        a_fil[t, ] <- filter_output$a_fil
-        P_fil[, , t] <- filter_output$P_fil
-
-        if (is.matrix(Z_kal)) {
-          Z_full <- Z_kal
-        } else {
-          Z_full <- matrix(Z_kal[, , t], nrow = p)
-        }
-
-        # Storing fitted values
-        yfit[t, ] <- Z_full %*% matrix(a_pred[t, ])
-
-        # Storing residuals
-        v[t, ] <- y[t, ] - yfit[t, ]
-
-        # Storing Variance - Covariance matrix of fitted values
-        Fmat[, , t] <- tcrossprod(Z_full %*% as.matrix(P_pred[, , t]), Z_full)
-
-        # Inverse of Fmat
-        Finv <- solve(Fmat[, , t])
-
-        # Singular Value decomposition to obtain square root of the inverse of Fmat
-        svd_Finv <- svd(Finv)
-
-        # Square root of Inverse of Fmat
-        Finv_root <- tcrossprod(
-          svd_Finv$u %*% sqrt(diag(svd_Finv$d, p, p)),
-          svd_Finv$u
-        )
-
-        # Normalised prediction error
-        v_0na <- v[t, ]
-        v_0na[is.na(v_0na)] <- 0
-        v_norm[t, ] <- Finv_root %*% matrix(v_0na)
-        v_norm[t, ][is.na(v[t, ])] <- NA
-      }
-    }
-
-    # Store loglikelihood
-    loglik[[i]] <- filter_output$loglik
+  # Assign objects computed by KalmanC
+  initialisation_steps <- kalman$initialisation_steps
+  loglik <- kalman$loglik
+  a_pred <- kalman$a_pred
+  a_fil <- kalman$a_fil
+  a_smooth <- kalman$a_smooth
+  P_pred <- kalman$P_pred
+  P_fil <- kalman$P_fil
+  V <- kalman$V
+  yfit <- kalman$yfit
+  v <- kalman$v
+  eta <- kalman$eta
+  Fmat <- kalman$Fmat
+  eta_var <- kalman$eta_var
+  a_fc <- kalman$a_fc
+  P_fc <- kalman$P_fc
+  r_vec <- kalman$r_vec
+  Nmat <- kalman$Nmat
+  if (diagnostics) {
+    v_norm <- kalman$v_norm
+    e <- kalman$e
+    D <- kalman$D
+    Tstat_observation <- kalman$Tstat_observation
+    Tstat_state <- kalman$Tstat_state
   }
 
   # Diagnostics
@@ -463,297 +236,10 @@ StateSpaceEval <- function(param,
       }
     }
   }
-  ################################ Kalman Smoother ################################
-
-  # Initialise smoothed state and corresponding variance
-  a_smooth <- a_fil # N x m
-  V <- P_fil # m x m x N
-
-  # Initialise smoothed state disturbance and corresponding variance
-  eta <- matrix(0, N, r) # N x r
-  eta_var <- array(0, dim = c(r, r, N)) # r x r x N
-
-  # Initialising smoothing error e and corresponding variance D
-  # Plus T-statistics for both the observation and state equation
-  e <- matrix(0, N, p)
-  D <- array(0, dim = c(p, p, N))
-  Tstat_observation <- matrix(0, N, p)
-  Tstat_state <- matrix(0, N + 1, m)
-
-  # Initialise r and N
-  r_UT <- matrix(0, N * p + 1, m)
-  N_UT <- array(0, dim = c(m, m, N * p + 1))
-  r_vec <- matrix(0, N + 1, m)
-  Nmat <- array(0, dim = c(m, m, N + 1))
-
-  # Keep track of which time index and row index to use
-  # For selection of system matrices
-  t <- N
-  row <- p + 1
-
-  # Initialise r_1, N_1, N_2
-  r_1 <- matrix(0, m, 1)
-  N_1 <- matrix(0, m, m)
-  N_2 <- matrix(0, m, m)
-
-  # Normal formulae after the initialisation steps
-  for (i in (N * p):1) {
-
-    # Updating indices
-    row <- row - 1
-    if (row == 0) {
-      row <- p
-      t <- t - 1
-    }
-
-    # When should a transition to the next timepoint be made?
-    if (row == 1) {
-      timestep <- TRUE
-
-      # T, R, and Q matrices only needed when a transition to the
-      # next timepoint is made
-      if (is.matrix(T_kal)) {
-        T_input <- T_kal
-      } else {
-        if (t > 1) {
-          T_input <- as.matrix(T_kal[, , t - 1])
-        }
-      }
-      if (is.matrix(R_kal)) {
-        R_input <- R_kal
-      } else {
-        if (t > 1) {
-          R_input <- matrix(R_kal[, , t - 1], nrow = m)
-        }
-      }
-      if (is.matrix(Q_kal)) {
-        Q_input <- Q_kal
-      } else {
-        if (t > 1) {
-          Q_input <- as.matrix(Q_kal[, , t - 1])
-        }
-      }
-    } else {
-      timestep <- FALSE
-    }
-
-    if (is.matrix(Z_kal)) {
-      Z_input <- Z_kal[row, , drop = FALSE]
-    } else {
-      Z_input <- matrix(Z_kal[row, , t], nrow = 1)
-    }
-
-    # For the initialisation steps, other computations are required
-    if (i > initialisation_steps) {
-
-      # Check for missing observation
-      if (is.na(y[[t, row]])) {
-        r_UT[i, ] <- r_UT[i + 1, ]
-        N_UT[, , i] <- N_UT[, , i + 1]
-      } else {
-
-        # PZ' as in Kalman formulae
-        PtZ <- tcrossprod(as.matrix(P_star[, , i]), Z_input)
-
-        # Variance of the current residual/fitted value
-        F_scalar <- c(Z_input %*% PtZ)
-
-        # Check if F_scalar is nearly 0
-        if (F_scalar < 1e-7) {
-          r_UT[i, ] <- r_UT[i + 1, ]
-          N_UT[, , i] <- N_UT[, , i + 1]
-        } else {
-
-          # Inverse of Fmat
-          Finv <- 1 / F_scalar
-
-          # Current residual
-          v_UT <- y[[t, row]] - c(Z_input %*% a[i, ])
-
-          # Auxiliary matrices
-          K_UT <- PtZ * Finv
-          L_UT <- diag(length(Z_input)) - K_UT %*% Z_input
-
-          # r and N
-          r_UT[i, ] <- t(Z_input) * Finv * v_UT + crossprod(L_UT, r_UT[i + 1, ])
-          N_UT[, , i] <- crossprod(Z_input) * Finv +
-            crossprod(L_UT, N_UT[, , i + 1] %*% L_UT)
-        }
-      }
-
-      # If a transition to the previous timepoint is made,
-      # do some additional computations
-      if (timestep) {
-
-        # Save r and N for each timepoint and compute smoothed state and variance
-        r_vec[t, ] <- r_UT[i, ]
-        Nmat[, , t] <- N_UT[, , i]
-        a_smooth[t, ] <- a_pred[t, ] + P_pred[, , t] %*% r_vec[t, ]
-        V[, , t] <- P_pred[, , t] -
-          P_pred[, , t] %*% Nmat[, , t] %*% P_pred[, , t]
-
-        # T-statistic for the state equation
-        Tstat_state[t + 1, ] <- r_vec[t + 1, ] /
-          sqrt(diag(as.matrix(Nmat[, , t + 1])))
-
-        # Smoothing error e and corresponding variance D
-        # Plus T-statistic for the observation equation
-        if (is.matrix(Z_kal)) {
-          Z_full <- Z_kal
-        } else {
-          Z_full <- matrix(Z_kal[, , t], nrow = p)
-        }
-        Finv <- solve(Fmat[, , t])
-        K <- T_input %*% P_pred[, , t] %*% crossprod(Z_full, Finv)
-        v_0na <- v[t, ]
-        v_0na[is.na(v_0na)] <- 0
-        e[t, ] <- Finv %*% matrix(v_0na) - crossprod(K, r_vec[t + 1, ])
-        e[t, ][is.na(v[t, ])] <- NA
-        D[, , t] <- Finv + crossprod(K, Nmat[, , t + 1] %*% K)
-        Tstat_observation[t, ] <- e[t, ] / sqrt(diag(as.matrix(D[, , t])))
-
-        # Compute smoothed state disturbance and corresponding variance
-        QtR <- tcrossprod(Q_input, R_input)
-        eta[t, ] <- QtR %*% r_vec[t + 1, ]
-        eta_var[, , t] <- Q_input -
-          tcrossprod(QtR %*% Nmat[, , t + 1], QtR)
-
-        # r and N for the next step, not valid/needed for t = 1
-        if (t > 1) {
-          r_UT[i, ] <- crossprod(T_input, r_UT[i, ])
-          N_UT[, , i] <- crossprod(T_input, N_UT[, , i] %*% T_input)
-        }
-      }
-    } else {
-
-      # Check for missing observation
-      if (is.na(y[[t, row]])) {
-        r_UT[i, ] <- r_UT[i + 1, ]
-        N_UT[, , i] <- N_UT[, , i + 1]
-      } else {
-
-        # PZ' as in Kalman formulae
-        M_inf <- tcrossprod(as.matrix(P_inf[, , i]), Z_input)
-        M_star <- tcrossprod(as.matrix(P_star[, , i]), Z_input)
-
-        # Variance matrix of the current residual/fitted value
-        F_inf <- c(Z_input %*% M_inf)
-        F_star <- c(Z_input %*% M_star)
-
-        # Check if F_inf is nearly 0
-        if (F_inf < 1e-7) {
-
-          # Check if F_star is nearly 0
-          if (F_star < 1e-7) {
-            r_UT[i, ] <- r_UT[i + 1, ]
-            N_UT[, , i] <- N_UT[, , i + 1]
-          } else {
-
-            # Inverse of Fmat
-            F_1 <- 1 / F_star
-
-            # Current residual
-            v_UT <- y[[t, row]] - c(Z_input %*% a[i, ])
-
-            # Auxiliary matrices
-            K_0 <- M_star * F_1
-            L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
-
-            # r and N
-            r_UT[i, ] <- t(Z_input) * F_1 * v_UT + crossprod(L_0, r_UT[i + 1, ])
-            N_UT[, , i] <- crossprod(Z_input) * F_1 +
-              crossprod(L_0, N_UT[, , i + 1] %*% L_0)
-            N_1 <- N_1 %*% L_0
-          }
-        } else {
-
-          # Inverse of Fmat
-          F_1 <- 1 / F_inf
-          F_2 <- -F_1 * F_star * F_1
-
-          # Current residual
-          v_UT <- y[[t, row]] - c(Z_input %*% a[i, ])
-
-          # Auxiliary matrices
-          K_0 <- M_inf * F_1
-          K_1 <- M_star * F_1 + M_inf * F_2
-          L_0 <- diag(length(Z_input)) - K_0 %*% Z_input
-          L_1 <- -K_1 %*% Z_input
-
-          # r and N
-          r_UT[i, ] <- crossprod(L_0, r_UT[i + 1, ])
-          r_1 <- t(Z_input) * F_1 * v_UT +
-            crossprod(L_0, r_1) + crossprod(L_1, r_UT[i + 1, ])
-          N_UT[, , i] <- crossprod(L_0, N_UT[, , i + 1] %*% L_0)
-          tZZ <- crossprod(Z_input)
-          N_1 <- tZZ * F_1 + crossprod(L_0, N_1 %*% L_0) +
-            crossprod(L_1, N_UT[, , i + 1] %*% L_0) +
-            crossprod(L_0, N_UT[, , i + 1] %*% L_1)
-          N_2 <- tZZ * F_2 + crossprod(L_0, N_2 %*% L_0) +
-            crossprod(L_0, N_1 %*% L_1) +
-            crossprod(N_1 %*% L_1, L_0) +
-            crossprod(L_1, N_UT[, , i + 1] %*% L_1)
-        }
-      }
-
-      # If a transition to the previous timepoint is made,
-      # do some additional computations
-      if (timestep) {
-
-        # Save r and N for each timepoint and compute smoothed state and variance
-        r_vec[t, ] <- r_UT[i, ]
-        Nmat[, , t] <- N_UT[, , i]
-        a_smooth[t, ] <- a_pred[t, ] + P_star[, , i] %*% r_vec[t, ] +
-          P_inf[, , i] %*% r_1
-        V[, , t] <- P_star[, , i] -
-          P_star[, , i] %*% Nmat[, , t] %*% P_star[, , i] -
-          t(P_inf[, , i] %*% N_1 %*% P_star[, , i]) -
-          P_inf[, , i] %*% N_1 %*% P_star[, , i] -
-          P_inf[, , i] %*% N_2 %*% P_inf[, , i]
-
-        # T-statistic for the state equation
-        Tstat_state[t + 1, ] <- r_vec[t + 1, ] / sqrt(diag(as.matrix(Nmat[, , t + 1])))
-
-        # Smoothing error e and corresponding variance D
-        # Plus T-statistic for the observation equation
-        if (is.matrix(Z_kal)) {
-          Z_full <- Z_kal
-        } else {
-          Z_full <- matrix(Z_kal[, , t], nrow = p)
-        }
-        Finv <- solve(Fmat[, , t])
-        K <- T_input %*% P_pred[, , t] %*% crossprod(Z_full, Finv)
-        v_0na <- v[t, ]
-        v_0na[is.na(v_0na)] <- 0
-        e[t, ] <- Finv %*% matrix(v_0na) - crossprod(K, r_vec[t + 1, ])
-        e[t, ][is.na(v[t, ])] <- NA
-        D[, , t] <- Finv + crossprod(K, Nmat[, , t + 1] %*% K)
-        Tstat_observation[t, ] <- e[t, ] / sqrt(diag(as.matrix(D[, , t])))
-
-        # Compute smoothed state disturbance and corresponding variance
-        QtR <- tcrossprod(Q_input, R_input)
-        eta[t, ] <- QtR %*% r_vec[t + 1, ]
-        eta_var[, , t] <- Q_input -
-          tcrossprod(QtR %*% Nmat[, , t + 1], QtR)
-
-        # r and N for the next step, not valid/needed for t = 1
-        if (t > 1) {
-          r_UT[i, ] <- crossprod(T_input, r_UT[i, ])
-          r_1 <- crossprod(T_input, r_1)
-          N_UT[, , i] <- crossprod(T_input, N_UT[, , i] %*% T_input)
-          N_1 <- crossprod(T_input, N_1 %*% T_input)
-          N_2 <- crossprod(T_input, N_2 %*% T_input)
-        }
-      }
-    }
-  }
 
   # Smoothed observation disturbance and corresponding variance
   epsilon <- a_smooth[, sys_mat$residuals_state, drop = FALSE]
   epsilon_var <- V[sys_mat$residuals_state, sys_mat$residuals_state, , drop = FALSE]
-  ######################################################################################
-
-  ############## Removing residuals from components and storing components #############
 
   # Removing residuals
   a_pred <- a_pred[, -sys_mat$residuals_state, drop = FALSE]
@@ -770,7 +256,9 @@ StateSpaceEval <- function(param,
   V <- V[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
   eta <- eta[, -sys_mat$residuals_state, drop = FALSE]
   eta_var <- eta_var[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
-  Tstat_state <- Tstat_state[-1, -sys_mat$residuals_state, drop = FALSE]
+  if (diagnostics) {
+    Tstat_state <- Tstat_state[-1, -sys_mat$residuals_state, drop = FALSE]
+  }
 
   # Storing components
   predicted$yfit <- yfit
@@ -798,28 +286,29 @@ StateSpaceEval <- function(param,
     (-2 * diagnostics$loglik + (diffuse_num + length(param)) * log(N))
   diagnostics$r <- r_vec
   diagnostics$N <- Nmat
-  diagnostics$e <- e
-  diagnostics$D <- D
-  diagnostics$Tstat_observation <- Tstat_observation
-  diagnostics$Tstat_state <- Tstat_state
-  diagnostics$v_normalised <- v_norm
-  diagnostics$Skewness <- Sstat
-  diagnostics$Kurtosis <- Kstat
-  diagnostics$Jarque_Bera <- Nstat
-  diagnostics$Jarque_Bera_criticalvalue <- stats::qchisq(0.95, df = 2)
-  if (obs > 0) {
-    diagnostics$correlogram <- correlogram
-    diagnostics$Box_Ljung <- Box_Ljung
-    diagnostics$Box_Ljung_criticalvalues <- matrix(
-      stats::qchisq(0.95, df = 1:floor(obs / 2))
-    )
-    diagnostics$Heteroscedasticity <- Heteroscedasticity
-    diagnostics$Heteroscedasticity_criticalvalues <- cbind(
-      stats::qf(0.025, df1 = 1:floor(obs / 3), df2 = 1:floor(obs / 3)),
-      stats::qf(0.975, df1 = 1:floor(obs / 3), df2 = 1:floor(obs / 3))
-    )
+  if (diagnostics) {
+    diagnostics$e <- e
+    diagnostics$D <- D
+    diagnostics$Tstat_observation <- Tstat_observation
+    diagnostics$Tstat_state <- Tstat_state
+    diagnostics$v_normalised <- v_norm
+    diagnostics$Skewness <- Sstat
+    diagnostics$Kurtosis <- Kstat
+    diagnostics$Jarque_Bera <- Nstat
+    diagnostics$Jarque_Bera_criticalvalue <- stats::qchisq(0.95, df = 2)
+    if (obs > 0) {
+      diagnostics$correlogram <- correlogram
+      diagnostics$Box_Ljung <- Box_Ljung
+      diagnostics$Box_Ljung_criticalvalues <- matrix(
+        stats::qchisq(0.95, df = 1:floor(obs / 2))
+      )
+      diagnostics$Heteroscedasticity <- Heteroscedasticity
+      diagnostics$Heteroscedasticity_criticalvalues <- cbind(
+        stats::qf(0.025, df1 = 1:floor(obs / 3), df2 = 1:floor(obs / 3)),
+        stats::qf(0.975, df1 = 1:floor(obs / 3), df2 = 1:floor(obs / 3))
+      )
+    }
   }
-  ######################################################################################
 
   #### Adjusting dimensions of Z matrices of components ####
   ## -- and adding fitted components of the model --------##
@@ -1016,7 +505,6 @@ StateSpaceEval <- function(param,
     }
     Z_padded$self_spec <- tempZ
   }
-  ####################################################################################################
 
   # Filling system_matrices
   system_matrices[["H"]] <- sys_mat[["H"]]
