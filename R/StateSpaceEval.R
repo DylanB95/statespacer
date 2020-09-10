@@ -132,21 +132,17 @@ StateSpaceEval <- function(param,
   y_isna <- is.na(y)
 
   # Augment system matrices to arrays
-  Z_cube <- Z_kal
-  if (is.matrix(Z_cube)) {
-    dim(Z_cube) <- c(dim(Z_cube), 1)
+  if (is.matrix(Z_kal)) {
+    dim(Z_kal) <- c(dim(Z_kal), 1)
   }
-  T_cube <- T_kal
-  if (is.matrix(T_cube)) {
-    dim(T_cube) <- c(dim(T_cube), 1)
+  if (is.matrix(T_kal)) {
+    dim(T_kal) <- c(dim(T_kal), 1)
   }
-  R_cube <- R_kal
-  if (is.matrix(R_cube)) {
-    dim(R_cube) <- c(dim(R_cube), 1)
+  if (is.matrix(R_kal)) {
+    dim(R_kal) <- c(dim(R_kal), 1)
   }
-  Q_cube <- Q_kal
-  if (is.matrix(Q_cube)) {
-    dim(Q_cube) <- c(dim(Q_cube), 1)
+  if (is.matrix(Q_kal)) {
+    dim(Q_kal) <- c(dim(Q_kal), 1)
   }
 
   # Uncertainty of initial 'guess' of state vector

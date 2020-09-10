@@ -494,20 +494,23 @@ Rcpp::List KalmanC(const arma::mat& y,
         P_pred.slice(i) * Nmat.slice(i) * P_pred.slice(i);
     }
 
-    // Tstat for the state equation
-    Tstat_state.row(i + 1) = r_vec.row(i + 1) /
-      arma::sqrt(arma::diagvec(Nmat.slice(i + 1)).t());
+    if (diagnostics) {
 
-    // Smoothing error e and corresponding variance D
-    K = T_mat * P_pred.slice(i) * Z_mat.t() * Finv.slice(i);
-    e_row = v_0na.row(i) * Finv.slice(i) - r_vec.row(i + 1) * K;
-    e_row.elem(arma::find_nonfinite(v.row(i))).fill(NA_REAL);
-    e.row(i) = e_row;
-    D.slice(i) = Finv.slice(i) + K.t() * Nmat.slice(i + 1) * K;
+      // Tstat for the state equation
+      Tstat_state.row(i + 1) = r_vec.row(i + 1) /
+        arma::sqrt(arma::diagvec(Nmat.slice(i + 1)).t());
 
-    // Tstat for the observation equation
-    Tstat_observation.row(i + 1) = e.row(i) /
-      arma::sqrt(arma::diagvec(D.slice(i)).t());
+      // Smoothing error e and corresponding variance D
+      K = T_mat * P_pred.slice(i) * Z_mat.t() * Finv.slice(i);
+      e_row = v_0na.row(i) * Finv.slice(i) - r_vec.row(i + 1) * K;
+      e_row.elem(arma::find_nonfinite(v.row(i))).fill(NA_REAL);
+      e.row(i) = e_row;
+      D.slice(i) = Finv.slice(i) + K.t() * Nmat.slice(i + 1) * K;
+
+      // Tstat for the observation equation
+      Tstat_observation.row(i + 1) = e_row /
+        arma::sqrt(arma::diagvec(D.slice(i)).t());
+    }
 
     // Compute smoothed state disturbance and corresponding variance
     RtQ = R_mat * Q_mat.t();
@@ -527,7 +530,28 @@ Rcpp::List KalmanC(const arma::mat& y,
   }
 
   // List to return
-  return Rcpp::List::create(Rcpp::Named("coefficients") = coef,
-                            Rcpp::Named("stderr")       = std_err,
-                            Rcpp::Named("df.residual")  = n - k);
+  return Rcpp::List::create(
+    Rcpp::Named("initialisation_steps") = initialisation_steps,
+    Rcpp::Named("loglik") = loglik,
+    Rcpp::Named("a_pred") = a_pred,
+    Rcpp::Named("a_fil") = a_fil,
+    Rcpp::Named("a_smooth") = a_smooth,
+    Rcpp::Named("P_pred") = P_pred,
+    Rcpp::Named("P_fil") = P_fil,
+    Rcpp::Named("V") = V,
+    Rcpp::Named("yfit") = yfit,
+    Rcpp::Named("v") = v,
+    Rcpp::Named("v_norm") = v_norm,
+    Rcpp::Named("eta") = eta,
+    Rcpp::Named("e") = e,
+    Rcpp::Named("Fmat") = Fmat,
+    Rcpp::Named("eta_var") = eta_var,
+    Rcpp::Named("D") = D,
+    Rcpp::Named("a_fc") = a_fc,
+    Rcpp::Named("P_fc") = P_fc,
+    Rcpp::Named("Tstat_observation") = Tstat_observation,
+    Rcpp::Named("Tstat_state") = Tstat_state,
+    Rcpp::Named("r_vec") = r_vec,
+    Rcpp::Named("Nmat") = Nmat
+  );
 }
