@@ -270,14 +270,16 @@ Rcpp::List KalmanC(const arma::mat& y,
           if (index < Np_min1) {
             a_mat.row(index + 1) =
               a_mat.row(index) + K_0.col(index).t() * v_UT(index);
-            P_star_cube.slice(index + 1) = P_inf.slice(index) *
-              L_1.slice(index).t() + P_star.slice(index) * L_0.slice(index).t();
+            P_star_cube.slice(index + 1) = P_inf_cube.slice(index) *
+              L_1.slice(index).t() +
+              P_star_cube.slice(index) * L_0.slice(index).t();
             P_inf_cube.slice(index + 1) =
               P_inf_cube.slice(index) * L_0.slice(index).t();
           } else {
             a_fc = a_mat.row(index).t() + K_0.col(index) * v_UT(index);
-            P_star_fc = P_inf.slice(index) *
-              L_1.slice(index).t() + P_star.slice(index) * L_0.slice(index).t();
+            P_star_fc = P_inf_cube.slice(index) *
+              L_1.slice(index).t() +
+              P_star_cube.slice(index) * L_0.slice(index).t();
             P_inf_fc = P_inf_cube.slice(index) * L_0.slice(index).t();
           }
           loglik(index) = constant - log(F_inf(index)) / 2;
