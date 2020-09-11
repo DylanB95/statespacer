@@ -64,9 +64,10 @@ Rcpp::List KalmanC(const arma::mat& y,
 
   // Initialise (filtered and smoothed) state and corresponding variance
   arma::mat a_mat(Np, m), a_pred(N, m), a_fil(N, m), a_smooth(N, m);
-  arma::cube P_inf_cube(m, m, Np, arma::fill::zeros),
-             P_star_cube(m, m, Np), P_pred(m, m, N),
-             P_fil(m, m, N), V(m, m, N);
+  arma::cube P_inf_cube(m, m, Np, arma::fill::zeros), P_star_cube(m, m, Np),
+             P_pred(m, m, N), P_fil(m, m, N), V(m, m, N),
+             P_inf_pred(m, m, N, arma::fill::zeros), P_star_pred(m, m, N),
+             P_inf_fil(m, m, N, arma::fill::zeros), P_star_fil(m, m, N);
   a_mat.row(0) = a.t();
   P_inf_cube.slice(0) = P_inf;
   P_star_cube.slice(0) = P_star;
@@ -101,7 +102,7 @@ Rcpp::List KalmanC(const arma::mat& y,
   arma::mat N_1(m, m, arma::fill::zeros), N_2(m, m, arma::fill::zeros),
             tZZ(m, m), K(m, p), RtQ(m, r);
 
-  // Needed to circumvent maximum of 20 items in List
+  // Needed to circumvent maximum of 20 items in returned List
   Rcpp::List nested;
 
   // Kalman Filter
@@ -124,15 +125,15 @@ Rcpp::List KalmanC(const arma::mat& y,
 
     // Predicted state and corresponding uncertainty
     a_pred.row(i) = a_mat.row(index);
+    P_star_pred.slice(i) = P_star_cube.slice(index);
+    P_pred.slice(i) = P_star_pred.slice(i);
     if (initialisation) {
-      P_pred.slice(i) =
-        kappa * P_inf_cube.slice(index) + P_star_cube.slice(index);
+      P_inf_pred.slice(i) = P_inf_cube.slice(index);
+      P_pred.slice(i) += kappa * P_inf_pred.slice(i);
       if (diagnostics) {
         calculate_vnorm = arma::all(arma::vectorise(arma::abs(
-          Z_mat * P_inf_cube.slice(index) * Z_mat.t())) < 1e-7);
+          Z_mat * P_inf_pred.slice(i) * Z_mat.t())) < 1e-7);
       }
-    } else {
-      P_pred.slice(i) = P_star_cube.slice(index);
     }
 
     // Predicted values
@@ -348,11 +349,11 @@ Rcpp::List KalmanC(const arma::mat& y,
     // Followed by transition to the next timepoint
     if (index < Np) {
       a_fil.row(i) = a_mat.row(index);
+      P_star_fil.slice(i) = P_star_cube.slice(index);
+      P_fil.slice(i) = P_star_fil.slice(i);
       if (initialisation) {
-        P_fil.slice(i) =
-          kappa * P_inf_cube.slice(index) + P_star_cube.slice(index);
-      } else {
-        P_fil.slice(i) = P_star_cube.slice(index);
+        P_inf_fil.slice(i) = P_inf_cube.slice(index);
+        P_fil.slice(i) += kappa * P_inf_fil.slice(i);
       }
       a_mat.row(index) = arma::trans(T_mat * a_mat.row(index).t());
       P_star_cube.slice(index) =
@@ -366,18 +367,18 @@ Rcpp::List KalmanC(const arma::mat& y,
       }
     } else {
       a_fil.row(i) = a_fc.t();
+      P_star_fil.slice(i) = P_star_fc;
+      P_fil.slice(i) = P_star_fc;
       if (initialisation) {
-        P_fil.slice(i) = kappa * P_inf_fc + P_star_fc;
-      } else {
-        P_fil.slice(i) = P_star_fc;
+        P_inf_fil.slice(i) = P_inf_fc;
+        P_fil.slice(i) += kappa * P_inf_fc;
       }
       a_fc = T_mat * a_fc;
       P_star_fc = T_mat * P_star_fc * T_mat.t() + R_mat * Q_mat * R_mat.t();
+      P_fc = P_star_fc;
       if (initialisation) {
         P_inf_fc = T_mat * P_inf_fc * T_mat.t();
-        P_fc = kappa * P_inf_fc + P_star_fc;
-      } else {
-        P_fc = P_star_fc;
+        P_fc += kappa * P_inf_fc;
       }
     }
   }
@@ -484,14 +485,13 @@ Rcpp::List KalmanC(const arma::mat& y,
 
     // Compute smoothed state and variance
     if ((index + 1) < initialisation_steps) {
-      a_smooth.row(i) = a_pred.row(i) +
-        r_vec.row(i) * P_star_cube.slice(index + 1) +
-        r_1 * P_inf_cube.slice(index + 1);
-      V.slice(i) = P_star_cube.slice(index + 1) -
-        P_star_cube.slice(index + 1) * Nmat.slice(i) * P_star_cube.slice(index + 1) -
-        P_star_cube.slice(index + 1) * N_1.t() * P_inf_cube.slice(index + 1) -
-        P_inf_cube.slice(index + 1) * N_1 * P_star_cube.slice(index + 1) -
-        P_inf_cube.slice(index + 1) * N_2 * P_inf_cube.slice(index + 1);
+      a_smooth.row(i) = a_pred.row(i) + r_vec.row(i) * P_star_pred.slice(i) +
+        r_1 * P_inf_pred.slice(i);
+      V.slice(i) = P_star_pred.slice(i) -
+        P_star_pred.slice(i) * Nmat.slice(i) * P_star_pred.slice(i) -
+        P_star_pred.slice(i) * N_1.t() * P_inf_pred.slice(i) -
+        P_inf_pred.slice(i) * N_1 * P_star_pred.slice(i) -
+        P_inf_pred.slice(i) * N_2 * P_inf_pred.slice(i);
     } else {
       a_smooth.row(i) = a_pred.row(i) +
         r_vec.row(i) * P_pred.slice(i);
@@ -538,13 +538,17 @@ Rcpp::List KalmanC(const arma::mat& y,
   nested["initialisation_steps"] = initialisation_steps;
   nested["loglik"] = loglik;
   nested["a_pred"] = a_pred;
+  nested["a_fil"] = a_fil;
+  nested["a_smooth"] = a_smooth;
+  nested["P_pred"] = P_pred;
+  nested["P_fil"] = P_fil;
+  nested["V"] = V;
+  nested["P_inf_pred"] = P_inf_pred;
   return Rcpp::List::create(
     Rcpp::Named("nested") = nested,
-    Rcpp::Named("a_fil") = a_fil,
-    Rcpp::Named("a_smooth") = a_smooth,
-    Rcpp::Named("P_pred") = P_pred,
-    Rcpp::Named("P_fil") = P_fil,
-    Rcpp::Named("V") = V,
+    Rcpp::Named("P_star_pred") = P_star_pred,
+    Rcpp::Named("P_inf_fil") = P_inf_fil,
+    Rcpp::Named("P_star_fil") = P_star_fil,
     Rcpp::Named("yfit") = yfit,
     Rcpp::Named("v") = v,
     Rcpp::Named("v_norm") = v_norm,
@@ -554,6 +558,8 @@ Rcpp::List KalmanC(const arma::mat& y,
     Rcpp::Named("eta_var") = eta_var,
     Rcpp::Named("D") = D,
     Rcpp::Named("a_fc") = a_fc,
+    Rcpp::Named("P_inf_fc") = P_inf_fc,
+    Rcpp::Named("P_star_fc") = P_star_fc,
     Rcpp::Named("P_fc") = P_fc,
     Rcpp::Named("Tstat_observation") = Tstat_observation,
     Rcpp::Named("Tstat_state") = Tstat_state,

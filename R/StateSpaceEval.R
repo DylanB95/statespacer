@@ -170,17 +170,23 @@ StateSpaceEval <- function(param,
   initialisation_steps <- kalman$nested$initialisation_steps
   loglik <- kalman$nested$loglik
   a_pred <- kalman$nested$a_pred
-  a_fil <- kalman$a_fil
-  a_smooth <- kalman$a_smooth
-  P_pred <- kalman$P_pred
-  P_fil <- kalman$P_fil
-  V <- kalman$V
+  a_fil <- kalman$nested$a_fil
+  a_smooth <- kalman$nested$a_smooth
+  P_pred <- kalman$nested$P_pred
+  P_fil <- kalman$nested$P_fil
+  V <- kalman$nested$V
+  P_inf_pred <- kalman$nested$P_inf_pred
+  P_star_pred <- kalman$P_star_pred
+  P_inf_fil <- kalman$P_inf_fil
+  P_star_fil <- kalman$P_star_fil
   yfit <- kalman$yfit
   v <- kalman$v
   eta <- kalman$eta
   Fmat <- kalman$Fmat
   eta_var <- kalman$eta_var
   a_fc <- kalman$a_fc
+  P_inf_fc <- kalman$P_inf_fc
+  P_star_fc <- kalman$P_star_fc
   P_fc <- kalman$P_fc
   r_vec <- kalman$r_vec
   Nmat <- kalman$Nmat
@@ -244,17 +250,21 @@ StateSpaceEval <- function(param,
 
   # Removing residuals
   a_pred <- a_pred[, -sys_mat$residuals_state, drop = FALSE]
-  P_pred <- P_pred[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
   a_fil <- a_fil[, -sys_mat$residuals_state, drop = FALSE]
+  a_smooth <- a_smooth[, -sys_mat$residuals_state, drop = FALSE]
+  P_pred <- P_pred[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
   P_fil <- P_fil[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
-  P_inf <- P_inf[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
-  P_star <- P_star[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
+  V <- V[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
+  P_inf_pred <- P_inf_pred[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
+  P_star_pred <- P_star_pred[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
+  P_inf_fil <- P_inf_fil[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
+  P_star_fil <- P_star_fil[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
   a_fc <- a_fc[-sys_mat$residuals_state, drop = FALSE]
   P_fc <- P_fc[-sys_mat$residuals_state, -sys_mat$residuals_state, drop = FALSE]
+  P_inf_fc <- P_inf_fc[-sys_mat$residuals_state, -sys_mat$residuals_state, drop = FALSE]
+  P_star_fc <- P_star_fc[-sys_mat$residuals_state, -sys_mat$residuals_state, drop = FALSE]
   r_vec <- r_vec[-1, -sys_mat$residuals_state, drop = FALSE]
   Nmat <- Nmat[-sys_mat$residuals_state, -sys_mat$residuals_state, -1, drop = FALSE]
-  a_smooth <- a_smooth[, -sys_mat$residuals_state, drop = FALSE]
-  V <- V[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
   eta <- eta[, -sys_mat$residuals_state, drop = FALSE]
   eta_var <- eta_var[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
   if (diagnostics_ind) {
@@ -267,12 +277,16 @@ StateSpaceEval <- function(param,
   predicted$Fmat <- Fmat
   predicted$a <- a_pred
   predicted$P <- P_pred
-  predicted$P_inf <- P_inf
-  predicted$P_star <- P_star
+  predicted$P_inf <- P_inf_pred
+  predicted$P_star <- P_star_pred
   predicted$a_fc <- a_fc
   predicted$P_fc <- P_fc
+  predicted$P_inf_fc <- P_inf_fc
+  predicted$P_star_fc <- P_star_fc
   filtered$a <- a_fil
   filtered$P <- P_fil
+  filtered$P_inf <- P_inf_fil
+  filtered$P_star <- P_star_fil
   smoothed$a <- a_smooth
   smoothed$V <- V
   smoothed$eta <- eta
