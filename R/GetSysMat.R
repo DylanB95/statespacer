@@ -104,8 +104,6 @@ GetSysMat <- function(p,
   # Keeping track of which parameters to use for the components
   index_par <- 1
 
-  #### Adding components to the state space model that are specified ####
-
   # Initialising lists to store matrices of components
   Z_list <- list()
   T_list <- list()
@@ -1377,7 +1375,16 @@ GetSysMat <- function(p,
     }
   }
 
-  #### Residuals ####
+  # Store full system matrices before adding residuals
+  Z_list$full <- Z_kal
+  T_list$full <- T_kal
+  R_list$full <- R_kal
+  Q_list$full <- Q_kal
+  a_list$full <- a
+  Pinf_list$full <- P_inf
+  Pstar_list$full <- P_star
+
+  # Add residual component to system matrices
   if (add_residuals) {
     Z_kal <- CombineZ(diag(1, p, p), Z_kal)
     T_kal <- CombineTRQ(matrix(0, p, p), T_kal)
