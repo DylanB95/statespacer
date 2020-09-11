@@ -52,6 +52,7 @@ StateSpaceEval <- function(param,
   predicted <- list()
   smoothed <- list()
   system_matrices <- list()
+  diagnostics_ind <- diagnostics # Storing diagnostics indicator
   diagnostics <- list()
 
   # N = Number of observations
@@ -162,7 +163,7 @@ StateSpaceEval <- function(param,
     T = T_kal,
     R = R_kal,
     Q = Q_kal,
-    diagnostics = diagnostics
+    diagnostics = diagnostics_ind
   )
 
   # Assign objects computed by KalmanC
@@ -183,7 +184,7 @@ StateSpaceEval <- function(param,
   P_fc <- kalman$P_fc
   r_vec <- kalman$r_vec
   Nmat <- kalman$Nmat
-  if (diagnostics) {
+  if (diagnostics_ind) {
     v_norm <- kalman$v_norm
     e <- kalman$e
     D <- kalman$D
@@ -192,7 +193,7 @@ StateSpaceEval <- function(param,
   }
 
   # Diagnostics
-  if (diagnostics) {
+  if (diagnostics_ind) {
 
     # Calculating test statistics based on the normalised prediction errors
     obs_vec <- colSums(!is.na(v_norm))
@@ -256,7 +257,7 @@ StateSpaceEval <- function(param,
   V <- V[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
   eta <- eta[, -sys_mat$residuals_state, drop = FALSE]
   eta_var <- eta_var[-sys_mat$residuals_state, -sys_mat$residuals_state, , drop = FALSE]
-  if (diagnostics) {
+  if (diagnostics_ind) {
     Tstat_state <- Tstat_state[-1, -sys_mat$residuals_state, drop = FALSE]
   }
 
@@ -534,7 +535,7 @@ StateSpaceEval <- function(param,
   result$function_call <- c(
     list(y = y),
     sys_mat$function_call,
-    list(fit = FALSE, initial = param)
+    list(fit = FALSE, initial = param, diagnostics = diagnostics_ind)
   )
   result$system_matrices <- system_matrices
   result$predicted <- predicted
