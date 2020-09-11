@@ -513,7 +513,7 @@ Rcpp::List KalmanC(const arma::mat& y,
       D.slice(i) = Finv.slice(i) + K.t() * Nmat.slice(i + 1) * K;
 
       // Tstat for the observation equation
-      Tstat_observation.row(i + 1) = e_row /
+      Tstat_observation.row(i) = e_row /
         arma::sqrt(arma::diagvec(D.slice(i)).t());
     }
 
