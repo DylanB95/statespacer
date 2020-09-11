@@ -301,7 +301,7 @@ StateSpaceEval <- function(param,
     (-2 * diagnostics$loglik + (diffuse_num + length(param)) * log(N))
   diagnostics$r <- r_vec
   diagnostics$N <- Nmat
-  if (diagnostics) {
+  if (diagnostics_ind) {
     diagnostics$e <- e
     diagnostics$D <- D
     diagnostics$Tstat_observation <- Tstat_observation
