@@ -166,9 +166,9 @@ StateSpaceEval <- function(param,
   )
 
   # Assign objects computed by KalmanC
-  initialisation_steps <- kalman$initialisation_steps
-  loglik <- kalman$loglik
-  a_pred <- kalman$a_pred
+  initialisation_steps <- kalman$nested$initialisation_steps
+  loglik <- kalman$nested$loglik
+  a_pred <- kalman$nested$a_pred
   a_fil <- kalman$a_fil
   a_smooth <- kalman$a_smooth
   P_pred <- kalman$P_pred

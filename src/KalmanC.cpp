@@ -101,6 +101,9 @@ Rcpp::List KalmanC(const arma::mat& y,
   arma::mat N_1(m, m, arma::fill::zeros), N_2(m, m, arma::fill::zeros),
             tZZ(m, m), K(m, p), RtQ(m, r);
 
+  // Needed to circumvent maximum of 20 items in List
+  Rcpp::List nested;
+
   // Kalman Filter
   // Loop over timepoints
   for (int i = 0; i < N; i++) {
@@ -532,10 +535,11 @@ Rcpp::List KalmanC(const arma::mat& y,
   }
 
   // List to return
+  nested["initialisation_steps"] = initialisation_steps;
+  nested["loglik"] = loglik;
+  nested["a_pred"] = a_pred;
   return Rcpp::List::create(
-    Rcpp::Named("initialisation_steps") = initialisation_steps,
-    Rcpp::Named("loglik") = loglik,
-    Rcpp::Named("a_pred") = a_pred,
+    Rcpp::Named("nested") = nested,
     Rcpp::Named("a_fil") = a_fil,
     Rcpp::Named("a_smooth") = a_smooth,
     Rcpp::Named("P_pred") = P_pred,
