@@ -1,10 +1,19 @@
-# statespacer 0.2.1.9000 (Development version)
+# statespacer 0.3.0
 
-## To do
+## Performance improvements
 
-* Rewrite parts of StateSpaceEval in c++
+* Kalman Filter and Smoother now fully written in c++.
 
-* Implement Simulation Smoother
+## Extra functionality
+
+* Computation of diagnostics now optional using `diagnostics = TRUE`.
+* Added full system matrices to the statespacer object.
+* Added predicted, filtered, and forecasted `P_star` and `P_inf`.
+
+## Bug fixes
+
+* Fixed bug in predicting using explanatory variables.
+* Fixed edge case in adding explanatory variables. The bug occured when there was only 1 explanatory variable and 1 dependent variable supplied, causing the Z system matrix to be a vector instead of an array.
 
 # statespacer 0.2.1
 

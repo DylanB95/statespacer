@@ -76,14 +76,19 @@ Further, the contributions of the components to the predicted values are extract
 Further, the smoothed values of the components are extracted separately.
 
 ### diagnostics
-`diagnostics` (only returned if `diagnostics = TRUE`) is a list that contains items useful for diagnostic tests and model selection:
+`diagnostics` is a list that contains items useful for diagnostic tests and model selection:
 
-* `initialisation_steps` is the number of timesteps required before initialisation was achieved of the diffuse elements of the state vector. 
+* `initialisation_steps` is the number of timesteps required before initialisation was achieved of the diffuse elements of the state vector.
 * `loglik` is the loglikelihood value at the estimated parameters.
 * `AIC` is the Akaike Information Criterion for the model.
 * `BIC` is the Bayesian Information Criterion for the model.
 * `r` is the scaled smoothed state disturbance.
 * `N` is the uncertainty of `r`.
+* `param_indices` is a list containing the indices of the parameters in the parameter vector for each of the components.
+* `hessian` is the hessian of the loglikelihood evaluated at the estimated parameters.
+
+The following objects are only returned if `diagnostics = TRUE`:
+
 * `e` is the smoothing error.
 * `D` is the uncertainty of `e`.
 * `Tstat_observation` is the T-statistic for testing whether deviations from the observation equation are significant.
@@ -98,8 +103,6 @@ Further, the smoothed values of the components are extracted separately.
 * `Box_Ljung_criticalvalues` are the critical values of the Box-Ljung tests.
 * `Heteroscedasticity` are statistics for testing for heteroscedasticity.
 * `Heteroscedasticity_criticalvalues` are the critical values of the heteroscedasticity tests.
-* `param_indices` is a list containing the indices of the parameters in the parameter vector for each of the components.
-* `hessian` is the hessian of the loglikelihood evaluated at the estimated parameters.
 
 ### optim
 `optim` is the list as returned by `stats::optim` or `optimx::optimr`, depending on if you have optimx installed. See `?stats::optim` and `?optimx::optimr` for details. Only returned if `fit = TRUE`.

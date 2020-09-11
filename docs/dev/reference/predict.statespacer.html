@@ -166,12 +166,12 @@
 
     <pre class="usage"><span class='co'># S3 method for statespacer</span>
 <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(
-  <span class='no'>object</span>,
-  <span class='kw'>addvar_list_fc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>level_addvar_list_fc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>self_spec_list_fc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>forecast_period</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='no'>...</span>
+  <span class='kw'>object</span>,
+  addvar_list_fc = <span class='kw'>NULL</span>,
+  level_addvar_list_fc = <span class='kw'>NULL</span>,
+  self_spec_list_fc = <span class='kw'>NULL</span>,
+  forecast_period = <span class='fl'>1</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -230,18 +230,22 @@ by the State Space model.</p>
     <p>Durbin J, Koopman SJ (2012).
 <em>Time series analysis by state space methods</em>.
 Oxford university press.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
-<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>datasets</span>)
+<span class='kw'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='kw'>Nile</span>)
+<span class='kw'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span>(initial = <span class='fl'>10</span>, y = <span class='kw'>y</span>, local_level_ind = <span class='fl'>TRUE</span>)
 
 <span class='co'># Obtain forecasts for 10 steps ahead using the fitted model</span>
-<span class='no'>fc</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='no'>fit</span>, <span class='kw'>forecast_period</span> <span class='kw'>=</span> <span class='fl'>10</span>)
+<span class='kw'>fc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='kw'>fit</span>, forecast_period = <span class='fl'>10</span>)
 
 <span class='co'># Plot the forecasts</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='no'>fc</span>$<span class='no'>y_fc</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='img'><img src='predict.statespacer-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='kw'>fc</span><span class='op'>$</span><span class='kw'>y_fc</span>, type = <span class='st'>"l"</span>)
+</div><div class='img'><img src='predict.statespacer-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -257,7 +261,7 @@ Oxford university press.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

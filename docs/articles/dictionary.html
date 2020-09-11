@@ -45,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -168,13 +168,17 @@
 <code>a_fc</code> is the predicted state for time <span class="math inline">\(N ~ + ~ 1\)</span> (<span class="math inline">\(N\)</span> being the last observed timepoint).</li>
 <li>
 <code>P_fc</code> is the uncertainty of <code>a_fc</code>.</li>
+<li>
+<code>P_inf_fc</code> is the diffuse part of <code>P_fc</code>.</li>
+<li>
+<code>P_star_fc</code> is the non-diffuse part of <code>P_fc</code>.</li>
 </ul>
 <p>Further, the contributions of the components to the predicted values are extracted separately.</p>
 </div>
 <div id="filtered" class="section level3">
 <h3 class="hasAnchor">
 <a href="#filtered" class="anchor"></a>filtered</h3>
-<p><code>filtered</code> is a list that contains the filtered (estimates for time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t\)</span>) objects as returned by the Kalman filter. Here, <code>a</code> is the filtered state, and <code>P</code> the uncertainty of the filtered state. Further, the filtered values of the components are extracted separately.</p>
+<p><code>filtered</code> is a list that contains the filtered (estimates for time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t\)</span>) objects as returned by the Kalman filter. Here, <code>a</code> is the filtered state, <code>P</code> the uncertainty of the filtered state, <code>P_inf</code> is the diffuse part of <code>P</code>, and <code>P_star</code> is the non-diffuse part of <code>P</code>. Further, the filtered values of the components are extracted separately.</p>
 </div>
 <div id="smoothed" class="section level3">
 <h3 class="hasAnchor">
@@ -214,6 +218,13 @@
 <li>
 <code>N</code> is the uncertainty of <code>r</code>.</li>
 <li>
+<code>param_indices</code> is a list containing the indices of the parameters in the parameter vector for each of the components.</li>
+<li>
+<code>hessian</code> is the hessian of the loglikelihood evaluated at the estimated parameters.</li>
+</ul>
+<p>The following objects are only returned if <code>diagnostics = TRUE</code>:</p>
+<ul>
+<li>
 <code>e</code> is the smoothing error.</li>
 <li>
 <code>D</code> is the uncertainty of <code>e</code>.</li>
@@ -241,16 +252,12 @@
 <code>Heteroscedasticity</code> are statistics for testing for heteroscedasticity.</li>
 <li>
 <code>Heteroscedasticity_criticalvalues</code> are the critical values of the heteroscedasticity tests.</li>
-<li>
-<code>param_indices</code> is a list containing the indices of the parameters in the parameter vector for each of the components.</li>
-<li>
-<code>hessian</code> is the hessian of the loglikelihood evaluated at the estimated parameters.</li>
 </ul>
 </div>
 <div id="optim" class="section level3">
 <h3 class="hasAnchor">
 <a href="#optim" class="anchor"></a>optim</h3>
-<p><code>optim</code> is the list as returned by <code><a href="https://rdrr.io/r/stats/optim.html">stats::optim</a></code> or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html">optimx::optimr</a></code>, depending on if you have optimx installed. See <code><a href="https://rdrr.io/r/stats/optim.html">?stats::optim</a></code> and <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html">?optimx::optimr</a></code> for details.</p>
+<p><code>optim</code> is the list as returned by <code><a href="https://rdrr.io/r/stats/optim.html">stats::optim</a></code> or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html">optimx::optimr</a></code>, depending on if you have optimx installed. See <code><a href="https://rdrr.io/r/stats/optim.html">?stats::optim</a></code> and <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html">?optimx::optimr</a></code> for details. Only returned if <code>fit = TRUE</code>.</p>
 </div>
 <div id="loglik_fun" class="section level3">
 <h3 class="hasAnchor">
@@ -260,7 +267,7 @@
 <div id="standard_errors" class="section level3">
 <h3 class="hasAnchor">
 <a href="#standard_errors" class="anchor"></a>standard_errors</h3>
-<p><code>standard_errors</code> is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from <code>system_matrices</code>, but only representing those system matrices that depend on the parameters.</p>
+<p><code>standard_errors</code> is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from <code>system_matrices</code>, but only representing those system matrices that depend on the parameters. Only returned if <code>standard_errors = TRUE</code>.</p>
 </div>
 </div>
 <div id="order-of-parameter-input" class="section level2">
@@ -310,7 +317,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

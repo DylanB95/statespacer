@@ -91,7 +91,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -165,37 +165,38 @@
     </div>
 
     <pre class="usage"><span class='fu'>statespacer</span>(
-  <span class='no'>y</span>,
-  <span class='kw'>H_format</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>slope_ind</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>BSM_vec</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>cycle_ind</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>addvar_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>level_addvar_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>arima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>sarima_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>self_spec_list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>exclude_level</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>exclude_slope</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>exclude_BSM_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>BSM_vec</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fl'>0</span>),
-  <span class='kw'>exclude_cycle_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fl'>0</span>),
-  <span class='kw'>exclude_arima_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>arima_list</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fl'>0</span>),
-  <span class='kw'>exclude_sarima_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>sarima_list</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fl'>0</span>),
-  <span class='kw'>damping_factor_ind</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>TRUE</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>exclude_cycle_list</span>)),
-  <span class='kw'>format_level</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>format_slope</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>format_BSM_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>BSM_vec</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='kw'>NULL</span>),
-  <span class='kw'>format_cycle_list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='no'>exclude_cycle_list</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='kw'>NULL</span>),
-  <span class='kw'>format_addvar</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>format_level_addvar</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>fit</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"BFGS"</span>,
-  <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>collapse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>standard_errors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>y</span>,
+  H_format = <span class='kw'>NULL</span>,
+  local_level_ind = <span class='fl'>FALSE</span>,
+  slope_ind = <span class='fl'>FALSE</span>,
+  BSM_vec = <span class='kw'>NULL</span>,
+  cycle_ind = <span class='fl'>FALSE</span>,
+  addvar_list = <span class='kw'>NULL</span>,
+  level_addvar_list = <span class='kw'>NULL</span>,
+  arima_list = <span class='kw'>NULL</span>,
+  sarima_list = <span class='kw'>NULL</span>,
+  self_spec_list = <span class='kw'>NULL</span>,
+  exclude_level = <span class='kw'>NULL</span>,
+  exclude_slope = <span class='kw'>NULL</span>,
+  exclude_BSM_list = <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>BSM_vec</span>, <span class='fu'>function</span>(<span class='kw'>x</span>) <span class='fl'>0</span>),
+  exclude_cycle_list = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fl'>0</span>),
+  exclude_arima_list = <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>arima_list</span>, <span class='fu'>function</span>(<span class='kw'>x</span>) <span class='fl'>0</span>),
+  exclude_sarima_list = <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>sarima_list</span>, <span class='fu'>function</span>(<span class='kw'>x</span>) <span class='fl'>0</span>),
+  damping_factor_ind = <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>TRUE</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='kw'>exclude_cycle_list</span>)),
+  format_level = <span class='kw'>NULL</span>,
+  format_slope = <span class='kw'>NULL</span>,
+  format_BSM_list = <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>BSM_vec</span>, <span class='fu'>function</span>(<span class='kw'>x</span>) <span class='kw'>NULL</span>),
+  format_cycle_list = <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>exclude_cycle_list</span>, <span class='fu'>function</span>(<span class='kw'>x</span>) <span class='kw'>NULL</span>),
+  format_addvar = <span class='kw'>NULL</span>,
+  format_level_addvar = <span class='kw'>NULL</span>,
+  fit = <span class='fl'>TRUE</span>,
+  initial = <span class='fl'>0</span>,
+  method = <span class='st'>"BFGS"</span>,
+  control = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  collapse = <span class='fl'>FALSE</span>,
+  diagnostics = <span class='fl'>TRUE</span>,
+  standard_errors = <span class='kw'>NULL</span>,
+  verbose = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -388,6 +389,11 @@ If this is the case, computational gains can be achieved by collapsing
 the observation vector.</p></td>
     </tr>
     <tr>
+      <th>diagnostics</th>
+      <td><p>Boolean indicating whether diagnostical tests should be
+computed. Defaults to TRUE.</p></td>
+    </tr>
+    <tr>
       <th>standard_errors</th>
       <td><p>Boolean indicating whether standard errors should be
 computed. <span class="pkg">numDeriv</span> must be installed in order to compute the
@@ -489,41 +495,52 @@ Oxford university press.</p>
 <p>Ansley CF, Kohn R (1986).
 &#8220;A note on reparameterizing a vector autoregressive moving average model to enforce stationarity.&#8221;
 <em>Journal of Statistical Computation and Simulation</em>, <b>24</b>(2), 99--106.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>datasets</span>)
-<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='no'>Nile</span>)
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'>statespacer</span>(<span class='kw'>initial</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y</span>, <span class='kw'>local_level_ind</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>datasets</span>)
+<span class='kw'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='kw'>Nile</span>)
+<span class='kw'>fit</span> <span class='op'>&lt;-</span> <span class='fu'>statespacer</span>(initial = <span class='fl'>10</span>, y = <span class='kw'>y</span>, local_level_ind = <span class='fl'>TRUE</span>)
 
 <span class='co'># Plots the filtered estimates</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(
-  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>,
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"p"</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>),
-  <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
-  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> +
-    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
-  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>level</span> -
-    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>filtered</span>$<span class='no'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
-)</div><div class='img'><img src='statespacer-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(
+  <span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>function_call</span><span class='op'>$</span><span class='kw'>y</span>,
+  type = <span class='st'>"p"</span>, ylim = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>),
+  xlab = <span class='fl'>NA</span>, ylab = <span class='fl'>NA</span>
+)
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>filtered</span><span class='op'>$</span><span class='kw'>level</span>, type = <span class='st'>"l"</span>)
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>filtered</span><span class='op'>$</span><span class='kw'>level</span> <span class='op'>+</span>
+    <span class='fl'>1.644854</span> <span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='kw'>fit</span><span class='op'>$</span><span class='kw'>filtered</span><span class='op'>$</span><span class='kw'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+  type = <span class='st'>"l"</span>, col = <span class='st'>"gray"</span>
+)
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>filtered</span><span class='op'>$</span><span class='kw'>level</span> <span class='op'>-</span>
+    <span class='fl'>1.644854</span> <span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='kw'>fit</span><span class='op'>$</span><span class='kw'>filtered</span><span class='op'>$</span><span class='kw'>P</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+  type = <span class='st'>"l"</span>, col = <span class='st'>"gray"</span>
+)
+</div><div class='img'><img src='statespacer-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Plots the smoothed estimates</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(
-  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>function_call</span>$<span class='no'>y</span>,
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"p"</span>, <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>),
-  <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='fl'>NA</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
-  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span> +
-    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
-)</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
-  <span class='fl'>1871</span>:<span class='fl'>1970</span>, <span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>level</span> -
-    <span class='fl'>1.644854</span> * <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='no'>fit</span>$<span class='no'>smoothed</span>$<span class='no'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"gray"</span>
-)</div><div class='img'><img src='statespacer-2.png' alt='' width='700' height='433' /></div></pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(
+  <span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>function_call</span><span class='op'>$</span><span class='kw'>y</span>,
+  type = <span class='st'>"p"</span>, ylim = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>500</span>, <span class='fl'>1400</span>),
+  xlab = <span class='fl'>NA</span>, ylab = <span class='fl'>NA</span>
+)
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(<span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>smoothed</span><span class='op'>$</span><span class='kw'>level</span>, type = <span class='st'>"l"</span>)
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>smoothed</span><span class='op'>$</span><span class='kw'>level</span> <span class='op'>+</span>
+    <span class='fl'>1.644854</span> <span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='kw'>fit</span><span class='op'>$</span><span class='kw'>smoothed</span><span class='op'>$</span><span class='kw'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+  type = <span class='st'>"l"</span>, col = <span class='st'>"gray"</span>
+)
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span>(
+  <span class='fl'>1871</span><span class='op'>:</span><span class='fl'>1970</span>, <span class='kw'>fit</span><span class='op'>$</span><span class='kw'>smoothed</span><span class='op'>$</span><span class='kw'>level</span> <span class='op'>-</span>
+    <span class='fl'>1.644854</span> <span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='kw'>fit</span><span class='op'>$</span><span class='kw'>smoothed</span><span class='op'>$</span><span class='kw'>V</span>[<span class='fl'>1</span>, <span class='fl'>1</span>, ]),
+  type = <span class='st'>"l"</span>, col = <span class='st'>"gray"</span>
+)
+</div><div class='img'><img src='statespacer-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -539,7 +556,7 @@ Oxford university press.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

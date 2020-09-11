@@ -92,7 +92,7 @@ decomposition." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -166,7 +166,7 @@ decomposition." />
 decomposition.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>Cholesky</span>(<span class='kw'>param</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>decompositions</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>Cholesky</span>(param = <span class='kw'>NULL</span>, format = <span class='kw'>NULL</span>, decompositions = <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -208,11 +208,15 @@ If <code>decompositions = TRUE</code> then it returns a list containing:</p><ul>
 matrix should be non-zero. The elements of <code>param</code> are then distributed
 along the non-zero elements of the loading and diagonal matrix.
 The parameters for the diagonal matrix are transformed using <code><a href='https://rdrr.io/r/base/Log.html'>exp(2 * x)</a></code>.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>format</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/diag.html'>diag</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>2</span>)
-<span class='no'>format</span>[<span class='fl'>2</span>, <span class='fl'>1</span>] <span class='kw'>&lt;-</span> <span class='fl'>1</span>
-<span class='fu'>Cholesky</span>(<span class='kw'>param</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>4</span>, <span class='fl'>1</span>), <span class='kw'>format</span> <span class='kw'>=</span> <span class='no'>format</span>, <span class='kw'>decompositions</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; $cov_mat
+    <pre class="examples"><div class='input'><span class='kw'>format</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/diag.html'>diag</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>2</span>)
+<span class='kw'>format</span>[<span class='fl'>2</span>, <span class='fl'>1</span>] <span class='op'>&lt;-</span> <span class='fl'>1</span>
+<span class='fu'>Cholesky</span>(param = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>4</span>, <span class='fl'>1</span>), format = <span class='kw'>format</span>, decompositions = <span class='fl'>TRUE</span>)
+</div><div class='output co'>#&gt; $cov_mat
 #&gt;          [,1]       [,2]
 #&gt; [1,] 54.59815   54.59815
 #&gt; [2,] 54.59815 3035.55614
@@ -252,7 +256,7 @@ The parameters for the diagonal matrix are transformed using <code><a href='http
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>
