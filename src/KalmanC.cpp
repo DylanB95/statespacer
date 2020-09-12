@@ -147,7 +147,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     if (diagnostics && (!initialisation || calculate_vnorm)) {
 
       // Inverse of Fmat
-      Finv.slice(i) = arma::inv_sympd(Fmat.slice(i));
+      Finv.slice(i) = arma::inv(Fmat.slice(i));
 
       // Singular Value decomposition of the inverse of Fmat
       arma::svd(U_Finv, s_Finv, V_Finv, Finv.slice(i));
@@ -457,6 +457,7 @@ Rcpp::List KalmanC(const arma::mat& y,
             L_0.slice(index).t() * N_UT.slice(index + 1) * L_1.slice(index);
           N_2 = tZZ * F_2(index) +
             L_0.slice(index).t() * N_2 * L_0.slice(index) +
+            L_0.slice(index).t() * N_1 * L_1.slice(index) +
             L_1.slice(index).t() * N_1.t() * L_0.slice(index) +
             L_1.slice(index).t() * N_UT.slice(index + 1) * L_1.slice(index);
         }
