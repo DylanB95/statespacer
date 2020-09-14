@@ -143,11 +143,18 @@ Rcpp::List KalmanC(const arma::mat& y,
     v.row(i) = y.row(i) - yfit.row(i);
     Fmat.slice(i) = Z_mat * P_pred.slice(i) * Z_mat.t();
 
-    // Normalised residuals
-    if (diagnostics && (!initialisation || calculate_vnorm)) {
+    if (diagnostics) {
 
       // Inverse of Fmat
       Finv.slice(i) = arma::inv(Fmat.slice(i));
+
+      // Replace NA by 0s in v
+      v_0na.row(i) = v.row(i);
+      v_0na.row(i).replace(NA_REAL, 0);
+    }
+
+    // Normalised residuals
+    if (diagnostics && (!initialisation || calculate_vnorm)) {
 
       // Singular Value decomposition of the inverse of Fmat
       arma::svd(U_Finv, s_Finv, V_Finv, Finv.slice(i));
@@ -156,8 +163,6 @@ Rcpp::List KalmanC(const arma::mat& y,
       Finv_root = U_Finv * arma::diagmat(arma::sqrt(s_Finv)) * U_Finv.t();
 
       // Normalised prediction error
-      v_0na.row(i) = v.row(i);
-      v_0na.row(i).replace(NA_REAL, 0);
       v_norm_row = v_0na.row(i) * Finv_root;
       v_norm_row.elem(arma::find_nonfinite(v.row(i))).fill(NA_REAL);
       v_norm.row(i) = v_norm_row;

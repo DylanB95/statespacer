@@ -100,10 +100,10 @@
 #'   If this is the case, computational gains can be achieved by collapsing
 #'   the observation vector.
 #' @param diagnostics Boolean indicating whether diagnostical tests should be
-#'   computed. Defaults to TRUE.
+#'   computed. Defaults to `TRUE`.
 #' @param standard_errors Boolean indicating whether standard errors should be
 #'   computed. \pkg{numDeriv} must be installed in order to compute the
-#'   standard errors! Defaults to TRUE if \pkg{numDeriv} is available.
+#'   standard errors! Defaults to `TRUE` if \pkg{numDeriv} is available.
 #' @param verbose Boolean indicating whether the progress of the optimisation
 #'   procedure should be printed. Only used if `fit = TRUE`.
 #'
