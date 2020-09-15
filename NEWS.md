@@ -13,7 +13,7 @@
 ## Bug fixes
 
 * Fixed bug in predicting using explanatory variables.
-* Fixed edge case in adding explanatory variables. The bug occured when there was only 1 explanatory variable and 1 dependent variable supplied, causing the Z system matrix to be a vector instead of an array.
+* Fixed edge case in adding explanatory variables. The bug occurred when there was only 1 explanatory variable and 1 dependent variable supplied, causing the Z system matrix to be a vector instead of an array.
 
 # statespacer 0.2.1
 
