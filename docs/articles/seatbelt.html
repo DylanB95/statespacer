@@ -172,13 +172,13 @@
                    method = <span class="st">"BFGS"</span>,
                    initial = <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="kw">y</span>)),
                    verbose = <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-15 21:45:28</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-16 01:38:26</span>
 <span class="co">#&gt; Parameter scaling:[1] 1</span>
 <span class="co">#&gt; initial  value -0.443442 </span>
 <span class="co">#&gt; final  value -0.735372 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-15 21:45:29</span>
-<span class="co">#&gt; Time difference of 0.291375875473022 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-16 01:38:26</span>
+<span class="co">#&gt; Time difference of 0.145915985107422 secs</span>
 </pre></div>
 <p>Let’s check out the estimates:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit">
@@ -226,7 +226,7 @@
                    method = <span class="st">"BFGS"</span>,
                    initial = <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="kw">y</span>)),
                    verbose = <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-15 21:45:30</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-16 01:38:27</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -0.172423 </span>
 <span class="co">#&gt; iter  10 value -0.893962</span>
@@ -234,8 +234,8 @@
 <span class="co">#&gt; iter  30 value -0.915515</span>
 <span class="co">#&gt; final  value -0.915517 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-15 21:45:34</span>
-<span class="co">#&gt; Time difference of 3.5029730796814 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-16 01:38:29</span>
+<span class="co">#&gt; Time difference of 2.08580303192139 secs</span>
 
 <span class="co"># The estimated variance of the observation disturbance</span>
 <span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">H</span><span class="op">$</span><span class="kw">H</span>
@@ -331,7 +331,7 @@
                    method = <span class="st">"BFGS"</span>,
                    initial = <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="kw">y</span>))),
                    verbose = <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-15 21:45:37</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-16 01:38:30</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value 0.389588 </span>
 <span class="co">#&gt; iter  10 value -1.583525</span>
@@ -339,8 +339,8 @@
 <span class="co">#&gt; iter  30 value -1.676530</span>
 <span class="co">#&gt; final  value -1.676537 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-15 21:46:27</span>
-<span class="co">#&gt; Time difference of 50.9849729537964 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-16 01:38:53</span>
+<span class="co">#&gt; Time difference of 22.5400879383087 secs</span>
 </pre></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit">

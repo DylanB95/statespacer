@@ -55,9 +55,9 @@ in State Space form!
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://DylanB95.github.io/statespacer}
-  \item \url{https://github.com/DylanB95/statespacer}
-  \item Report bugs at \url{https://github.com/DylanB95/statespacer/issues}
+  \item \url{https://DylanB95.github.io/statespacer/}
+  \item \url{https://github.com/DylanB95/statespacer/}
+  \item Report bugs at \url{https://github.com/DylanB95/statespacer/issues/}
 }
 
 }

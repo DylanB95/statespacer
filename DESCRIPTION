@@ -8,9 +8,9 @@ Description: A tool that makes estimating models in state space form
     about the algorithms implemented.
 Authors@R: person("Dylan", "Beijers", email = "dylanbeijers@gmail.com", 
                   role = c("aut", "cre"))
-URL: https://DylanB95.github.io/statespacer, 
-    https://github.com/DylanB95/statespacer
-BugReports: https://github.com/DylanB95/statespacer/issues
+URL: https://DylanB95.github.io/statespacer/, 
+    https://github.com/DylanB95/statespacer/
+BugReports: https://github.com/DylanB95/statespacer/issues/
 License: MIT + file LICENSE
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
