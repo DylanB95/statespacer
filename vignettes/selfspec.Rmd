@@ -31,7 +31,7 @@ The dynamic Nelson-Siegel model as specified by @diebold2006macroeconomy is as f
 $$
 \begin{aligned}
  y_t(\tau) ~ &= ~ \beta_{1t} ~ + \beta_{2t} \left( \frac{1 ~ - ~ e^{-\lambda\tau}}{\lambda\tau}  \right) ~ + ~ \beta_{3t} \left( \frac{1 ~ - ~ e^{-\lambda\tau}}{\lambda\tau} ~ - ~ e^{-\lambda\tau}  \right) ~ + ~ \varepsilon_t(\tau), &\varepsilon_t ~ &\sim ~ N(0, ~ \sigma^2I_p), \\
- \beta_t ~ &= ~ \left( I ~ - ~ \Phi\right)\mu ~ + ~ \Phi\beta_t + \eta_t, &\eta_t ~ &\sim ~ N(0, ~ \Sigma_{\eta}), \\ 
+ \beta_{t+1} ~ &= ~ \left( I ~ - ~ \Phi\right)\mu ~ + ~ \Phi\beta_t + \eta_t, &\eta_t ~ &\sim ~ N(0, ~ \Sigma_{\eta}), \\ 
   & &\beta_1 ~ &\sim ~ N(\mu, ~ P_{\beta}),
 \end{aligned}
 $$

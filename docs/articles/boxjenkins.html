@@ -104,7 +104,7 @@
 
       
 
-      </header><script src="boxjenkins_files/header-attrs-2.3/header-attrs.js"></script><script src="boxjenkins_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="boxjenkins_files/header-attrs-2.4/header-attrs.js"></script><script src="boxjenkins_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Fitting ARIMA models with statespacer</h1>
@@ -124,64 +124,62 @@
 <p>To showcase the estimation of ARIMA models, we make use of the <code>sunspot.year</code> data, which contains yearly numbers of sunspots from 1700 to 1988. See <code><a href="https://rdrr.io/r/datasets/sunspot.year.html">?sunspot.year</a></code> for details. We only use the data from 1770 to 1869, to stay in line with <span class="citation">Box et al. (2015)</span>. We estimate an <span class="math inline">\(\text{ARIMA}(3, ~ 0, ~ 0)\)</span> with deterministic level (or constant if you prefer) as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit">
 <span class="co"># Load statespacer</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://DylanB95.github.io/statespacer">statespacer</a></span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/">statespacer</a></span><span class="op">)</span>
 
 <span class="co"># Load the dataset</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw">datasets</span>)
-<span class="kw">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/window.html">window</a></span>(<span class="kw">sunspot.year</span>, start = <span class="fl">1770</span>, end = <span class="fl">1869</span>))
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span>
+<span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/window.html">window</a></span><span class="op">(</span><span class="va">sunspot.year</span>, start <span class="op">=</span> <span class="fl">1770</span>, end <span class="op">=</span> <span class="fl">1869</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># Estimate the ARIMA model</span>
-<span class="kw">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span>(y = <span class="kw">Data</span>,
-                   H_format = <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
-                   local_level_ind = <span class="fl">TRUE</span>,
-                   arima_list = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">0</span>)),
-                   format_level = <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
-                   initial = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="kw">Data</span>)), <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>),
-                   verbose = <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-17 08:35:02</span>
+<span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">Data</span>,
+                   H_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,
+                   local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,
+                   arima_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>,
+                   format_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,
+                   initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,
+                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-08 15:22:22</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1</span>
 <span class="co">#&gt; initial  value 5.022561 </span>
 <span class="co">#&gt; iter  10 value 4.114363</span>
 <span class="co">#&gt; final  value 4.111163 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-17 08:35:02</span>
-<span class="co">#&gt; Time difference of 0.215874910354614 secs</span>
-</pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-08 15:22:22</span>
+<span class="co">#&gt; Time difference of 0.178048849105835 secs</span></pre></div>
 <p>Note that we eliminate the observation error by setting its variance to 0, although it’s perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>.</p>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit">
 <span class="co"># Coefficients of the ARMA component</span>
-<span class="kw">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">AR</span><span class="op">$</span><span class="kw">ARIMA1</span>,
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">standard_errors</span><span class="op">$</span><span class="kw">AR</span><span class="op">$</span><span class="kw">ARIMA1</span>
-)
-<span class="kw">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(
-   <span class="kw">arma_coeff</span>,
-   <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">fit</span><span class="op">$</span><span class="kw">smoothed</span><span class="op">$</span><span class="kw">level</span>[<span class="fl">1</span>],
-     <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span>(<span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">Z_padded</span><span class="op">$</span><span class="kw">level</span> <span class="op">%*%</span>
-          <span class="kw">fit</span><span class="op">$</span><span class="kw">smoothed</span><span class="op">$</span><span class="kw">V</span>[,,<span class="fl">1</span>] <span class="op">%*%</span>
-          <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span>(<span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">Z_padded</span><span class="op">$</span><span class="kw">level</span>))
-   )
-)
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">arma_coeff</span>) <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"coefficient"</span>, <span class="st">"std_error"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="kw">arma_coeff</span>) <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"ar1"</span>, <span class="st">"ar2"</span>, <span class="st">"ar3"</span>, <span class="st">"intercept"</span>)
-<span class="kw">arma_coeff</span>
+<span class="va">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>
+   <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">AR</span><span class="op">$</span><span class="va">ARIMA1</span>,
+   <span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">AR</span><span class="op">$</span><span class="va">ARIMA1</span>
+<span class="op">)</span>
+<span class="va">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span>
+   <span class="va">arma_coeff</span>,
+   <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,
+     <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Z_padded</span><span class="op">$</span><span class="va">level</span> <span class="op">%*%</span>
+          <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span>,,<span class="fl">1</span><span class="op">]</span> <span class="op">%*%</span>
+          <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Z_padded</span><span class="op">$</span><span class="va">level</span><span class="op">)</span><span class="op">)</span>
+   <span class="op">)</span>
+<span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">arma_coeff</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"coefficient"</span>, <span class="st">"std_error"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">arma_coeff</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ar1"</span>, <span class="st">"ar2"</span>, <span class="st">"ar3"</span>, <span class="st">"intercept"</span><span class="op">)</span>
+<span class="va">arma_coeff</span>
 <span class="co">#&gt;                    ar1       ar2       ar3 intercept</span>
 <span class="co">#&gt; coefficient 1.55976415 -1.005462 0.2129622 48.605905</span>
 <span class="co">#&gt; std_error   0.09962468  0.155982 0.1003591  6.358039</span>
 
-<span class="kw">goodness_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">Q</span><span class="op">$</span><span class="kw">ARIMA1</span>,
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">diagnostics</span><span class="op">$</span><span class="kw">loglik</span>,
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">diagnostics</span><span class="op">$</span><span class="kw">AIC</span>
-)
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">goodness_fit</span>) <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Variance"</span>, <span class="st">"Loglikelihood"</span>, <span class="st">"AIC"</span>)
-<span class="kw">goodness_fit</span>
+<span class="va">goodness_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>
+   <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">ARIMA1</span>,
+   <span class="va">fit</span><span class="op">$</span><span class="va">diagnostics</span><span class="op">$</span><span class="va">loglik</span>,
+   <span class="va">fit</span><span class="op">$</span><span class="va">diagnostics</span><span class="op">$</span><span class="va">AIC</span>
+<span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">goodness_fit</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Variance"</span>, <span class="st">"Loglikelihood"</span>, <span class="st">"AIC"</span><span class="op">)</span>
+<span class="va">goodness_fit</span>
 <span class="co">#&gt;                      [,1]</span>
 <span class="co">#&gt; Variance       222.496532</span>
 <span class="co">#&gt; Loglikelihood -411.116313</span>
-<span class="co">#&gt; AIC              8.322326</span>
-</pre></div>
+<span class="co">#&gt; AIC              8.322326</span></pre></div>
 <p>We see that the results are fairly similar to the results as obtained by <span class="citation">Box et al. (2015)</span>. Differences may occur due to the different estimation procedures. We don’t have to eliminate observations, so we use the full information available at hand, in contrast to traditional estimation procedures. Note that not much has to be done to estimate VARIMA models. In fact, you only need to specify a dependent variable <code>y</code> that has more than one column! It’s also straightforward to add explanatory variables, by making use of the <code>addvar_list</code> option, see <code><a href="../articles/seatbelt.html">vignette("seatbelt", "statespacer")</a></code> for an example of adding explanatory variables.</p>
 </div>
 <div id="sarima-modelling-of-the-airline-data" class="section level2">
@@ -191,52 +189,50 @@
 <p>We proceed as follows:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit">
 <span class="co"># Load the dataset</span>
-<span class="kw">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="kw">AirPassengers</span>))
+<span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># The SARIMA specification, must be a list containing lists!</span>
-<span class="kw">sarima_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(s = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">12</span>, <span class="fl">1</span>), ar = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">0</span>), i = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>), ma = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>)))
+<span class="va">sarima_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">1</span><span class="op">)</span>, ar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, ma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># Fit the SARIMA model</span>
-<span class="kw">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span>(y = <span class="kw">Data</span>,
-                   H_format = <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="fl">0</span>),
-                   sarima_list = <span class="kw">sarima_list</span>,
-                   initial = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span>(<span class="kw">Data</span>))), <span class="fl">0</span>, <span class="fl">0</span>),
-                   verbose = <span class="fl">TRUE</span>)
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-09-17 08:35:02</span>
+<span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">Data</span>,
+                   H_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,
+                   sarima_list <span class="op">=</span> <span class="va">sarima_list</span>,
+                   initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,
+                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-08 15:22:22</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -1.034434 </span>
 <span class="co">#&gt; final  value -1.616321 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-09-17 08:35:03</span>
-<span class="co">#&gt; Time difference of 1.04739999771118 secs</span>
-</pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-08 15:22:23</span>
+<span class="co">#&gt; Time difference of 0.962813138961792 secs</span></pre></div>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit">
 <span class="co"># Coefficients of the ARMA component</span>
-<span class="kw">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(
-   <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">SMA</span><span class="op">$</span><span class="kw">SARIMA1</span><span class="op">$</span><span class="kw">S1</span>, <span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">SMA</span><span class="op">$</span><span class="kw">SARIMA1</span><span class="op">$</span><span class="kw">S12</span>),
-   <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">fit</span><span class="op">$</span><span class="kw">standard_errors</span><span class="op">$</span><span class="kw">SMA</span><span class="op">$</span><span class="kw">SARIMA1</span><span class="op">$</span><span class="kw">S1</span>, <span class="kw">fit</span><span class="op">$</span><span class="kw">standard_errors</span><span class="op">$</span><span class="kw">SMA</span><span class="op">$</span><span class="kw">SARIMA1</span><span class="op">$</span><span class="kw">S12</span>)
-)
+<span class="va">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>
+   <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S1</span>, <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S12</span><span class="op">)</span>,
+   <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S1</span>, <span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S12</span><span class="op">)</span>
+<span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">arma_coeff</span>) <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"coefficient"</span>, <span class="st">"std_error"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="kw">arma_coeff</span>) <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"ma1 s = 1"</span>, <span class="st">"ma1 s = 12"</span>)
-<span class="kw">arma_coeff</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">arma_coeff</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"coefficient"</span>, <span class="st">"std_error"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">arma_coeff</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ma1 s = 1"</span>, <span class="st">"ma1 s = 12"</span><span class="op">)</span>
+<span class="va">arma_coeff</span>
 <span class="co">#&gt;               ma1 s = 1  ma1 s = 12</span>
 <span class="co">#&gt; coefficient -0.40188859 -0.55694248</span>
 <span class="co">#&gt; std_error    0.08963614  0.07309788</span>
 
-<span class="kw">goodness_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">system_matrices</span><span class="op">$</span><span class="kw">Q</span><span class="op">$</span><span class="kw">SARIMA1</span>,
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">diagnostics</span><span class="op">$</span><span class="kw">loglik</span>,
-   <span class="kw">fit</span><span class="op">$</span><span class="kw">diagnostics</span><span class="op">$</span><span class="kw">AIC</span>
-)
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="kw">goodness_fit</span>) <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Variance"</span>, <span class="st">"Loglikelihood"</span>, <span class="st">"AIC"</span>)
-<span class="kw">goodness_fit</span>
+<span class="va">goodness_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>
+   <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">SARIMA1</span>,
+   <span class="va">fit</span><span class="op">$</span><span class="va">diagnostics</span><span class="op">$</span><span class="va">loglik</span>,
+   <span class="va">fit</span><span class="op">$</span><span class="va">diagnostics</span><span class="op">$</span><span class="va">AIC</span>
+<span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">goodness_fit</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Variance"</span>, <span class="st">"Loglikelihood"</span>, <span class="st">"AIC"</span><span class="op">)</span>
+<span class="va">goodness_fit</span>
 <span class="co">#&gt;                        [,1]</span>
 <span class="co">#&gt; Variance        0.001347882</span>
 <span class="co">#&gt; Loglikelihood 232.750284785</span>
-<span class="co">#&gt; AIC            -3.010420622</span>
-</pre></div>
+<span class="co">#&gt; AIC            -3.010420622</span></pre></div>
 <p>As you can see, fitting the Box-Jenkins models with statespacer is quite easy!</p>
 </div>
 <div id="references" class="section level2 unnumbered">

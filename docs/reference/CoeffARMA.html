@@ -172,7 +172,7 @@ See Ansley and Kohn (1986)
 the transformation used.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>CoeffARMA</span>(<span class='kw'>A</span>, variance = <span class='kw'>NULL</span>, ar = <span class='fl'>1</span>, ma = <span class='fl'>0</span>)</pre>
+    <pre class="usage"><span class='fu'>CoeffARMA</span><span class='op'>(</span><span class='va'>A</span>, variance <span class='op'>=</span> <span class='cn'>NULL</span>, ar <span class='op'>=</span> <span class='fl'>1</span>, ma <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -213,13 +213,13 @@ Note: <code>variance</code> not needed for the univariate case!</p></td>
 
     <p>Ansley CF, Kohn R (1986).
 &#8220;A note on reparameterizing a vector autoregressive moving average model to enforce stationarity.&#8221;
-<em>Journal of Statistical Computation and Simulation</em>, <b>24</b>(2), 99--106.</p>
+<em>Journal of Statistical Computation and Simulation</em>, <b>24</b>, 99--106.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>CoeffARMA</span>(A = <span class='kw'>stats</span>::<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>2</span>), ar = <span class='fl'>1</span>, ma = <span class='fl'>1</span>)
+    <pre class="examples"><div class='input'><span class='fu'>CoeffARMA</span><span class='op'>(</span>A <span class='op'>=</span> <span class='fu'>stats</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>2</span><span class='op'>)</span>, ar <span class='op'>=</span> <span class='fl'>1</span>, ma <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; $ar
 #&gt; [1] -0.08404053
 #&gt; 
