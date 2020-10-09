@@ -46,7 +46,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.3.0.9000</span>
       </span>
     </div>
 
@@ -105,7 +105,7 @@
 
       
 
-      </header><script src="dictionary_files/header-attrs-2.3/header-attrs.js"></script><script src="dictionary_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="dictionary_files/header-attrs-2.4/header-attrs.js"></script><script src="dictionary_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Dictionary of statespacer</h1>
@@ -204,7 +204,7 @@
 <div id="diagnostics" class="section level3">
 <h3 class="hasAnchor">
 <a href="#diagnostics" class="anchor"></a>diagnostics</h3>
-<p><code>diagnostics</code> (only returned if <code>diagnostics = TRUE</code>) is a list that contains items useful for diagnostic tests and model selection:</p>
+<p><code>diagnostics</code> is a list that contains items useful for diagnostic tests and model selection:</p>
 <ul>
 <li>
 <code>initialisation_steps</code> is the number of timesteps required before initialisation was achieved of the diffuse elements of the state vector.</li>
@@ -218,6 +218,13 @@
 <code>r</code> is the scaled smoothed state disturbance.</li>
 <li>
 <code>N</code> is the uncertainty of <code>r</code>.</li>
+<li>
+<code>param_indices</code> is a list containing the indices of the parameters in the parameter vector for each of the components.</li>
+<li>
+<code>hessian</code> is the hessian of the loglikelihood evaluated at the estimated parameters.</li>
+</ul>
+<p>The following objects are only returned if <code>diagnostics = TRUE</code>:</p>
+<ul>
 <li>
 <code>e</code> is the smoothing error.</li>
 <li>
@@ -246,10 +253,6 @@
 <code>Heteroscedasticity</code> are statistics for testing for heteroscedasticity.</li>
 <li>
 <code>Heteroscedasticity_criticalvalues</code> are the critical values of the heteroscedasticity tests.</li>
-<li>
-<code>param_indices</code> is a list containing the indices of the parameters in the parameter vector for each of the components.</li>
-<li>
-<code>hessian</code> is the hessian of the loglikelihood evaluated at the estimated parameters.</li>
 </ul>
 </div>
 <div id="optim" class="section level3">
@@ -315,7 +318,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

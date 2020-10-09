@@ -91,7 +91,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.2.1.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">0.3.0.9000</span>
       </span>
     </div>
 
@@ -165,14 +165,14 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for statespacer</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(
-  <span class='kw'>object</span>,
-  addvar_list_fc = <span class='kw'>NULL</span>,
-  level_addvar_list_fc = <span class='kw'>NULL</span>,
-  self_spec_list_fc = <span class='kw'>NULL</span>,
-  forecast_period = <span class='fl'>1</span>,
-  <span class='kw'>...</span>
-)</pre>
+<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  addvar_list_fc <span class='op'>=</span> <span class='cn'>NULL</span>,
+  level_addvar_list_fc <span class='op'>=</span> <span class='cn'>NULL</span>,
+  self_spec_list_fc <span class='op'>=</span> <span class='cn'>NULL</span>,
+  forecast_period <span class='op'>=</span> <span class='fl'>1</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -236,15 +236,15 @@ Oxford university press.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>datasets</span>)
-<span class='kw'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='kw'>Nile</span>)
-<span class='kw'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span>(initial = <span class='fl'>10</span>, y = <span class='kw'>y</span>, local_level_ind = <span class='fl'>TRUE</span>)
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>datasets</span><span class='op'>)</span>
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='va'>Nile</span><span class='op'>)</span>
+<span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span><span class='op'>(</span>initial <span class='op'>=</span> <span class='fl'>10</span>, y <span class='op'>=</span> <span class='va'>y</span>, local_level_ind <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># Obtain forecasts for 10 steps ahead using the fitted model</span>
-<span class='kw'>fc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span>(<span class='kw'>fit</span>, forecast_period = <span class='fl'>10</span>)
+<span class='va'>fc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>fit</span>, forecast_period <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span>
 
 <span class='co'># Plot the forecasts</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='kw'>fc</span><span class='op'>$</span><span class='kw'>y_fc</span>, type = <span class='st'>"l"</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='va'>fc</span><span class='op'>$</span><span class='va'>y_fc</span>, type <span class='op'>=</span> <span class='st'>"l"</span><span class='op'>)</span>
 </div><div class='img'><img src='predict.statespacer-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -261,7 +261,7 @@ Oxford university press.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
