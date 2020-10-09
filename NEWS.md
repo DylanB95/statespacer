@@ -1,5 +1,9 @@
 # statespacer 0.3.9000
 
+## Bug fixes
+
+* Fixed incrementation of initialisation_steps during initialisation when the dependent variable was missing.
+
 # statespacer 0.3.0
 
 ## Performance improvements
