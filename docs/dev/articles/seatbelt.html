@@ -172,13 +172,13 @@
                    method <span class="op">=</span> <span class="st">"BFGS"</span>,
                    initial <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-09 14:54:06</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-09 15:12:16</span>
 <span class="co">#&gt; Parameter scaling:[1] 1</span>
 <span class="co">#&gt; initial  value -0.443442 </span>
 <span class="co">#&gt; final  value -0.735372 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-09 14:54:07</span>
-<span class="co">#&gt; Time difference of 0.158421993255615 secs</span></pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-09 15:12:16</span>
+<span class="co">#&gt; Time difference of 0.11395788192749 secs</span></pre></div>
 <p>Let’s check out the estimates:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit">
 <span class="co"># The estimated variance of the observation disturbance</span>
@@ -224,7 +224,7 @@
                    method <span class="op">=</span> <span class="st">"BFGS"</span>,
                    initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-09 14:54:07</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-09 15:12:16</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -0.172423 </span>
 <span class="co">#&gt; iter  10 value -0.893962</span>
@@ -232,8 +232,8 @@
 <span class="co">#&gt; iter  30 value -0.915515</span>
 <span class="co">#&gt; final  value -0.915517 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-09 14:54:09</span>
-<span class="co">#&gt; Time difference of 1.75952506065369 secs</span>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-09 15:12:18</span>
+<span class="co">#&gt; Time difference of 1.56375193595886 secs</span>
 
 <span class="co"># The estimated variance of the observation disturbance</span>
 <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span>
@@ -326,7 +326,7 @@
                    method <span class="op">=</span> <span class="st">"BFGS"</span>,
                    initial <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-09 14:54:10</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-09 15:12:19</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
 <span class="co">#&gt; initial  value 0.389588 </span>
 <span class="co">#&gt; iter  10 value -1.583525</span>
@@ -334,8 +334,8 @@
 <span class="co">#&gt; iter  30 value -1.676530</span>
 <span class="co">#&gt; final  value -1.676537 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-09 14:54:34</span>
-<span class="co">#&gt; Time difference of 23.7177228927612 secs</span></pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-09 15:12:40</span>
+<span class="co">#&gt; Time difference of 20.9595301151276 secs</span></pre></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit">
 <span class="co"># The estimated variance - covariance matrix of the observation disturbance</span>

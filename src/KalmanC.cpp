@@ -178,12 +178,14 @@ Rcpp::List KalmanC(const arma::mat& y,
           a_mat.row(index + 1) = a_mat.row(index);
           P_star_cube.slice(index + 1) = P_star_cube.slice(index);
           if (initialisation) {
+            initialisation_steps++;
             P_inf_cube.slice(index + 1) = P_inf_cube.slice(index);
           }
         } else {
           a_fc = a_mat.row(index).t();
           P_star_fc = P_star_cube.slice(index);
           if (initialisation) {
+            initialisation_steps++;
             P_inf_fc = P_inf_cube.slice(index);
           }
         }
