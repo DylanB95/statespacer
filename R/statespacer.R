@@ -799,7 +799,11 @@ statespacer <- function(y,
       }
     }
     if (!collapse) {
-      Q_kal <- CombineTRQ(H, Q_kal)
+      if (is.matrix(H)) {
+        Q_kal <- CombineTRQ(H, Q_kal)
+      } else {
+        Q_kal <- CombineTRQ(H[, , c(2:N, 1)], Q_kal)
+      }
     }
 
     # Check for finite values in Q_kal and H
@@ -846,7 +850,7 @@ statespacer <- function(y,
         loglik_add <- loglik_add -
           0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
         P_star <- BlockMatrix(H_star[, , 1], P_star)
-        Q_kal <- CombineTRQ(H_star, Q_kal)
+        Q_kal <- CombineTRQ(H_star[, , c(2:N, 1)], Q_kal)
       } else if (!is.matrix(H) && is.matrix(Z_kal)) {
         y_kal <- matrix(0, N, m2)
         H_star <- array(0, dim = c(m2, m2, N))
@@ -867,7 +871,7 @@ statespacer <- function(y,
         loglik_add <- loglik_add -
           0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
         P_star <- BlockMatrix(H_star[, , 1], P_star)
-        Q_kal <- CombineTRQ(H_star, Q_kal)
+        Q_kal <- CombineTRQ(H_star[, , c(2:N, 1)], Q_kal)
       } else {
         y_kal <- matrix(0, N, m2)
         H_star <- array(0, dim = c(m2, m2, N))
@@ -889,7 +893,7 @@ statespacer <- function(y,
         loglik_add <- loglik_add -
           0.5 * (sum(!is.na(y)) - sum(!is.na(y_kal))) * log(2 * pi)
         P_star <- BlockMatrix(H_star[, , 1], P_star)
-        Q_kal <- CombineTRQ(H_star, Q_kal)
+        Q_kal <- CombineTRQ(H_star[, , c(2:N, 1)], Q_kal)
       }
       Z_kal <- Z_kal_tf
       y_isna <- is.na(y_kal)

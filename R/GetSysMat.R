@@ -1403,10 +1403,11 @@ GetSysMat <- function(p,
     H <- self_spec_list[["H"]]
     H_list <- list(H = H)
     if (add_residuals) {
-      Q_kal <- CombineTRQ(H, Q_kal)
       if (is.matrix(H)) {
+        Q_kal <- CombineTRQ(H, Q_kal)
         P_star <- BlockMatrix(H, P_star)
       } else {
+        Q_kal <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1)], Q_kal)
         P_star <- BlockMatrix(H[, , 1], P_star)
       }
     }
@@ -1414,10 +1415,11 @@ GetSysMat <- function(p,
     H <- update[["H"]]
     H_list <- list(H = H)
     if (add_residuals) {
-      Q_kal <- CombineTRQ(H, Q_kal)
       if (is.matrix(H)) {
+        Q_kal <- CombineTRQ(H, Q_kal)
         P_star <- BlockMatrix(H, P_star)
       } else {
+        Q_kal <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1)], Q_kal)
         P_star <- BlockMatrix(H[, , 1], P_star)
       }
     }
