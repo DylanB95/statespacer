@@ -40,3 +40,20 @@ LogLikC <- function(y, y_isna, a, P_inf, P_star, Z, T, R, Q) {
     .Call(`_statespacer_LogLikC`, y, y_isna, a, P_inf, P_star, Z, T, R, Q)
 }
 
+#' Draw Random Samples of a State Space Component
+#'
+#' @param nsim Number of random samples to draw.
+#' @param repeat_Q Number of times the drawing of random samples
+#'   using Q should be repeated.
+#' @param N Number of timepoints.
+#' @param a Initial values of the state vector of the component.
+#' @param Z Z system matrix of the State Space model component.
+#' @param T T system matrix of the State Space model component.
+#' @param R R system matrix of the State Space model component.
+#' @param Q Q system matrix of the State Space model component.
+#'
+#' @noRd
+SimulateC <- function(nsim, repeat_Q, N, a, Z, T, R, Q) {
+    .Call(`_statespacer_SimulateC`, nsim, repeat_Q, N, a, Z, T, R, Q)
+}
+
