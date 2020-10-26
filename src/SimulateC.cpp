@@ -4,7 +4,7 @@
 //' Draw Random Samples of a State Space Component
 //'
 //' @param nsim Number of random samples to draw.
-//' @param repeat Number of times the drawing of random samples
+//' @param repeat_Q Number of times the drawing of random samples
 //'   using Q should be repeated.
 //' @param N Number of timepoints.
 //' @param a Initial values of the state vector of the component.
@@ -16,7 +16,7 @@
 //' @noRd
 // [[Rcpp::export]]
 Rcpp::List SimulateC(const int& nsim,
-                     const int& repeat,
+                     const int& repeat_Q,
                      const int& N,
                      const arma::colvec& a,
                      const arma::cube& Z,
@@ -25,8 +25,8 @@ Rcpp::List SimulateC(const int& nsim,
                      const arma::cube& Q) {
 
   // Number of dependent variables, state parameters and state disturbances
-  int p = Z.n_rows, m = a.n_rows, r = Q.n_rows, r_tot = r * repeat,
-      nsim_rep = nsim * repeat, total = r_tot * nsim;
+  int p = Z.n_rows, m = a.n_rows, r = Q.n_rows, r_tot = r * repeat_Q,
+      nsim_rep = nsim * repeat_Q, total = r_tot * nsim;
 
   // The last time point
   int N_min1 = N - 1;
@@ -35,8 +35,8 @@ Rcpp::List SimulateC(const int& nsim,
   bool Z_tv = Z.n_slices > 1, T_tv = T.n_slices > 1,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
 
-  // Check if repeat is greater than 1
-  bool rep_g1 = repeat > 1;
+  // Check if repeat_Q is greater than 1
+  bool rep_g1 = repeat_Q > 1;
 
   // Initial system matrices
   arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0),
