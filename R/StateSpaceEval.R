@@ -332,14 +332,10 @@ StateSpaceEval <- function(param,
   if (local_level_ind && !slope_ind && is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
-    predicted$level <- matrix(0, N, p)
-    filtered$level <- matrix(0, N, p)
-    smoothed$level <- matrix(0, N, p)
-    for (i in 1:N) {
-      predicted$level[i, ] <- tempZ %*% matrix(a_pred[i, ])
-      filtered$level[i, ] <- tempZ %*% matrix(a_fil[i, ])
-      smoothed$level[i, ] <- tempZ %*% matrix(a_smooth[i, ])
-    }
+    tempZ_t <- t(tempZ)
+    predicted$level <- a_pred %*% tempZ_t
+    filtered$level <- a_fil %*% tempZ_t
+    smoothed$level <- a_smooth %*% tempZ_t
     Z_padded$level <- tempZ
   }
 
@@ -347,14 +343,10 @@ StateSpaceEval <- function(param,
   if (slope_ind && is.null(level_addvar_list)) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
-    predicted$level <- matrix(0, N, p)
-    filtered$level <- matrix(0, N, p)
-    smoothed$level <- matrix(0, N, p)
-    for (i in 1:N) {
-      predicted$level[i, ] <- tempZ %*% matrix(a_pred[i, ])
-      filtered$level[i, ] <- tempZ %*% matrix(a_fil[i, ])
-      smoothed$level[i, ] <- tempZ %*% matrix(a_smooth[i, ])
-    }
+    tempZ_t <- t(tempZ)
+    predicted$level <- a_pred %*% tempZ_t
+    filtered$level <- a_fil %*% tempZ_t
+    smoothed$level <- a_smooth %*% tempZ_t
     Z_padded$level <- tempZ
   }
 
@@ -363,14 +355,10 @@ StateSpaceEval <- function(param,
     for (s in BSM_vec) {
       tempZ <- matrix(0, p, m - p)
       tempZ[1:length(Z_padded[[paste0("BSM", s)]])] <- Z_padded[[paste0("BSM", s)]]
-      predicted[[paste0("BSM", s)]] <- matrix(0, N, p)
-      filtered[[paste0("BSM", s)]] <- matrix(0, N, p)
-      smoothed[[paste0("BSM", s)]] <- matrix(0, N, p)
-      for (i in 1:N) {
-        predicted[[paste0("BSM", s)]][i, ] <- tempZ %*% matrix(a_pred[i, ])
-        filtered[[paste0("BSM", s)]][i, ] <- tempZ %*% matrix(a_fil[i, ])
-        smoothed[[paste0("BSM", s)]][i, ] <- tempZ %*% matrix(a_smooth[i, ])
-      }
+      tempZ_t <- t(tempZ)
+      predicted[[paste0("BSM", s)]] <- a_pred %*% tempZ_t
+      filtered[[paste0("BSM", s)]] <- a_fil %*% tempZ_t
+      smoothed[[paste0("BSM", s)]] <- a_smooth %*% tempZ_t
       Z_padded[[paste0("BSM", s)]] <- tempZ
     }
   }
@@ -402,14 +390,10 @@ StateSpaceEval <- function(param,
   if (!is.null(level_addvar_list) && !slope_ind) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
-    predicted$level <- matrix(0, N, p)
-    filtered$level <- matrix(0, N, p)
-    smoothed$level <- matrix(0, N, p)
-    for (i in 1:N) {
-      predicted$level[i, ] <- tempZ %*% matrix(a_pred[i, ])
-      filtered$level[i, ] <- tempZ %*% matrix(a_fil[i, ])
-      smoothed$level[i, ] <- tempZ %*% matrix(a_smooth[i, ])
-    }
+    tempZ_t <- t(tempZ)
+    predicted$level <- a_pred %*% tempZ_t
+    filtered$level <- a_fil %*% tempZ_t
+    smoothed$level <- a_smooth %*% tempZ_t
     Z_padded$level <- tempZ
     filtered$level_addvar_coeff <- a_fil[, sys_mat$level_addvar_state]
     filtered$level_addvar_coeff_se <- t(apply(
@@ -425,14 +409,10 @@ StateSpaceEval <- function(param,
   if (!is.null(level_addvar_list) && slope_ind) {
     tempZ <- matrix(0, p, m - p)
     tempZ[1:length(Z_padded$level)] <- Z_padded$level
-    predicted$level <- matrix(0, N, p)
-    filtered$level <- matrix(0, N, p)
-    smoothed$level <- matrix(0, N, p)
-    for (i in 1:N) {
-      predicted$level[i, ] <- tempZ %*% matrix(a_pred[i, ])
-      filtered$level[i, ] <- tempZ %*% matrix(a_fil[i, ])
-      smoothed$level[i, ] <- tempZ %*% matrix(a_smooth[i, ])
-    }
+    tempZ_t <- t(tempZ)
+    predicted$level <- a_pred %*% tempZ_t
+    filtered$level <- a_fil %*% tempZ_t
+    smoothed$level <- a_smooth %*% tempZ_t
     Z_padded$level <- tempZ
     filtered$level_addvar_coeff <- a_fil[, sys_mat$level_addvar_state]
     filtered$level_addvar_coeff_se <- t(apply(
@@ -449,14 +429,10 @@ StateSpaceEval <- function(param,
     for (j in seq_along(format_cycle_list)) {
       tempZ <- matrix(0, p, m - p)
       tempZ[1:length(Z_padded[[paste0("Cycle", j)]])] <- Z_padded[[paste0("Cycle", j)]]
-      predicted[[paste0("Cycle", j)]] <- matrix(0, N, p)
-      filtered[[paste0("Cycle", j)]] <- matrix(0, N, p)
-      smoothed[[paste0("Cycle", j)]] <- matrix(0, N, p)
-      for (i in 1:N) {
-        predicted[[paste0("Cycle", j)]][i, ] <- tempZ %*% matrix(a_pred[i, ])
-        filtered[[paste0("Cycle", j)]][i, ] <- tempZ %*% matrix(a_fil[i, ])
-        smoothed[[paste0("Cycle", j)]][i, ] <- tempZ %*% matrix(a_smooth[i, ])
-      }
+      tempZ_t <- t(tempZ)
+      predicted[[paste0("Cycle", j)]] <- a_pred %*% tempZ_t
+      filtered[[paste0("Cycle", j)]] <- a_fil %*% tempZ_t
+      smoothed[[paste0("Cycle", j)]] <- a_smooth %*% tempZ_t
       Z_padded[[paste0("Cycle", j)]] <- tempZ
     }
   }
@@ -466,14 +442,10 @@ StateSpaceEval <- function(param,
     for (j in seq_along(arima_list)) {
       tempZ <- matrix(0, p, m - p)
       tempZ[1:length(Z_padded[[paste0("ARIMA", j)]])] <- Z_padded[[paste0("ARIMA", j)]]
-      predicted[[paste0("ARIMA", j)]] <- matrix(0, N, p)
-      filtered[[paste0("ARIMA", j)]] <- matrix(0, N, p)
-      smoothed[[paste0("ARIMA", j)]] <- matrix(0, N, p)
-      for (i in 1:N) {
-        predicted[[paste0("ARIMA", j)]][i, ] <- tempZ %*% matrix(a_pred[i, ])
-        filtered[[paste0("ARIMA", j)]][i, ] <- tempZ %*% matrix(a_fil[i, ])
-        smoothed[[paste0("ARIMA", j)]][i, ] <- tempZ %*% matrix(a_smooth[i, ])
-      }
+      tempZ_t <- t(tempZ)
+      predicted[[paste0("ARIMA", j)]] <- a_pred %*% tempZ_t
+      filtered[[paste0("ARIMA", j)]] <- a_fil %*% tempZ_t
+      smoothed[[paste0("ARIMA", j)]] <- a_smooth %*% tempZ_t
       Z_padded[[paste0("ARIMA", j)]] <- tempZ
     }
   }
@@ -483,14 +455,10 @@ StateSpaceEval <- function(param,
     for (j in seq_along(sarima_list)) {
       tempZ <- matrix(0, p, m - p)
       tempZ[1:length(Z_padded[[paste0("SARIMA", j)]])] <- Z_padded[[paste0("SARIMA", j)]]
-      predicted[[paste0("SARIMA", j)]] <- matrix(0, N, p)
-      filtered[[paste0("SARIMA", j)]] <- matrix(0, N, p)
-      smoothed[[paste0("SARIMA", j)]] <- matrix(0, N, p)
-      for (i in 1:N) {
-        predicted[[paste0("SARIMA", j)]][i, ] <- tempZ %*% matrix(a_pred[i, ])
-        filtered[[paste0("SARIMA", j)]][i, ] <- tempZ %*% matrix(a_fil[i, ])
-        smoothed[[paste0("SARIMA", j)]][i, ] <- tempZ %*% matrix(a_smooth[i, ])
-      }
+      tempZ_t <- t(tempZ)
+      predicted[[paste0("SARIMA", j)]] <- a_pred %*% tempZ_t
+      filtered[[paste0("SARIMA", j)]] <- a_fil %*% tempZ_t
+      smoothed[[paste0("SARIMA", j)]] <- a_smooth %*% tempZ_t
       Z_padded[[paste0("SARIMA", j)]] <- tempZ
     }
   }
@@ -500,18 +468,16 @@ StateSpaceEval <- function(param,
     if (is.matrix(Z_padded$self_spec)) {
       tempZ <- matrix(0, p, m - p)
       tempZ[1:length(Z_padded$self_spec)] <- Z_padded$self_spec
+      tempZ_t <- t(tempZ)
+      predicted$self_spec <- a_pred %*% tempZ_t
+      filtered$self_spec <- a_fil %*% tempZ_t
+      smoothed$self_spec <- a_smooth %*% tempZ_t
     } else {
       tempZ <- array(0, dim = c(p, m - p, N))
-    }
-    predicted$self_spec <- matrix(0, N, p)
-    filtered$self_spec <- matrix(0, N, p)
-    smoothed$self_spec <- matrix(0, N, p)
-    for (i in 1:N) {
-      if (is.matrix(Z_padded$self_spec)) {
-        predicted$self_spec[i, ] <- tempZ %*% matrix(a_pred[i, ])
-        filtered$self_spec[i, ] <- tempZ %*% matrix(a_fil[i, ])
-        smoothed$self_spec[i, ] <- tempZ %*% matrix(a_smooth[i, ])
-      } else {
+      predicted$self_spec <- matrix(0, N, p)
+      filtered$self_spec <- matrix(0, N, p)
+      smoothed$self_spec <- matrix(0, N, p)
+      for (i in 1:N) {
         tempZ[, , i][1:length(Z_padded$self_spec[, , i])] <- Z_padded$self_spec[, , i]
         predicted$self_spec[i, ] <- matrix(tempZ[, , i], nrow = p) %*% matrix(a_pred[i, ])
         filtered$self_spec[i, ] <- matrix(tempZ[, , i], nrow = p) %*% matrix(a_fil[i, ])
