@@ -509,6 +509,8 @@ StateSpaceEval <- function(param,
   system_matrices$P_star <- sys_mat$P_star
   system_matrices$Z_padded <- Z_padded
   system_matrices$state_label <- sys_mat$state_label
+  system_matrices$addvar_state <- sys_mat$addvar_state
+  system_matrices$level_addvar_state <- sys_mat$level_addvar_state
 
   # Returning the result
   result <- list()

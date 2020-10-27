@@ -1,5 +1,13 @@
 # statespacer 0.3.9000
 
+## Extra functionality
+
+* Introduces the simulation smoother for drawing random samples conditional on the observed data. See `?SimSmoother` for details.
+
+## Performance improvements
+
+* Extraction of components now done a bit more efficiently.
+
 ## Bug fixes
 
 * Fixed incrementation of initialisation_steps during initialisation when the dependent variable was missing.

@@ -51,9 +51,15 @@ LogLikC <- function(y, y_isna, a, P_inf, P_star, Z, T, R, Q) {
 #' @param T T system matrix of the State Space model component.
 #' @param R R system matrix of the State Space model component.
 #' @param Q Q system matrix of the State Space model component.
+#' @param P_star P_star system matrix of the State Space model component.
+#'   Only used when draw_initial = true.
+#' @param draw_initial Boolean indicating whether the initial state
+#'   should be simulated.
+#' @param eta_only Boolean indicating whether only the
+#'   disturbances should be simulated.
 #'
 #' @noRd
-SimulateC <- function(nsim, repeat_Q, N, a, Z, T, R, Q) {
-    .Call(`_statespacer_SimulateC`, nsim, repeat_Q, N, a, Z, T, R, Q)
+SimulateC <- function(nsim, repeat_Q, N, a, Z, T, R, Q, P_star, draw_initial, eta_only) {
+    .Call(`_statespacer_SimulateC`, nsim, repeat_Q, N, a, Z, T, R, Q, P_star, draw_initial, eta_only)
 }
 

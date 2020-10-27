@@ -46,8 +46,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // SimulateC
-Rcpp::List SimulateC(const int& nsim, const int& repeat_Q, const int& N, const arma::colvec& a, const arma::cube& Z, const arma::cube& T, const arma::cube& R, const arma::cube& Q);
-RcppExport SEXP _statespacer_SimulateC(SEXP nsimSEXP, SEXP repeat_QSEXP, SEXP NSEXP, SEXP aSEXP, SEXP ZSEXP, SEXP TSEXP, SEXP RSEXP, SEXP QSEXP) {
+Rcpp::List SimulateC(const int& nsim, const int& repeat_Q, const int& N, const arma::colvec& a, const arma::cube& Z, const arma::cube& T, const arma::cube& R, const arma::cube& Q, const arma::mat& P_star, const bool& draw_initial, const bool& eta_only);
+RcppExport SEXP _statespacer_SimulateC(SEXP nsimSEXP, SEXP repeat_QSEXP, SEXP NSEXP, SEXP aSEXP, SEXP ZSEXP, SEXP TSEXP, SEXP RSEXP, SEXP QSEXP, SEXP P_starSEXP, SEXP draw_initialSEXP, SEXP eta_onlySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -59,7 +59,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::cube& >::type T(TSEXP);
     Rcpp::traits::input_parameter< const arma::cube& >::type R(RSEXP);
     Rcpp::traits::input_parameter< const arma::cube& >::type Q(QSEXP);
-    rcpp_result_gen = Rcpp::wrap(SimulateC(nsim, repeat_Q, N, a, Z, T, R, Q));
+    Rcpp::traits::input_parameter< const arma::mat& >::type P_star(P_starSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type draw_initial(draw_initialSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type eta_only(eta_onlySEXP);
+    rcpp_result_gen = Rcpp::wrap(SimulateC(nsim, repeat_Q, N, a, Z, T, R, Q, P_star, draw_initial, eta_only));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -67,7 +70,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_statespacer_KalmanC", (DL_FUNC) &_statespacer_KalmanC, 10},
     {"_statespacer_LogLikC", (DL_FUNC) &_statespacer_LogLikC, 9},
-    {"_statespacer_SimulateC", (DL_FUNC) &_statespacer_SimulateC, 8},
+    {"_statespacer_SimulateC", (DL_FUNC) &_statespacer_SimulateC, 11},
     {NULL, NULL, 0}
 };
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Changelog • statespacer</title>
+<title>Generating Random Samples using the Simulation Smoother — SimSmoother • statespacer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -54,7 +54,9 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Changelog" />
+<meta property="og:title" content="Generating Random Samples using the Simulation Smoother — SimSmoother" />
+<meta property="og:description" content="Draws random samples of the specified model conditional
+on the observed data." />
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png" />
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:creator" content="@dylanbeijers" />
@@ -77,7 +79,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-news">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -154,142 +156,58 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href='https://github.com/DylanB95/statespacer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
+    <h1>Generating Random Samples using the Simulation Smoother</h1>
+    <small class="dont-index">Source: <a href='https://github.com/DylanB95/statespacer/blob/master/R/SimSmoother.R'><code>R/SimSmoother.R</code></a></small>
+    <div class="hidden name"><code>SimSmoother.Rd</code></div>
     </div>
 
-    <div id="statespacer-039000" class="section level1">
-<h1 class="page-header" data-toc-text="0.3.9000">
-<a href="#statespacer-039000" class="anchor"></a>statespacer 0.3.9000<small> Unreleased </small>
-</h1>
-<div id="extra-functionality" class="section level2">
-<h2 class="hasAnchor">
-<a href="#extra-functionality" class="anchor"></a>Extra functionality</h2>
-<ul>
-<li>Introduces the simulation smoother for drawing random samples conditional on the observed data. See <code><a href="../reference/SimSmoother.html">?SimSmoother</a></code> for details.</li>
-</ul>
-</div>
-<div id="performance-improvements" class="section level2">
-<h2 class="hasAnchor">
-<a href="#performance-improvements" class="anchor"></a>Performance improvements</h2>
-<ul>
-<li>Extraction of components now done a bit more efficiently.</li>
-</ul>
-</div>
-<div id="bug-fixes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
-<ul>
-<li>Fixed incrementation of initialisation_steps during initialisation when the dependent variable was missing.</li>
-</ul>
-</div>
-</div>
-    <div id="statespacer-030" class="section level1">
-<h1 class="page-header" data-toc-text="0.3.0">
-<a href="#statespacer-030" class="anchor"></a>statespacer 0.3.0<small> 2020-09-15 </small>
-</h1>
-<div id="performance-improvements-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#performance-improvements-1" class="anchor"></a>Performance improvements</h2>
-<ul>
-<li>Kalman Filter and Smoother now fully written in c++.</li>
-</ul>
-</div>
-<div id="extra-functionality-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#extra-functionality-1" class="anchor"></a>Extra functionality</h2>
-<ul>
-<li>Computation of diagnostics now optional using <code>diagnostics = TRUE</code>.</li>
-<li>Added full system matrices to the statespacer object.</li>
-<li>Added predicted, filtered, and forecasted <code>P_star</code> and <code>P_inf</code>.</li>
-</ul>
-</div>
-<div id="bug-fixes-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
-<ul>
-<li>Fixed bug in predicting using explanatory variables.</li>
-<li>Fixed edge case in adding explanatory variables. The bug occurred when there was only 1 explanatory variable and 1 dependent variable supplied, causing the Z system matrix to be a vector instead of an array.</li>
-</ul>
-</div>
-</div>
-    <div id="statespacer-021" class="section level1">
-<h1 class="page-header" data-toc-text="0.2.1">
-<a href="#statespacer-021" class="anchor"></a>statespacer 0.2.1<small> 2020-07-15 </small>
-</h1>
-<div id="bug-fixes-2" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
-<ul>
-<li>Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if <code>first &lt;- list()</code>, then assigning <code>first$second[[["third"]] &lt;- 1</code> returns on Windows (and other platforms) a list named <code>first</code>, that contains another list named <code>second</code>, that contains a named element <code>third</code> equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named <code>first</code>, that contains a named element <code>second</code> equal to a named (<code>third</code>) length 1 numerical vector. So <code>second</code> is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.</li>
-</ul>
-</div>
-</div>
-    <div id="statespacer-020" class="section level1">
-<h1 class="page-header" data-toc-text="0.2.0">
-<a href="#statespacer-020" class="anchor"></a>statespacer 0.2.0<small> 2020-07-13 </small>
-</h1>
-<div id="breaking-changes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#breaking-changes" class="anchor"></a>Breaking changes</h2>
-<ul>
-<li>
-<p>API change by making use of S3 classes and methods:</p>
-<ul>
-<li><p>Replaced <code>StateSpaceFit()</code> for <code><a href="../reference/statespacer.html">statespacer()</a></code>.</p></li>
-<li><p>Replaced <code>StateSpaceEval(...)</code> for <code><a href="../reference/statespacer.html">statespacer(..., fit = FALSE)</a></code>.</p></li>
-<li><p><code><a href="../reference/statespacer.html">statespacer()</a></code> returns a list object of class <code>statespacer</code>.</p></li>
-<li><p>Replaced <code>StateSpaceForecast()</code> for the S3 method <code><a href="../reference/predict.statespacer.html">predict.statespacer()</a></code>.</p></li>
-</ul>
-</li>
-</ul>
-</div>
-<div id="performance-improvements-2" class="section level2">
-<h2 class="hasAnchor">
-<a href="#performance-improvements-2" class="anchor"></a>Performance improvements</h2>
-<ul>
-<li>
-<p>Major:</p>
-<ul>
-<li>Calculation of loglikelihood now done using c++. Major performance improvement as the loglikelihood potentially gets calculated a lot of times by the optimisation procedure.</li>
-</ul>
-</li>
-<li>
-<p>Minor:</p>
-<ul>
-<li><p>Making use of crossprod and tcrossprod.</p></li>
-<li><p>Improved efficiency of the computation of standard_errors.</p></li>
-<li><p>y_temp outside of LogLikelihood function.</p></li>
-<li><p>Easier to find proper initial values, reducing time spent on trial and error by the user.</p></li>
-</ul>
-</li>
-</ul>
-</div>
-<div id="extra-functionality-2" class="section level2">
-<h2 class="hasAnchor">
-<a href="#extra-functionality-2" class="anchor"></a>Extra functionality</h2>
-<ul>
-<li><p>Printing progress now optional using <code>verbose = TRUE</code>.</p></li>
-<li><p>Computation of standard_errors now optional using <code>standard_errors = TRUE</code>.</p></li>
-</ul>
-</div>
-</div>
-    <div id="statespacer-010" class="section level1">
-<h1 class="page-header" data-toc-text="0.1.0">
-<a href="#statespacer-010" class="anchor"></a>statespacer 0.1.0<small> 2020-05-16 </small>
-</h1>
-<ul>
-<li>Initial release to CRAN!</li>
-</ul>
-</div>
-  </div>
+    <div class="ref-description">
+    <p>Draws random samples of the specified model conditional
+on the observed data.</p>
+    </div>
 
+    <pre class="usage"><span class='fu'>SimSmoother</span><span class='op'>(</span><span class='va'>object</span>, nsim <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>object</th>
+      <td><p>A statespacer object as returned by <code><a href='statespacer.html'>statespacer</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>nsim</th>
+      <td><p>Number of random samples to draw. Defaults to <code>1</code>.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A list containing the simulated state parameters and disturbances.
+In addition, it returns the components as specified
+by the State Space model.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Fits a local level model for the Nile data</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>datasets</span><span class='op'>)</span>
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='va'>Nile</span><span class='op'>)</span>
+<span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span><span class='op'>(</span>initial <span class='op'>=</span> <span class='fl'>10</span>, y <span class='op'>=</span> <span class='va'>y</span>, local_level_ind <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='co'># Obtain random sample using the fitted model</span>
+<span class='co'>#sim &lt;- SimSmoother(fit)</span>
+
+<span class='co'># Plot the simulated level</span>
+<span class='co'>#plot(1:10, sim$level, type = "l")</span>
+</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
-
 </div>
 
 
