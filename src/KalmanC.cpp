@@ -91,7 +91,7 @@ Rcpp::List KalmanC(const arma::mat& y,
   // Initialise Tstats
   arma::mat Tstat_observation(N, p), Tstat_state(N + 1, m);
 
-  // Inititalise r and N for smoother
+  // Initialise r and N for smoother
   arma::mat r_UT(Np + 1, m, arma::fill::zeros),
             r_vec(N + 1, m, arma::fill::zeros);
   arma::cube N_UT(m, m, Np + 1, arma::fill::zeros),
