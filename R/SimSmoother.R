@@ -191,7 +191,6 @@ SimSmoother <- function(object,
     R <- object$system_matrices$R$addvar
     Q <- object$system_matrices$Q$addvar
     a1 <- object$system_matrices$a1$addvar
-    dim(Z) <- c(dim(Z), 1)
     dim(Tmat) <- c(dim(Tmat), 1)
     dim(R) <- c(dim(R), 1)
     dim(Q) <- c(dim(Q), 1)
@@ -237,7 +236,6 @@ SimSmoother <- function(object,
     )
     a1 <- object$system_matrices$a1$level
     dim(Z) <- c(dim(Z), 1)
-    dim(Tmat) <- c(dim(Tmat), 1)
     dim(R) <- c(dim(R), 1)
     dim(Q) <- c(dim(Q), 1)
 
@@ -283,7 +281,6 @@ SimSmoother <- function(object,
     )
     a1 <- object$system_matrices$a1$level
     dim(Z) <- c(dim(Z), 1)
-    dim(Tmat) <- c(dim(Tmat), 1)
     dim(R) <- c(dim(R), 1)
     dim(Q) <- c(dim(Q), 1)
 
@@ -457,10 +454,18 @@ SimSmoother <- function(object,
     Q <- object$system_matrices$Q$self_spec
     a1 <- object$system_matrices$a1$self_spec
     P_star <- object$system_matrices$P_star$self_spec
-    dim(Z) <- c(dim(Z), 1)
-    dim(Tmat) <- c(dim(Tmat), 1)
-    dim(R) <- c(dim(R), 1)
-    dim(Q) <- c(dim(Q), 1)
+    if (is.matrix(Z)) {
+      dim(Z) <- c(dim(Z), 1)
+    }
+    if (is.matrix(Tmat)) {
+      dim(Tmat) <- c(dim(Tmat), 1)
+    }
+    if (is.matrix(R)) {
+      dim(R) <- c(dim(R), 1)
+    }
+    if (is.matrix(Q)) {
+      dim(Q) <- c(dim(Q), 1)
+    }
     draw_initial <- any(P_star > 0)
 
     # Indices of eta and a components
@@ -494,7 +499,9 @@ SimSmoother <- function(object,
 
   # Model components
   Q <- object$system_matrices$H$H
-  dim(Q) <- c(dim(Q), 1)
+  if (is.matrix(Q)) {
+    dim(Q) <- c(dim(Q), 1)
+  }
 
   # Obtain random samples of component
   sim <- SimulateC(

@@ -34,6 +34,9 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   bool Z_tv = Z.n_slices > 1, T_tv = T.n_slices > 1,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
 
+  // Indicator for whether the first row should be assigned
+  bool row_assign = Z_tv || p > 1;
+
   // Initial system matrices
   arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0),
             R_mat = R.slice(0), Q_mat = Q.slice(0);
@@ -55,8 +58,11 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   double F_inf, F_star, F_1, F_2, v;
   double constant = -log(2 * M_PI) / 2;
 
+  // Iterators
+  int i, j;
+
   // Loop over timepoints
-  for (int i = 0; i < N; i++) {
+  for (i = 0; i < N; i++) {
 
     // Get system matrices of current timepoint
     if (Z_tv && i > 0) {
@@ -73,7 +79,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
     }
 
     // Loop over dependent variables
-    for (int j = 0; j < p; j++) {
+    for (j = 0; j < p; j++) {
 
       // Check for missing value
       if (y_isna(i, j)) {
@@ -81,7 +87,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
       }
 
       // Retrieve row of Z
-      if (i > 0 || j > 0) {
+      if (j > 0 || (i > 0 && row_assign)) {
         Z_row = Z_mat.row(j);
       }
 
@@ -145,7 +151,9 @@ double LogLikC(const Rcpp::NumericMatrix& y,
         }
 
         // Check if P_inf converged to 0
-        initialisation = !arma::all(arma::vectorise(arma::abs(P_inf)) < 1e-7);
+        if (j < p_min1) {
+          initialisation = !arma::all(arma::vectorise(arma::abs(P_inf)) < 1e-7);
+        }
 
       } else {
 
@@ -190,6 +198,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
     P_star = T_mat * P_star * T_mat.t() + R_mat * Q_mat * R_mat.t();
     if (initialisation) {
       P_inf = T_mat * P_inf * T_mat.t();
+      initialisation = !arma::all(arma::vectorise(arma::abs(P_inf)) < 1e-7);
     }
   }
 

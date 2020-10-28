@@ -40,6 +40,9 @@ Rcpp::List KalmanC(const arma::mat& y,
   bool Z_tv = Z.n_slices > 1, T_tv = T.n_slices > 1,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
 
+  // Indicator for whether the first row should be assigned
+  bool row_assign = Z_tv || p > 1;
+
   // Initial system matrices
   arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0),
             R_mat = R.slice(0), Q_mat = Q.slice(0);
@@ -97,17 +100,23 @@ Rcpp::List KalmanC(const arma::mat& y,
   arma::cube N_UT(m, m, Np + 1, arma::fill::zeros),
              Nmat(m, m, N + 1, arma::fill::zeros);
 
-  // Initialise helpers r_1, N_1, N_2, tZZ, K, e_row, RtQ for smoother
+  // Initialise helpers r_1, N_1, N_2, tZZ, K, e_row, QtR, tT for smoother
   arma::rowvec r_1(m, arma::fill::zeros), e_row(p);
   arma::mat N_1(m, m, arma::fill::zeros), N_2(m, m, arma::fill::zeros),
-            tZZ(m, m), K(m, p), RtQ(m, r);
+            tZZ(m, m), K(m, p);
+  arma::cube QtR(r, m, N);
+  arma::mat QtR_mat = Q_mat * R_mat.t();
+  QtR.slice(0) = QtR_mat;
 
   // Needed to circumvent maximum of 20 items in returned List
   Rcpp::List nested;
 
+  // Iterators
+  int i, j;
+
   // Kalman Filter
   // Loop over timepoints
-  for (int i = 0; i < N; i++) {
+  for (i = 0; i < N; i++) {
 
     // Get system matrices of current timepoint
     if (Z_tv && i > 0) {
@@ -121,6 +130,12 @@ Rcpp::List KalmanC(const arma::mat& y,
     }
     if (Q_tv && i > 0) {
       Q_mat = Q.slice(i);
+    }
+
+    // This matrix only needs to be computed once
+    if ((Q_tv || R_tv) && i > 0) {
+      QtR_mat = Q_mat * R_mat.t();
+      QtR.slice(i) = QtR_mat;
     }
 
     // Predicted state and corresponding uncertainty
@@ -169,7 +184,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     }
 
     // Loop over dependent variables
-    for (int j = 0; j < p; j++, index++) {
+    for (j = 0; j < p; j++, index++) {
 
       // Check for missing value
       if (y_isna(i, j)) {
@@ -193,7 +208,7 @@ Rcpp::List KalmanC(const arma::mat& y,
       }
 
       // Retrieve row of Z
-      if (i > 0 || j > 0) {
+      if (j > 0 || (i > 0 && row_assign)) {
         Z_row = Z_mat.row(j);
       }
 
@@ -364,7 +379,7 @@ Rcpp::List KalmanC(const arma::mat& y,
       }
       a_mat.row(index) = arma::trans(T_mat * a_mat.row(index).t());
       P_star_cube.slice(index) =
-        T_mat * P_star_cube.slice(index) * T_mat.t() + R_mat * Q_mat * R_mat.t();
+        T_mat * P_star_cube.slice(index) * T_mat.t() + R_mat * QtR_mat;
       if (initialisation) {
         P_inf_cube.slice(index) = T_mat * P_inf_cube.slice(index) * T_mat.t();
         // Check if P_inf converged to 0
@@ -381,7 +396,7 @@ Rcpp::List KalmanC(const arma::mat& y,
         P_fil.slice(i) += kappa * P_inf_fc;
       }
       a_fc = T_mat * a_fc;
-      P_star_fc = T_mat * P_star_fc * T_mat.t() + R_mat * Q_mat * R_mat.t();
+      P_star_fc = T_mat * P_star_fc * T_mat.t() + R_mat * QtR_mat;
       P_fc = P_star_fc;
       if (initialisation) {
         P_inf_fc = T_mat * P_inf_fc * T_mat.t();
@@ -395,26 +410,23 @@ Rcpp::List KalmanC(const arma::mat& y,
 
   // Kalman Smoother
   // Loop backwards over timepoints
-  for (int i = N_min1; i >= 0; i--) {
+  for (i = N_min1; i >= 0; i--) {
 
     // Get system matrix of current timepoint for Z
     if (Z_tv && i < N_min1) {
       Z_mat = Z.slice(i);
     }
+    if ((Q_tv || R_tv) && i < N_min1) {
+      QtR_mat = QtR.slice(i);
+    }
 
-    // Get system matrices of previous timepoint for T, R, and Q
+    // Get system matrices of previous timepoint for T
     if (T_tv && i > 0) {
       T_mat = T.slice(i - 1);
     }
-    if (R_tv && i > 0) {
-      R_mat = R.slice(i - 1);
-    }
-    if (Q_tv && i > 0) {
-      Q_mat = Q.slice(i - 1);
-    }
 
     // Loop backwards over dependent variables
-    for (int j = p_min1; j >= 0; j--, index--) {
+    for (j = p_min1; j >= 0; j--, index--) {
 
       // Check for missing value
       if (y_isna(i, j)) {
@@ -424,7 +436,7 @@ Rcpp::List KalmanC(const arma::mat& y,
       }
 
       // Retrieve row of Z
-      if (i < N_min1 || j < p_min1) {
+      if (j < p_min1 || (i < N_min1 && row_assign)) {
         Z_row = Z_mat.row(j);
       }
 
@@ -514,7 +526,7 @@ Rcpp::List KalmanC(const arma::mat& y,
         arma::sqrt(arma::diagvec(Nmat.slice(i + 1)).t());
 
       // Smoothing error e and corresponding variance D
-      K = T_mat * P_pred.slice(i) * Z_mat.t() * Finv.slice(i);
+      K = T.slice(i) * P_pred.slice(i) * Z_mat.t() * Finv.slice(i);
       e_row = v_0na.row(i) * Finv.slice(i) - r_vec.row(i + 1) * K;
       e_row.elem(arma::find_nonfinite(v.row(i))).fill(NA_REAL);
       e.row(i) = e_row;
@@ -526,9 +538,8 @@ Rcpp::List KalmanC(const arma::mat& y,
     }
 
     // Compute smoothed state disturbance and corresponding variance
-    RtQ = R_mat * Q_mat.t();
-    eta.row(i) = r_vec.row(i + 1) * RtQ;
-    eta_var.slice(i) = Q_mat - RtQ.t() * Nmat.slice(i + 1) * RtQ;
+    eta.row(i) = arma::trans(QtR_mat * r_vec.row(i + 1).t());
+    eta_var.slice(i) = Q_mat - QtR_mat * Nmat.slice(i + 1) * QtR_mat.t();
 
     // r and N for the previous timepoint, not valid for i = 0
     if (i > 0) {
