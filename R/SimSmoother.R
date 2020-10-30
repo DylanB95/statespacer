@@ -523,10 +523,75 @@ SimSmoother <- function(object,
   epsilon <- sim$eta
   y <- y + epsilon
 
+  #### Obtain smoothed state and disturbances of random samples ####
+
+  # Model components
+  Z <- object$system_matrices$Z$full
+  Tmat <- object$system_matrices$T$full
+  R <- object$system_matrices$R$full
+  Q <- object$system_matrices$Q$full
+  a1 <- object$system_matrices$a1$full
+  P_star <- object$system_matrices$P_star$full
+  P_inf <- object$system_matrices$P_inf$full
+  H <- object$system_matrices$H$H
+
+  # Add residuals to system matrices for univariate treatment
+  Z <- CombineZ(diag(1, p, p), Z)
+  Tmat <- CombineTRQ(matrix(0, p, p), Tmat)
+  R <- CombineTRQ(diag(1, p, p), R)
+  if (is.matrix(H)) {
+    Q <- CombineTRQ(H, Q)
+    P_star <- BlockMatrix(H, P_star)
+  } else {
+    Q <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1)], Q)
+    P_star <- BlockMatrix(H[, , 1], P_star)
+  }
+  a1 <- rbind(matrix(0, p, 1), a1)
+  P_inf <- BlockMatrix(matrix(0, p, p), P_inf)
+
+  # Augment dimensions of system matrices for compatibility with FastSmoother
+  if (is.matrix(Z)) {
+    dim(Z) <- c(dim(Z), 1)
+  }
+  if (is.matrix(Tmat)) {
+    dim(Tmat) <- c(dim(Tmat), 1)
+  }
+  if (is.matrix(R)) {
+    dim(R) <- c(dim(R), 1)
+  }
+  if (is.matrix(Q)) {
+    dim(Q) <- c(dim(Q), 1)
+  }
+
+  # Smoothed state and disturbances
+  fast_smoother <- FastSmootherC(
+    y = y,
+    a = a1,
+    P_inf = P_inf,
+    P_star = P_star,
+    Z = Z,
+    T = Tmat,
+    R = R,
+    Q = Q,
+    initialisation_steps = object$diagnostics$initialisation_steps,
+    transposed_state = components
+  )
+  a_smooth <- fast_smoother$a_smooth[ , -(1:p), , drop = FALSE]
+  epsilon_smooth <- fast_smoother$a_smooth[ , 1:p, , drop = FALSE]
+  eta_smooth <- fast_smoother$eta[ , -(1:p), , drop = FALSE]
+  if (components) {
+    a_t <- fast_smoother$a_t[-(1:p), , , drop = FALSE]
+  }
+
+  # Adjust random samples by mean corrections
+  a <- a - a_smooth + array(object$smoothed$a, dim = c(N, m, nsim))
+  epsilon <- epsilon - epsilon_smooth +
+    array(object$smoothed$epsilon, dim = c(N, p, nsim))
+  eta <- eta - eta_smooth + array(object$smoothed$eta, dim = c(N, r, nsim))
+
   # Return the list containing the simulated samples
-  result$y <- y
+  result$a <- a
   result$epsilon <- epsilon
   result$eta <- eta
-  result$a <- a
   return(result)
 }
