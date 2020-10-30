@@ -4,6 +4,8 @@
 #' on the observed data.
 #'
 #' @param nsim Number of random samples to draw. Defaults to `1`.
+#' @param components Boolean indicating whether the components of
+#'   the model should be extracted in each of the random samples.
 #' @inheritParams predict.statespacer
 #'
 #' @return
@@ -20,13 +22,14 @@
 #' fit <- statespacer(initial = 10, y = y, local_level_ind = TRUE)
 #'
 #' # Obtain random sample using the fitted model
-#' #sim <- SimSmoother(fit)
+#' #sim <- SimSmoother(fit, nsim = 1, components = TRUE)
 #'
 #' # Plot the simulated level
-#' #plot(1:10, sim$level, type = "l")
+#' #plot(1:10, sim$level[ , 1, 1], type = "l")
 #' @export
 SimSmoother <- function(object,
-                        nsim = 1) {
+                        nsim = 1,
+                        components = TRUE) {
 
   # Initialising list to return
   result <- list()

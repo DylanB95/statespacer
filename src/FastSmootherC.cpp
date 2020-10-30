@@ -15,6 +15,8 @@
 //' @param Q Q system matrix of the State Space model.
 //' @param initialisation_steps Number of steps that were
 //'   needed during initialisation.
+//' @param transposed_state Boolean indicating whether a
+//'   transposed variant of the state should be returned.
 //'
 //' @noRd
 // [[Rcpp::export]]
@@ -26,7 +28,8 @@ Rcpp::List FastSmootherC(const arma::cube& y,
                          const arma::cube& T,
                          const arma::cube& R,
                          const arma::cube& Q,
-                         const int& initialisation_steps) {
+                         const int& initialisation_steps,
+                         const bool& transposed_state) {
 
   // Number of observations, dependent variables, state parameters,
   // and state disturbances
@@ -39,40 +42,44 @@ Rcpp::List FastSmootherC(const arma::cube& y,
   bool Z_tv = Z.n_slices > 1, T_tv = T.n_slices > 1,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
 
-  // Indicator for whether the first row should be assigned
-  bool row_assign = Z_tv || p > 1;
-
   // Initial system matrices
   arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0),
             R_mat = R.slice(0), Q_mat = Q.slice(0);
   arma::rowvec Z_row = Z_mat.row(0);
 
+  // Indicator for whether the first row should be assigned
+  bool row_assign = Z_tv || p > 1;
+
   // Initialise objects used in computations
   arma::colvec M_inf(m), M_star(m), K_0(m), K_1(m);
   arma::cube L_0(m, m, Np), L_1(m, m, Np);
-  Rcpp::NumericMatrix F_inf(Np, nsim), F_star(Np, nsim),
-                      F_1(Np, nsim), v_UT(Np, nsim);
+  Rcpp::NumericVector F_inf(Np), F_star(Np),
+                      F_1(Np), v_UT(Np);
   double F_2;
 
   // Initialise state and corresponding variance
   arma::colvec a_vec;
   arma::mat P_inf_mat, P_star_mat;
 
-  // Initialising smoothed state and residuals
-  arma::cube a_smooth(N, m, nsim), eta(N, r, nsim);
-  arma::mat a_temp(m, nsim), eta_temp(r, nsim);
-
   // Initialise r for smoother
   arma::cube r_UT(m, nsim, Np + 1, arma::fill::zeros),
-             r_vec(m, nsim, N + 1, arma::fill::zeros);
+             r_vec(m, nsim, N, arma::fill::zeros);
 
   // Initialise helpers r_1, QtR, and tT
   arma::colvec r_1(m, arma::fill::zeros);
-  arma::mat r_1_vec(m, nsim);
+  arma::mat r_1_mat(m, nsim);
   arma::cube QtR(r, m, N), tT(m, m, N);
   arma::mat QtR_mat = Q_mat * R_mat.t(), tT_mat = T_mat.t();
   QtR.slice(0) = QtR_mat;
   tT.slice(0) = tT_mat;
+
+  // Indicator for whether QtR is time-varying
+  bool QtR_tv = Q_tv || R_tv;
+
+  // Initialising smoothed state and its transposed variant, and residuals
+  arma::cube a_smooth(N, m, nsim), a_t(m, nsim, N),
+             eta(N, r, nsim, arma::fill::zeros);
+  arma::mat a_temp(m, nsim), eta_temp(r, nsim);
 
   // Iterators
   int sim, i, j;
@@ -83,10 +90,13 @@ Rcpp::List FastSmootherC(const arma::cube& y,
     // Set index to the first index
     index = 0;
 
-    // Reset state and corresponding variance
-    a_vec = a;
-    P_inf_mat = P_inf;
-    P_star_mat = P_star;
+    // Reset state and corresponding variance, and r_1
+    if (sim > 0) {
+      a_vec = a;
+      P_inf_mat = P_inf;
+      P_star_mat = P_star;
+      r_1.zeros();
+    }
 
     // Kalman Filter
     // Loop over timepoints
@@ -96,19 +106,19 @@ Rcpp::List FastSmootherC(const arma::cube& y,
       if (Z_tv && i > 0) {
         Z_mat = Z.slice(i);
       }
-      if (T_tv && i > 0) {
+      if (T_tv && (i > 0 || sim > 0)) {
         T_mat = T.slice(i);
       }
-      if (R_tv && i > 0) {
+      if (R_tv && (i > 0 || sim > 0)) {
         R_mat = R.slice(i);
       }
-      if (Q_tv && i > 0) {
+      if (Q_tv && (i > 0 || sim > 0)) {
         Q_mat = Q.slice(i);
       }
 
       // These matrices only need to be computed once
       if (sim == 0 && i > 0) {
-        if (Q_tv || R_tv) {
+        if (QtR_tv) {
           QtR_mat = Q_mat * R_mat.t();
           QtR.slice(i) = QtR_mat;
         }
@@ -116,9 +126,8 @@ Rcpp::List FastSmootherC(const arma::cube& y,
           tT_mat = T_mat.t();
           tT.slice(i) = tT_mat;
         }
-      }
-      if (sim > 0 && i > 0) {
-        if (Q_tv || R_tv) {
+      } else if (sim > 0) {
+        if (QtR_tv) {
           QtR_mat = QtR.slice(i);
         }
         if (T_tv) {
@@ -142,33 +151,33 @@ Rcpp::List FastSmootherC(const arma::cube& y,
           M_star = P_star_mat * Z_row.t();
 
           // Variance matrix of the current residual/fitted value
-          F_inf(index, sim) = arma::as_scalar(Z_row * M_inf);
-          F_star(index, sim) = arma::as_scalar(Z_row * M_star);
+          F_inf(index) = arma::as_scalar(Z_row * M_inf);
+          F_star(index) = arma::as_scalar(Z_row * M_star);
 
           // Check if F_inf is nearly 0
-          if (F_inf(index, sim) < 1e-7) {
+          if (F_inf(index) < 1e-7) {
 
             // Check if F_star is nearly 0
-            if (F_star(index, sim) < 1e-7) {
+            if (F_star(index) < 1e-7) {
 
               // No new information
               continue;
             } else {
 
               // Inverse of Fmat
-              F_1(index, sim) = 1 / F_star(index, sim);
+              F_1(index) = 1 / F_star(index);
 
               // Current residual
-              v_UT(index, sim) = y(i, j, sim) - arma::as_scalar(Z_row * a_vec);
+              v_UT(index) = y(i, j, sim) - arma::as_scalar(Z_row * a_vec);
 
               // Auxiliary matrices
-              K_0 = M_star * F_1(index, sim);
+              K_0 = M_star * F_1(index);
               L_0.slice(index) = arma::mat(m, m, arma::fill::eye) - K_0 * Z_row;
 
               // Estimated state vector and corresponding variance - covariance
               // matrix for the next step
               if (index < Np_min1) {
-                a_vec = a_vec + K_0 * v_UT(index, sim);
+                a_vec = a_vec + K_0 * v_UT(index);
                 P_star_mat = P_star_mat * L_0.slice(index).t();
               }
               continue;
@@ -176,22 +185,22 @@ Rcpp::List FastSmootherC(const arma::cube& y,
           } else {
 
             // Inverse of Fmat
-            F_1(index, sim) = 1 / F_inf(index, sim);
-            F_2 = -pow(F_1(index, sim), 2.0) * F_star(index, sim);
+            F_1(index) = 1 / F_inf(index);
+            F_2 = -pow(F_1(index), 2.0) * F_star(index);
 
             // Current residual
-            v_UT(index, sim) = y(i, j, sim) - arma::as_scalar(Z_row * a_vec);
+            v_UT(index) = y(i, j, sim) - arma::as_scalar(Z_row * a_vec);
 
             // Auxiliary matrices
-            K_0 = M_inf * F_1(index, sim);
+            K_0 = M_inf * F_1(index);
             L_0.slice(index) = arma::mat(m, m, arma::fill::eye) - K_0 * Z_row;
-            K_1 = M_star * F_1(index, sim) + M_inf * F_2;
+            K_1 = M_star * F_1(index) + M_inf * F_2;
             L_1.slice(index) = -K_1 * Z_row;
 
             // Estimated state vector and corresponding variance - covariance
             // matrix for the next step
             if (index < Np_min1) {
-              a_vec = a_vec + K_0 * v_UT(index, sim);
+              a_vec = a_vec + K_0 * v_UT(index);
               P_star_mat = P_inf_mat * L_1.slice(index).t() +
                 P_star_mat * L_0.slice(index).t();
               P_inf_mat = P_inf_mat * L_0.slice(index).t();
@@ -203,29 +212,29 @@ Rcpp::List FastSmootherC(const arma::cube& y,
           M_star = P_star_mat * Z_row.t();
 
           // Variance matrix of the current residual/fitted value
-          F_star(index, sim) = arma::as_scalar(Z_row * M_star);
+          F_star(index) = arma::as_scalar(Z_row * M_star);
 
           // Check if F_star is nearly 0
-          if (F_star(index, sim) < 1e-7) {
+          if (F_star(index) < 1e-7) {
 
             // No new information
             continue;
           } else {
 
             // Inverse of Fmat
-            F_1(index, sim) = 1 / F_star(index, sim);
+            F_1(index) = 1 / F_star(index);
 
             // Current residual
-            v_UT(index, sim) = y(i, j, sim) - arma::as_scalar(Z_row * a_vec);
+            v_UT(index) = y(i, j, sim) - arma::as_scalar(Z_row * a_vec);
 
             // Auxiliary matrices
-            K_0 = M_star * F_1(index, sim);
+            K_0 = M_star * F_1(index);
             L_0.slice(index) = arma::mat(m, m, arma::fill::eye) - K_0 * Z_row;
 
             // Estimated state vector and corresponding variance - covariance
             // matrix for the next step
             if (index < Np_min1) {
-              a_vec = a_vec + K_0 * v_UT(index, sim);
+              a_vec = a_vec + K_0 * v_UT(index);
               P_star_mat = P_star_mat * L_0.slice(index).t();
             }
           }
@@ -247,21 +256,15 @@ Rcpp::List FastSmootherC(const arma::cube& y,
 
     // Kalman Smoother
     // Loop backwards over timepoints
-    for (int i = N_min1; i >= 0; i--) {
+    for (i = N_min1; i >= 0; i--) {
 
       // Get system matrix of current timepoint for Z
       if (Z_tv && i < N_min1) {
         Z_mat = Z.slice(i);
       }
-      if ((Q_tv || R_tv) && i < N_min1) {
-        QtR_mat = QtR.slice(i);
-      }
-      if (T_tv && i < N_min1) {
-        tT_mat = tT.slice(i);
-      }
 
       // Loop backwards over dependent variables
-      for (int j = p_min1; j >= 0; j--, index--) {
+      for (j = p_min1; j >= 0; j--, index--) {
 
         // Retrieve row of Z
         if (j < p_min1 || (i < N_min1 && row_assign)) {
@@ -272,18 +275,18 @@ Rcpp::List FastSmootherC(const arma::cube& y,
         if (index < initialisation_steps) {
 
           // Check if F_inf is nearly 0
-          if (F_inf(index, sim) < 1e-7) {
+          if (F_inf(index) < 1e-7) {
 
             // Check if F_star is nearly 0
-            if (F_star(index, sim) < 1e-7) {
+            if (F_star(index) < 1e-7) {
 
               // No new information
               r_UT.slice(index).col(sim) = r_UT.slice(index + 1).col(sim);
             } else {
 
               // New r
-              r_UT.slice(index).col(sim) = Z_row.t() * F_1(index, sim) *
-                v_UT(index, sim) + r_UT.slice(index + 1).col(sim) *
+              r_UT.slice(index).col(sim) = Z_row.t() * F_1(index) *
+                v_UT(index) + r_UT.slice(index + 1).col(sim) *
                 L_0.slice(index);
             }
           } else {
@@ -291,22 +294,22 @@ Rcpp::List FastSmootherC(const arma::cube& y,
             // New r
             r_UT.slice(index).col(sim) =
               r_UT.slice(index + 1).col(sim) * L_0.slice(index);
-            r_1 = Z_row.t() * F_1(index, sim) * v_UT(index, sim) + r_1 *
+            r_1 = Z_row.t() * F_1(index) * v_UT(index) + r_1 *
               L_0.slice(index) + r_UT.slice(index + 1).col(sim) *
               L_1.slice(index);
           }
         } else {
 
           // Check if F_star is nearly 0
-          if (F_star(index, sim) < 1e-7) {
+          if (F_star(index) < 1e-7) {
 
             // No new information
             r_UT.slice(index).col(sim) = r_UT.slice(index + 1).col(sim);
           } else {
 
             // New r
-            r_UT.slice(index).col(sim) = Z_row.t() * F_1(index, sim) *
-              v_UT(index, sim) + r_UT.slice(index + 1).col(sim) *
+            r_UT.slice(index).col(sim) = Z_row.t() * F_1(index) *
+              v_UT(index) + r_UT.slice(index + 1).col(sim) *
               L_0.slice(index);
           }
         }
@@ -314,11 +317,12 @@ Rcpp::List FastSmootherC(const arma::cube& y,
 
       // Save r for each timepoint
       r_vec.slice(i).col(sim) = r_UT.slice(index + 1).col(sim);
-      r_1_vec.col(sim) = r_1;
+      r_1_mat.col(sim) = r_1;
 
       // r and N for the previous timepoint, not valid for i = 0
       if (i > 0) {
-        r_UT.slice(index + 1).col(sim) = tT.slice(i - 1) * r_UT.slice(index + 1).col(sim);
+        r_UT.slice(index + 1).col(sim) =
+          tT.slice(i - 1) * r_UT.slice(index + 1).col(sim);
         if ((index + 1) < initialisation_steps) {
           r_1 = tT.slice(i - 1) * r_1;
         }
@@ -326,41 +330,42 @@ Rcpp::List FastSmootherC(const arma::cube& y,
     }
   }
 
-  // Calculate smoothed eta and state
-  for (int i = 0; i < N; i++) {
-
+  // Initial smoothed state
+  a_temp = arma::repmat(a, 1, nsim) + P_star * r_vec.slice(0) + P_inf * r_1_mat;
+  a_smooth.row(0) = a_temp;
+  if (transposed_state) {
+    a_t.slice(0) = a_temp;
   }
 
-  // List to return
-  nested["initialisation_steps"] = initialisation_steps;
-  nested["loglik"] = loglik;
-  nested["a_pred"] = a_pred;
-  nested["a_fil"] = a_fil;
-  nested["a_smooth"] = a_smooth;
-  nested["P_pred"] = P_pred;
-  nested["P_fil"] = P_fil;
-  nested["V"] = V;
-  nested["P_inf_pred"] = P_inf_pred;
+  // Calculate smoothed eta and state
+  for (i = 1; i < N; i++) {
+
+    // Get system matrices of current timepoint
+    if (T_tv) {
+      T_mat = T.slice(i - 1);
+    }
+    if (R_tv) {
+      R_mat = R.slice(i - 1);
+    }
+    if (QtR_tv) {
+      QtR_mat = QtR.slice(i - 1);
+    }
+
+    // Calculate smoothed state disturbance
+    eta_temp = QtR_mat * r_vec.slice(i);
+    eta.row(i - 1) = eta_temp;
+
+    // Calculate smoothed state
+    a_temp = T_mat * a_temp + R_mat * eta_temp;
+    a_smooth.row(i) = a_temp;
+    if (transposed_state) {
+      a_t.slice(i) = a_temp;
+    }
+  }
+
   return Rcpp::List::create(
-    Rcpp::Named("nested") = nested,
-    Rcpp::Named("P_star_pred") = P_star_pred,
-    Rcpp::Named("P_inf_fil") = P_inf_fil,
-    Rcpp::Named("P_star_fil") = P_star_fil,
-    Rcpp::Named("yfit") = yfit,
-    Rcpp::Named("v") = v,
-    Rcpp::Named("v_norm") = v_norm,
-    Rcpp::Named("eta") = eta,
-    Rcpp::Named("e") = e,
-    Rcpp::Named("Fmat") = Fmat,
-    Rcpp::Named("eta_var") = eta_var,
-    Rcpp::Named("D") = D,
-    Rcpp::Named("a_fc") = a_fc,
-    Rcpp::Named("P_inf_fc") = P_inf_fc,
-    Rcpp::Named("P_star_fc") = P_star_fc,
-    Rcpp::Named("P_fc") = P_fc,
-    Rcpp::Named("Tstat_observation") = Tstat_observation,
-    Rcpp::Named("Tstat_state") = Tstat_state,
-    Rcpp::Named("r_vec") = r_vec,
-    Rcpp::Named("Nmat") = Nmat
+    Rcpp::Named("a_smooth") = a_smooth,
+    Rcpp::Named("a_t") = a_t,
+    Rcpp::Named("eta") = eta
   );
 }

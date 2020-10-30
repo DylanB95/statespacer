@@ -34,13 +34,13 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   bool Z_tv = Z.n_slices > 1, T_tv = T.n_slices > 1,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
 
-  // Indicator for whether the first row should be assigned
-  bool row_assign = Z_tv || p > 1;
-
   // Initial system matrices
   arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0),
             R_mat = R.slice(0), Q_mat = Q.slice(0);
   arma::rowvec Z_row = Z_mat.row(0);
+
+  // Indicator for whether the first row should be assigned
+  bool row_assign = Z_tv || p > 1;
 
   // Check if P_inf is already 0
   bool initialisation = !arma::all(arma::vectorise(arma::abs(P_inf)) < 1e-7);

@@ -40,13 +40,13 @@ Rcpp::List KalmanC(const arma::mat& y,
   bool Z_tv = Z.n_slices > 1, T_tv = T.n_slices > 1,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
 
-  // Indicator for whether the first row should be assigned
-  bool row_assign = Z_tv || p > 1;
-
   // Initial system matrices
   arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0),
             R_mat = R.slice(0), Q_mat = Q.slice(0);
   arma::rowvec Z_row = Z_mat.row(0);
+
+  // Indicator for whether the first row should be assigned
+  bool row_assign = Z_tv || p > 1;
 
   // Check if P_inf is already 0
   bool initialisation = !arma::all(arma::vectorise(arma::abs(P_inf)) < 1e-7);
@@ -108,6 +108,9 @@ Rcpp::List KalmanC(const arma::mat& y,
   arma::mat QtR_mat = Q_mat * R_mat.t();
   QtR.slice(0) = QtR_mat;
 
+  // Indicator for whether QtR is time-varying
+  bool QtR_tv = Q_tv || R_tv;
+
   // Needed to circumvent maximum of 20 items in returned List
   Rcpp::List nested;
 
@@ -133,7 +136,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     }
 
     // This matrix only needs to be computed once
-    if ((Q_tv || R_tv) && i > 0) {
+    if (QtR_tv && i > 0) {
       QtR_mat = Q_mat * R_mat.t();
       QtR.slice(i) = QtR_mat;
     }
@@ -416,7 +419,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     if (Z_tv && i < N_min1) {
       Z_mat = Z.slice(i);
     }
-    if ((Q_tv || R_tv) && i < N_min1) {
+    if (QtR_tv && i < N_min1) {
       QtR_mat = QtR.slice(i);
     }
 
