@@ -41,7 +41,7 @@ Rcpp::List KalmanC(const arma::mat& y,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
 
   // Initial system matrices
-  arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0), T_mat_now = T.slice(N_min1),
+  arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0), T_mat_now = T.slice(0),
             R_mat = R.slice(0), Q_mat = Q.slice(0);
   arma::rowvec Z_row = Z_mat.row(0);
 
@@ -419,7 +419,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     if (Z_tv && i < N_min1) {
       Z_mat = Z.slice(i);
     }
-    if (T_tv && i < N_min1) {
+    if (T_tv) {
       T_mat_now = T.slice(i);
     }
     if (QtR_tv && i < N_min1) {
