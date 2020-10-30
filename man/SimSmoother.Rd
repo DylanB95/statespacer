@@ -4,12 +4,15 @@
 \alias{SimSmoother}
 \title{Generating Random Samples using the Simulation Smoother}
 \usage{
-SimSmoother(object, nsim = 1)
+SimSmoother(object, nsim = 1, components = TRUE)
 }
 \arguments{
 \item{object}{A statespacer object as returned by \code{\link{statespacer}}.}
 
 \item{nsim}{Number of random samples to draw. Defaults to \code{1}.}
+
+\item{components}{Boolean indicating whether the components of
+the model should be extracted in each of the random samples.}
 }
 \value{
 A list containing the simulated state parameters and disturbances.
@@ -27,10 +30,10 @@ y <- matrix(Nile)
 fit <- statespacer(initial = 10, y = y, local_level_ind = TRUE)
 
 # Obtain random sample using the fitted model
-#sim <- SimSmoother(fit)
+#sim <- SimSmoother(fit, nsim = 1, components = TRUE)
 
 # Plot the simulated level
-#plot(1:10, sim$level, type = "l")
+#plot(1:10, sim$level[ , 1, 1], type = "l")
 }
 \author{
 Dylan Beijers, \email{dylanbeijers@gmail.com}

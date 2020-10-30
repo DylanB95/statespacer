@@ -30,6 +30,9 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   // Number of observations, dependent variables, and state parameters
   int N = y.nrow(), p = y.ncol(), m = a.n_rows;
 
+  // Keep track of the limits of the indices
+  int N_min1 = N - 1, p_min1 = p - 1;
+
   // Check which system matrices are time-varying
   bool Z_tv = Z.n_slices > 1, T_tv = T.n_slices > 1,
        R_tv = R.n_slices > 1, Q_tv = Q.n_slices > 1;
@@ -194,11 +197,13 @@ double LogLikC(const Rcpp::NumericMatrix& y,
     }
 
     // Perform computations for the next timepoint
-    a = T_mat * a;
-    P_star = T_mat * P_star * T_mat.t() + R_mat * Q_mat * R_mat.t();
-    if (initialisation) {
-      P_inf = T_mat * P_inf * T_mat.t();
-      initialisation = !arma::all(arma::vectorise(arma::abs(P_inf)) < 1e-7);
+    if (i < N_min1) {
+      a = T_mat * a;
+      P_star = T_mat * P_star * T_mat.t() + R_mat * Q_mat * R_mat.t();
+      if (initialisation) {
+        P_inf = T_mat * P_inf * T_mat.t();
+        initialisation = !arma::all(arma::vectorise(arma::abs(P_inf)) < 1e-7);
+      }
     }
   }
 

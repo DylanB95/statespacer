@@ -6,6 +6,26 @@
 
 using namespace Rcpp;
 
+// FastSmootherC
+Rcpp::List FastSmootherC(const arma::cube& y, const arma::colvec& a, const arma::mat& P_inf, const arma::mat& P_star, const arma::cube& Z, const arma::cube& T, const arma::cube& R, const arma::cube& Q, const int& initialisation_steps, const bool& transposed_state);
+RcppExport SEXP _statespacer_FastSmootherC(SEXP ySEXP, SEXP aSEXP, SEXP P_infSEXP, SEXP P_starSEXP, SEXP ZSEXP, SEXP TSEXP, SEXP RSEXP, SEXP QSEXP, SEXP initialisation_stepsSEXP, SEXP transposed_stateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type P_inf(P_infSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type P_star(P_starSEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type T(TSEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type Q(QSEXP);
+    Rcpp::traits::input_parameter< const int& >::type initialisation_steps(initialisation_stepsSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type transposed_state(transposed_stateSEXP);
+    rcpp_result_gen = Rcpp::wrap(FastSmootherC(y, a, P_inf, P_star, Z, T, R, Q, initialisation_steps, transposed_state));
+    return rcpp_result_gen;
+END_RCPP
+}
 // KalmanC
 Rcpp::List KalmanC(const arma::mat& y, const Rcpp::LogicalMatrix& y_isna, const arma::colvec& a, const arma::mat& P_inf, const arma::mat& P_star, const arma::cube& Z, const arma::cube& T, const arma::cube& R, const arma::cube& Q, const bool& diagnostics);
 RcppExport SEXP _statespacer_KalmanC(SEXP ySEXP, SEXP y_isnaSEXP, SEXP aSEXP, SEXP P_infSEXP, SEXP P_starSEXP, SEXP ZSEXP, SEXP TSEXP, SEXP RSEXP, SEXP QSEXP, SEXP diagnosticsSEXP) {
@@ -68,6 +88,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_statespacer_FastSmootherC", (DL_FUNC) &_statespacer_FastSmootherC, 10},
     {"_statespacer_KalmanC", (DL_FUNC) &_statespacer_KalmanC, 10},
     {"_statespacer_LogLikC", (DL_FUNC) &_statespacer_LogLikC, 9},
     {"_statespacer_SimulateC", (DL_FUNC) &_statespacer_SimulateC, 11},
