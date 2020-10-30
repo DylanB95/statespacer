@@ -130,7 +130,7 @@ Rcpp::List FastSmootherC(const arma::cube& y,
         if (QtR_tv) {
           QtR_mat = QtR.slice(i);
         }
-        if (T_tv) {
+        if (T_tv && i > 0) {
           tT_mat = tT.slice(i);
         }
       }
@@ -263,6 +263,11 @@ Rcpp::List FastSmootherC(const arma::cube& y,
         Z_mat = Z.slice(i);
       }
 
+      // Get system matrix of previous timepoint for T
+      if (T_tv && i > 0) {
+        tT_mat = tT.slice(i - 1);
+      }
+
       // Loop backwards over dependent variables
       for (j = p_min1; j >= 0; j--, index--) {
 
@@ -322,9 +327,9 @@ Rcpp::List FastSmootherC(const arma::cube& y,
       // r and N for the previous timepoint, not valid for i = 0
       if (i > 0) {
         r_UT.slice(index + 1).col(sim) =
-          tT.slice(i - 1) * r_UT.slice(index + 1).col(sim);
+          tT_mat * r_UT.slice(index + 1).col(sim);
         if ((index + 1) < initialisation_steps) {
-          r_1 = tT.slice(i - 1) * r_1;
+          r_1 = tT_mat * r_1;
         }
       }
     }
