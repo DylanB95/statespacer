@@ -291,17 +291,16 @@ Rcpp::List FastSmootherC(const arma::cube& y,
 
               // New r
               r_UT.slice(index).col(sim) = Z_row.t() * F_1(index) *
-                v_UT(index) + r_UT.slice(index + 1).col(sim) *
-                L_0.slice(index);
+                v_UT(index) + L_0.slice(index).t() *
+                r_UT.slice(index + 1).col(sim);
             }
           } else {
 
             // New r
             r_UT.slice(index).col(sim) =
-              r_UT.slice(index + 1).col(sim) * L_0.slice(index);
-            r_1 = Z_row.t() * F_1(index) * v_UT(index) + r_1 *
-              L_0.slice(index) + r_UT.slice(index + 1).col(sim) *
-              L_1.slice(index);
+              L_0.slice(index).t() * r_UT.slice(index + 1).col(sim);
+            r_1 = Z_row.t() * F_1(index) * v_UT(index) + L_0.slice(index).t() *
+              r_1 + L_1.slice(index).t() * r_UT.slice(index + 1).col(sim);
           }
         } else {
 
@@ -314,8 +313,8 @@ Rcpp::List FastSmootherC(const arma::cube& y,
 
             // New r
             r_UT.slice(index).col(sim) = Z_row.t() * F_1(index) *
-              v_UT(index) + r_UT.slice(index + 1).col(sim) *
-              L_0.slice(index);
+              v_UT(index) + L_0.slice(index).t() *
+              r_UT.slice(index + 1).col(sim);
           }
         }
       }
