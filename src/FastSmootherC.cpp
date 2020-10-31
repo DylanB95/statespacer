@@ -58,8 +58,8 @@ Rcpp::List FastSmootherC(const arma::cube& y,
   double F_2;
 
   // Initialise state and corresponding variance
-  arma::colvec a_vec;
-  arma::mat P_inf_mat, P_star_mat;
+  arma::colvec a_vec = a;
+  arma::mat P_inf_mat = P_inf, P_star_mat = P_star;
 
   // Initialise r for smoother
   arma::cube r_UT(m, nsim, Np + 1, arma::fill::zeros),
