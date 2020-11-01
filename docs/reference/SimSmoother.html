@@ -189,8 +189,11 @@ the model should be extracted in each of the random samples.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list containing the simulated state parameters and disturbances.
-In addition, it returns the components as specified
-by the State Space model.</p>
+In addition, it returns the components as specified by the State Space model
+if <code>components = TRUE</code>. Each of the objects are arrays, where the first
+dimension equals the number of time points, the second dimension the number
+of state parameters, disturbances, or dependent variables, and the third
+dimension equals the number of random samples <code>nsim</code>.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>

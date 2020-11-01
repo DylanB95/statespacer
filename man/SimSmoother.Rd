@@ -16,8 +16,11 @@ the model should be extracted in each of the random samples.}
 }
 \value{
 A list containing the simulated state parameters and disturbances.
-In addition, it returns the components as specified
-by the State Space model.
+In addition, it returns the components as specified by the State Space model
+if \code{components = TRUE}. Each of the objects are arrays, where the first
+dimension equals the number of time points, the second dimension the number
+of state parameters, disturbances, or dependent variables, and the third
+dimension equals the number of random samples \code{nsim}.
 }
 \description{
 Draws random samples of the specified model conditional

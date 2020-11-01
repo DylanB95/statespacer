@@ -53,7 +53,7 @@ Having obtained a better understanding of the notation used, it is easier to fin
 * `P` is the uncertainty of the predicted state.
 * `P_inf` is the diffuse part of `P`.
 * `P_star` is the non-diffuse part of `P`.
-* `a_fc` is the predicted state for time $N ~ + ~ 1$ ($N$ being the last observed timepoint).
+* `a_fc` is the predicted state for time $N ~ + ~ 1$ ($N$ being the last observed time point).
 * `P_fc` is the uncertainty of `a_fc`. 
 * `P_inf_fc` is the diffuse part of `P_fc`.
 * `P_star_fc` is the non-diffuse part of `P_fc`.
@@ -64,7 +64,7 @@ Further, the contributions of the components to the predicted values are extract
 `filtered` is a list that contains the filtered (estimates for time $t$ using data up to time $t$) objects as returned by the Kalman filter. Here, `a` is the filtered state, `P` the uncertainty of the filtered state, `P_inf` is the diffuse part of `P`, and `P_star` is the non-diffuse part of `P`. Further, the filtered values of the components are extracted separately.
 
 ### smoothed
-`smoothed` is a list that contains smoothed (estimates for time $t$ using all of the timepoints) objects as returned by the Kalman smoother: 
+`smoothed` is a list that contains smoothed (estimates for time $t$ using all of the time points) objects as returned by the Kalman smoother: 
 
 * `a` is the smoothed state.
 * `V` the uncertainty of the smoothed state.
