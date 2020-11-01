@@ -6,7 +6,7 @@
 //' @param nsim Number of random samples to draw.
 //' @param repeat_Q Number of times the drawing of random samples
 //'   using Q should be repeated.
-//' @param N Number of timepoints.
+//' @param N Number of time points.
 //' @param a Initial values of the state vector of the component.
 //' @param Z Z system matrix of the State Space model component.
 //' @param T T system matrix of the State Space model component.
@@ -77,10 +77,10 @@ Rcpp::List SimulateC(const int& nsim,
   arma::svd(U_Q, s_Q, V_Q, Q_mat);
   Q_root = U_Q * arma::diagmat(arma::sqrt(s_Q)) * U_Q.t();
 
-  // Loop over timepoints
+  // Loop over time points
   for (int i = 0; i < N; i++) {
 
-    // Get system matrices of current timepoint
+    // Get system matrices of current time point
     if (Z_tv && !eta_only && i > 0) {
       Z_mat = Z.slice(i);
     }

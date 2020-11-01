@@ -64,10 +64,10 @@ double LogLikC(const Rcpp::NumericMatrix& y,
   // Iterators
   int i, j;
 
-  // Loop over timepoints
+  // Loop over time points
   for (i = 0; i < N; i++) {
 
-    // Get system matrices of current timepoint
+    // Get system matrices of current time point
     if (Z_tv && i > 0) {
       Z_mat = Z.slice(i);
     }
@@ -196,7 +196,7 @@ double LogLikC(const Rcpp::NumericMatrix& y,
       }
     }
 
-    // Perform computations for the next timepoint
+    // Perform computations for the next time point
     if (i < N_min1) {
       a = T_mat * a;
       P_star = T_mat * P_star * T_mat.t() + R_mat * Q_mat * R_mat.t();

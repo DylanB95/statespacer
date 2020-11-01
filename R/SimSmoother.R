@@ -46,6 +46,8 @@ SimSmoother <- function(object,
   # Number of state disturbances
   r <- dim(object$smoothed$eta)[[2]]
 
+  #### Draw unconditional random samples ####
+
   # Initialising arrays
   y <- array(0, dim = c(N, p, nsim))
   eta <- array(0, dim = c(N, r, nsim))
@@ -55,7 +57,7 @@ SimSmoother <- function(object,
   eta_index <- 0
   a_index <- 0
 
-  #### Local Level ####
+  ### Local Level ###
   if (object$function_call$local_level_ind && !object$function_call$slope_ind &&
       is.null(object$function_call$level_addvar_list)) {
 
@@ -97,7 +99,7 @@ SimSmoother <- function(object,
     a[ , a_indices, ] <- sim$a
   }
 
-  #### Local Level + Slope ####
+  ### Local Level + Slope ###
   if (object$function_call$slope_ind &&
       is.null(object$function_call$level_addvar_list)) {
 
@@ -142,7 +144,7 @@ SimSmoother <- function(object,
     a[ , a_indices, ] <- sim$a
   }
 
-  #### BSM ####
+  ### BSM ###
   if (length(object$function_call$BSM_vec) > 0) {
     for (s in object$function_call$BSM_vec) {
 
@@ -185,7 +187,7 @@ SimSmoother <- function(object,
     }
   }
 
-  #### Explanatory Variables ####
+  ### Explanatory Variables ###
   if (!is.null(object$function_call$addvar_list)) {
 
     # Model components
@@ -225,7 +227,7 @@ SimSmoother <- function(object,
     a[ , a_indices, ] <- sim$a
   }
 
-  #### Local Level + Explanatory Variables ####
+  ### Local Level + Explanatory Variables ###
   if (!is.null(object$function_call$level_addvar_list) &&
       !object$function_call$slope_ind) {
 
@@ -269,7 +271,7 @@ SimSmoother <- function(object,
     a[ , a_indices, ] <- sim$a
   }
 
-  #### Local Level + Explanatory Variables + Slope ####
+  ### Local Level + Explanatory Variables + Slope ###
   if (!is.null(object$function_call$level_addvar_list) &&
       object$function_call$slope_ind) {
 
@@ -314,7 +316,7 @@ SimSmoother <- function(object,
     a[ , a_indices, ] <- sim$a
   }
 
-  #### Cycle ####
+  ### Cycle ###
   if (object$function_call$cycle_ind) {
     for (i in seq_along(object$function_call$format_cycle_list)) {
 
@@ -359,7 +361,7 @@ SimSmoother <- function(object,
     }
   }
 
-  #### ARIMA ####
+  ### ARIMA ###
   if (!is.null(object$function_call$arima_list)) {
     for (i in seq_along(object$function_call$arima_list)) {
 
@@ -403,7 +405,7 @@ SimSmoother <- function(object,
     }
   }
 
-  #### SARIMA ####
+  ### SARIMA ###
   if (!is.null(object$function_call$sarima_list)) {
     for (i in seq_along(object$function_call$sarima_list)) {
 
@@ -447,7 +449,7 @@ SimSmoother <- function(object,
     }
   }
 
-  #### Self Specified ####
+  ### Self Specified ###
   if (!is.null(object$function_call$self_spec_list)) {
 
     # Model components
@@ -498,7 +500,7 @@ SimSmoother <- function(object,
     a[ , a_indices, ] <- sim$a
   }
 
-  #### Residuals ####
+  ### Residuals ###
 
   # Model components
   Q <- object$system_matrices$H$H
@@ -583,15 +585,139 @@ SimSmoother <- function(object,
     a_t <- fast_smoother$a_t[-(1:p), , , drop = FALSE]
   }
 
-  # Adjust random samples by mean corrections
+  #### Adjust random samples by mean corrections ####
   a <- a - a_smooth + array(object$smoothed$a, dim = c(N, m, nsim))
   epsilon <- epsilon - epsilon_smooth +
     array(object$smoothed$epsilon, dim = c(N, p, nsim))
   eta <- eta - eta_smooth + array(object$smoothed$eta, dim = c(N, r, nsim))
 
-  # Return the list containing the simulated samples
+  # Add the simulated samples of the state and disturbances to the list
   result$a <- a
   result$epsilon <- epsilon
   result$eta <- eta
+
+  #### Extract components ####
+  if (components) {
+
+    ### Level ###
+    if (object$function_call$local_level_ind || object$function_call$slope_ind ||
+        !is.null(object$function_call$level_addvar_list)) {
+
+      # Z matrix of component
+      Z <- object$system_matrices$Z_padded$level
+      dim(Z) <- c(dim(Z), 1)
+
+      # Extract component
+      result$level <- ExtractComponentC(
+        a = a_t,
+        Z = Z
+      )
+
+      # Extract coefficients
+      if (!is.null(object$function_call$level_addvar_list)) {
+        result$level_addvar_coeff <-
+          a[ , object$system_matrices$level_addvar_state, , drop = FALSE]
+      }
+    }
+
+    ### BSM ###
+    if (length(object$function_call$BSM_vec) > 0) {
+      for (s in object$function_call$BSM_vec) {
+
+        # Z matrix of component
+        Z <- object$system_matrices$Z_padded[[paste0("BSM", s)]]
+        dim(Z) <- c(dim(Z), 1)
+
+        # Extract component
+        result[[paste0("BSM", s)]] <- ExtractComponentC(
+          a = a_t,
+          Z = Z
+        )
+      }
+    }
+
+    ### Explanatory Variables ###
+    if (!is.null(object$function_call$addvar_list)) {
+
+      # Model components
+      Z <- object$system_matrices$Z_padded$addvar
+
+      # Extract component
+      result$addvar <- ExtractComponentC(
+        a = a_t,
+        Z = Z
+      )
+
+      # Extract coefficients
+      result$addvar_coeff <-
+        a[ , object$system_matrices$addvar_state, , drop = FALSE]
+    }
+
+    ### Cycle ###
+    if (object$function_call$cycle_ind) {
+      for (i in seq_along(object$function_call$format_cycle_list)) {
+
+        # Model components
+        Z <- object$system_matrices$Z_padded[[paste0("Cycle", i)]]
+        dim(Z) <- c(dim(Z), 1)
+
+        # Extract component
+        result[[paste0("Cycle", i)]] <- ExtractComponentC(
+          a = a_t,
+          Z = Z
+        )
+      }
+    }
+
+    ### ARIMA ###
+    if (!is.null(object$function_call$arima_list)) {
+      for (i in seq_along(object$function_call$arima_list)) {
+
+        # Model components
+        Z <- object$system_matrices$Z_padded[[paste0("ARIMA", i)]]
+        dim(Z) <- c(dim(Z), 1)
+
+        # Extract component
+        result[[paste0("ARIMA", i)]] <- ExtractComponentC(
+          a = a_t,
+          Z = Z
+        )
+      }
+    }
+
+    ### SARIMA ###
+    if (!is.null(object$function_call$sarima_list)) {
+      for (i in seq_along(object$function_call$sarima_list)) {
+
+        # Model components
+        Z <- object$system_matrices$Z_padded[[paste0("SARIMA", i)]]
+        dim(Z) <- c(dim(Z), 1)
+
+        # Extract component
+        result[[paste0("SARIMA", i)]] <- ExtractComponentC(
+          a = a_t,
+          Z = Z
+        )
+      }
+    }
+
+    ### Self Specified ###
+    if (!is.null(object$function_call$self_spec_list)) {
+
+      # Model components
+      Z <- object$system_matrices$Z_padded$self_spec
+      if (is.matrix(Z)) {
+        dim(Z) <- c(dim(Z), 1)
+      }
+
+      # Extract component
+      result$self_spec <- ExtractComponentC(
+        a = a_t,
+        Z = Z
+      )
+    }
+  }
+
+  # Return the random samples
   return(result)
 }

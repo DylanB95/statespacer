@@ -186,7 +186,7 @@ predict.statespacer <- function(object,
   # Forecasting for t = 1 to forecast_period
   for (i in 1:forecast_period) {
 
-    # System matrices for timepoint
+    # System matrices for time point
     if (is.matrix(Z_full)) {
       Z_fc <- Z_full
     } else {

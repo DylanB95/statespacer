@@ -118,10 +118,10 @@ Rcpp::List KalmanC(const arma::mat& y,
   int i, j;
 
   // Kalman Filter
-  // Loop over timepoints
+  // Loop over time points
   for (i = 0; i < N; i++) {
 
-    // Get system matrices of current timepoint
+    // Get system matrices of current time point
     if (Z_tv && i > 0) {
       Z_mat = Z.slice(i);
     }
@@ -371,7 +371,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     }
 
     // Filtered state and corresponding uncertainty
-    // Followed by transition to the next timepoint
+    // Followed by transition to the next time point
     if (index < Np) {
       a_fil.row(i) = a_mat.row(index);
       P_star_fil.slice(i) = P_star_cube.slice(index);
@@ -412,10 +412,10 @@ Rcpp::List KalmanC(const arma::mat& y,
   index = Np_min1;
 
   // Kalman Smoother
-  // Loop backwards over timepoints
+  // Loop backwards over time points
   for (i = N_min1; i >= 0; i--) {
 
-    // Get system matrix of current timepoint for Z and T
+    // Get system matrix of current time point for Z and T
     if (Z_tv && i < N_min1) {
       Z_mat = Z.slice(i);
     }
@@ -426,7 +426,7 @@ Rcpp::List KalmanC(const arma::mat& y,
       QtR_mat = QtR.slice(i);
     }
 
-    // Get system matrix of previous timepoint for T
+    // Get system matrix of previous time point for T
     if (T_tv && i > 0) {
       T_mat = T.slice(i - 1);
     }
@@ -505,7 +505,7 @@ Rcpp::List KalmanC(const arma::mat& y,
       }
     }
 
-    // Save r and N for each timepoint
+    // Save r and N for each time point
     r_vec.row(i) = r_UT.row(index + 1);
     Nmat.slice(i) = N_UT.slice(index + 1);
 
@@ -547,7 +547,7 @@ Rcpp::List KalmanC(const arma::mat& y,
     eta.row(i) = arma::trans(QtR_mat * r_vec.row(i + 1).t());
     eta_var.slice(i) = Q_mat - QtR_mat * Nmat.slice(i + 1) * QtR_mat.t();
 
-    // r and N for the previous timepoint, not valid for i = 0
+    // r and N for the previous time point, not valid for i = 0
     if (i > 0) {
       r_UT.row(index + 1) = r_UT.row(index + 1) * T_mat;
       N_UT.slice(index + 1) = T_mat.t() * N_UT.slice(index + 1) * T_mat;

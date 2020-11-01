@@ -99,10 +99,10 @@ Rcpp::List FastSmootherC(const arma::cube& y,
     }
 
     // Kalman Filter
-    // Loop over timepoints
+    // Loop over time points
     for (i = 0; i < N; i++) {
 
-      // Get system matrices of current timepoint
+      // Get system matrices of current time point
       if (Z_tv && i > 0) {
         Z_mat = Z.slice(i);
       }
@@ -241,7 +241,7 @@ Rcpp::List FastSmootherC(const arma::cube& y,
         }
       }
 
-      // Transition to the next timepoint
+      // Transition to the next time point
       if (i < N_min1) {
         a_vec = T_mat * a_vec;
         P_star_mat = T_mat * P_star_mat * tT_mat + R_mat * QtR_mat;
@@ -255,15 +255,15 @@ Rcpp::List FastSmootherC(const arma::cube& y,
     index = Np_min1;
 
     // Kalman Smoother
-    // Loop backwards over timepoints
+    // Loop backwards over time points
     for (i = N_min1; i >= 0; i--) {
 
-      // Get system matrix of current timepoint for Z
+      // Get system matrix of current time point for Z
       if (Z_tv && i < N_min1) {
         Z_mat = Z.slice(i);
       }
 
-      // Get system matrix of previous timepoint for T
+      // Get system matrix of previous time point for T
       if (T_tv && i > 0) {
         tT_mat = tT.slice(i - 1);
       }
@@ -319,11 +319,11 @@ Rcpp::List FastSmootherC(const arma::cube& y,
         }
       }
 
-      // Save r for each timepoint
+      // Save r for each time point
       r_vec.slice(i).col(sim) = r_UT.slice(index + 1).col(sim);
       r_1_mat.col(sim) = r_1;
 
-      // r and N for the previous timepoint, not valid for i = 0
+      // r and N for the previous time point, not valid for i = 0
       if (i > 0) {
         r_UT.slice(index + 1).col(sim) =
           tT_mat * r_UT.slice(index + 1).col(sim);
@@ -344,7 +344,7 @@ Rcpp::List FastSmootherC(const arma::cube& y,
   // Calculate smoothed eta and state
   for (i = 1; i < N; i++) {
 
-    // Get system matrices of current timepoint
+    // Get system matrices of current time point
     if (T_tv) {
       T_mat = T.slice(i - 1);
     }
