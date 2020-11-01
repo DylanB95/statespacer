@@ -29,6 +29,8 @@ check out the references for the following functions:
   - `statespacer()` for fitting State Space models.
   - `predict.statespacer()` for producing forecasts using fitted State
     Space models.
+  - `SimSmoother()` for drawing random samples of a fitted State Space
+    model conditional on the data.
 
 ## State Space Components
 

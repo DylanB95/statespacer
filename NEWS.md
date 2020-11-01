@@ -1,4 +1,4 @@
-# statespacer 0.3.9000
+# statespacer 0.4.0
 
 ## Extra functionality
 
