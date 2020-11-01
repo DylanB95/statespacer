@@ -9,8 +9,8 @@
 //'
 //' @noRd
 // [[Rcpp::export]]
-arma::cube SimulateC(const arma::cube& a,
-                     const arma::cube& Z) {
+arma::cube ExtractComponentC(const arma::cube& a,
+                             const arma::cube& Z) {
 
   // Number of time points, dependent variables, and random samples
   int N = a.n_slices, p = Z.n_rows, nsim = a.n_cols;

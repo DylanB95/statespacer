@@ -6,6 +6,18 @@
 
 using namespace Rcpp;
 
+// ExtractComponentC
+arma::cube ExtractComponentC(const arma::cube& a, const arma::cube& Z);
+RcppExport SEXP _statespacer_ExtractComponentC(SEXP aSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type Z(ZSEXP);
+    rcpp_result_gen = Rcpp::wrap(ExtractComponentC(a, Z));
+    return rcpp_result_gen;
+END_RCPP
+}
 // FastSmootherC
 Rcpp::List FastSmootherC(const arma::cube& y, const arma::colvec& a, const arma::mat& P_inf, const arma::mat& P_star, const arma::cube& Z, const arma::cube& T, const arma::cube& R, const arma::cube& Q, const int& initialisation_steps, const bool& transposed_state);
 RcppExport SEXP _statespacer_FastSmootherC(SEXP ySEXP, SEXP aSEXP, SEXP P_infSEXP, SEXP P_starSEXP, SEXP ZSEXP, SEXP TSEXP, SEXP RSEXP, SEXP QSEXP, SEXP initialisation_stepsSEXP, SEXP transposed_stateSEXP) {
@@ -88,6 +100,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_statespacer_ExtractComponentC", (DL_FUNC) &_statespacer_ExtractComponentC, 2},
     {"_statespacer_FastSmootherC", (DL_FUNC) &_statespacer_FastSmootherC, 10},
     {"_statespacer_KalmanC", (DL_FUNC) &_statespacer_KalmanC, 10},
     {"_statespacer_LogLikC", (DL_FUNC) &_statespacer_LogLikC, 9},
