@@ -18,6 +18,8 @@
 //'   should be simulated.
 //' @param eta_only Boolean indicating whether only the
 //'   disturbances should be simulated.
+//' @param transposed_state Boolean indicating whether a
+//'   transposed variant of the state should be returned.
 //'
 //' @noRd
 // [[Rcpp::export]]
@@ -31,7 +33,8 @@ Rcpp::List SimulateC(const int& nsim,
                      const arma::cube& Q,
                      const arma::mat& P_star,
                      const bool& draw_initial,
-                     const bool& eta_only) {
+                     const bool& eta_only,
+                     const bool& transposed_state) {
 
   // Number of dependent variables, state parameters and state disturbances
   int p = Z.n_rows, m = a.n_rows, r = Q.n_rows, r_tot = r * repeat_Q,
@@ -51,8 +54,9 @@ Rcpp::List SimulateC(const int& nsim,
   arma::mat Z_mat = Z.slice(0), T_mat = T.slice(0),
             R_mat = R.slice(0), Q_mat = Q.slice(0);
 
-  // Initialise simulated disturbances, state, and dependent
-  arma::cube eta(N, r_tot, nsim), a_cube(N, m, nsim), y(N, p, nsim);
+  // Initialise simulated disturbances, (transposed) state, and dependent
+  arma::cube eta(N, r_tot, nsim),
+             a_cube(N, m, nsim), a_t(m, nsim, N), y(N, p, nsim);
   arma::mat eta_sim(r, nsim_rep), eta_temp(r_tot, nsim);
 
   // Initialise vector of random draws
@@ -72,6 +76,9 @@ Rcpp::List SimulateC(const int& nsim,
     a_temp = a_temp + P_root * arma::mat(a_draw.begin(), m, nsim);
   }
   a_cube.row(0) = a_temp;
+  if (transposed_state) {
+    a_t.slice(0) = a_temp;
+  }
 
   // Initial root of Q
   arma::svd(U_Q, s_Q, V_Q, Q_mat);
@@ -117,12 +124,16 @@ Rcpp::List SimulateC(const int& nsim,
     if (!eta_only && i < N_min1) {
       a_temp = T_mat * a_temp + R_mat * eta_temp;
       a_cube.row(i + 1) = a_temp;
+      if (transposed_state) {
+        a_t.slice(i + 1) = a_temp;
+      }
     }
   }
 
   return Rcpp::List::create(
     Rcpp::Named("y") = y,
     Rcpp::Named("a") = a_cube,
+    Rcpp::Named("a_t") = a_t,
     Rcpp::Named("eta") = eta
   );
 }

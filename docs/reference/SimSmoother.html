@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>State Space Model Forecasting — predict.statespacer • statespacer</title>
+<title>Generating Random Samples using the Simulation Smoother — SimSmoother • statespacer</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -54,8 +54,9 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="State Space Model Forecasting — predict.statespacer" />
-<meta property="og:description" content="Produces forecasts using a fitted State Space Model." />
+<meta property="og:title" content="Generating Random Samples using the Simulation Smoother — SimSmoother" />
+<meta property="og:description" content="Draws random samples of the specified model conditional
+on the observed data." />
 <meta property="og:image" content="https://dylanb95.github.io/statespacer/logo.png" />
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:creator" content="@dylanbeijers" />
@@ -155,24 +156,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>State Space Model Forecasting</h1>
-    <small class="dont-index">Source: <a href='https://github.com/DylanB95/statespacer/blob/master/R/predict.R'><code>R/predict.R</code></a></small>
-    <div class="hidden name"><code>predict.statespacer.Rd</code></div>
+    <h1>Generating Random Samples using the Simulation Smoother</h1>
+    <small class="dont-index">Source: <a href='https://github.com/DylanB95/statespacer/blob/master/R/SimSmoother.R'><code>R/SimSmoother.R</code></a></small>
+    <div class="hidden name"><code>SimSmoother.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Produces forecasts using a fitted State Space Model.</p>
+    <p>Draws random samples of the specified model conditional
+on the observed data.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for statespacer</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span>
-  <span class='va'>object</span>,
-  addvar_list_fc <span class='op'>=</span> <span class='cn'>NULL</span>,
-  level_addvar_list_fc <span class='op'>=</span> <span class='cn'>NULL</span>,
-  self_spec_list_fc <span class='op'>=</span> <span class='cn'>NULL</span>,
-  forecast_period <span class='op'>=</span> <span class='fl'>1</span>,
-  <span class='va'>...</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>SimSmoother</span><span class='op'>(</span><span class='va'>object</span>, nsim <span class='op'>=</span> <span class='fl'>1</span>, components <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -182,54 +176,21 @@
       <td><p>A statespacer object as returned by <code><a href='statespacer.html'>statespacer</a></code>.</p></td>
     </tr>
     <tr>
-      <th>addvar_list_fc</th>
-      <td><p>A list containing the explanatory variables for each
-of the dependent variables. The list should contain p (number of dependent
-variables) elements. Each element of the list should be a
-<code>forecast_period</code> x k_p matrix, with k_p being the number of explanatory
-variables for the pth dependent variable. If no explanatory variables
-should be added for one of the dependent variables, then set the
-corresponding element to <code>NULL</code>.</p></td>
+      <th>nsim</th>
+      <td><p>Number of random samples to draw. Defaults to <code>1</code>.</p></td>
     </tr>
     <tr>
-      <th>level_addvar_list_fc</th>
-      <td><p>A list containing the explanatory variables
-for each of the dependent variables. The list should contain p
-(number of dependent variables) elements. Each element of the list should
-be a <code>forecast_period</code> x k_p matrix, with k_p being the number of
-explanatory variables for the pth dependent variable. If no explanatory
-variables should be added for one of the dependent variables, then set
-the corresponding element to <code>NULL</code>.</p></td>
-    </tr>
-    <tr>
-      <th>self_spec_list_fc</th>
-      <td><p>A list containing the specification of the self
-specified component. Does not have to be specified if it does not differ
-from <code>self_spec_list</code> as passed on to <code><a href='statespacer.html'>statespacer</a></code>. If some
-system matrices are time-varying then you should specify this argument.
-See <code><a href='statespacer.html'>statespacer</a></code> for details about the format that must be
-followed for this argument.</p></td>
-    </tr>
-    <tr>
-      <th>forecast_period</th>
-      <td><p>Number of time steps to forecast ahead.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed on to the <code>predict</code> generic. Should not be used!</p></td>
+      <th>components</th>
+      <td><p>Boolean indicating whether the components of
+the model should be extracted in each of the random samples.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list containing the forecasts and corresponding uncertainties.
-In addition, it returns the components of the forecasts, as specified
+    <p>A list containing the simulated state parameters and disturbances.
+In addition, it returns the components as specified
 by the State Space model.</p>
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p>Durbin J, Koopman SJ (2012).
-<em>Time series analysis by state space methods</em>.
-Oxford university press.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>
@@ -240,12 +201,13 @@ Oxford university press.</p>
 <span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='va'>Nile</span><span class='op'>)</span>
 <span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='statespacer.html'>statespacer</a></span><span class='op'>(</span>initial <span class='op'>=</span> <span class='fl'>10</span>, y <span class='op'>=</span> <span class='va'>y</span>, local_level_ind <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
-<span class='co'># Obtain forecasts for 10 steps ahead using the fitted model</span>
-<span class='va'>fc</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/predict.html'>predict</a></span><span class='op'>(</span><span class='va'>fit</span>, forecast_period <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span>
+<span class='co'># Obtain random sample using the fitted model</span>
+<span class='va'>sim</span> <span class='op'>&lt;-</span> <span class='fu'>SimSmoother</span><span class='op'>(</span><span class='va'>fit</span>, nsim <span class='op'>=</span> <span class='fl'>1</span>, components <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
-<span class='co'># Plot the forecasts</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='va'>fc</span><span class='op'>$</span><span class='va'>y_fc</span>, type <span class='op'>=</span> <span class='st'>"l"</span><span class='op'>)</span>
-</div><div class='img'><img src='predict.statespacer-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='co'># Plot the simulated level against the smoothed level of the original data</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>sim</span><span class='op'>$</span><span class='va'>level</span><span class='op'>[</span>, <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>]</span>, type <span class='op'>=</span> <span class='st'>'p'</span><span class='op'>)</span>
+</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>$</span><span class='va'>smoothed</span><span class='op'>$</span><span class='va'>level</span>, type <span class='op'>=</span> <span class='st'>'l'</span><span class='op'>)</span>
+</div><div class='img'><img src='SimSmoother-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

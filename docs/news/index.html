@@ -90,7 +90,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -158,29 +158,55 @@
       <small>Source: <a href='https://github.com/DylanB95/statespacer/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="statespacer-030" class="section level1">
-<h1 class="page-header" data-toc-text="0.3.0">
-<a href="#statespacer-030" class="anchor"></a>statespacer 0.3.0<small> 2020-09-15 </small>
+    <div id="statespacer-040" class="section level1">
+<h1 class="page-header" data-toc-text="0.4.0">
+<a href="#statespacer-040" class="anchor"></a>statespacer 0.4.0<small> Unreleased </small>
 </h1>
+<div id="extra-functionality" class="section level2">
+<h2 class="hasAnchor">
+<a href="#extra-functionality" class="anchor"></a>Extra functionality</h2>
+<ul>
+<li>Introduces the simulation smoother for drawing random samples conditional on the observed data. See <code><a href="../reference/SimSmoother.html">?SimSmoother</a></code> for details.</li>
+</ul>
+</div>
 <div id="performance-improvements" class="section level2">
 <h2 class="hasAnchor">
 <a href="#performance-improvements" class="anchor"></a>Performance improvements</h2>
 <ul>
+<li>Extraction of components now done a bit more efficiently.</li>
+</ul>
+</div>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>Fixed incrementation of initialisation_steps during initialisation when the dependent variable was missing.</li>
+</ul>
+</div>
+</div>
+    <div id="statespacer-030" class="section level1">
+<h1 class="page-header" data-toc-text="0.3.0">
+<a href="#statespacer-030" class="anchor"></a>statespacer 0.3.0<small> 2020-09-15 </small>
+</h1>
+<div id="performance-improvements-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#performance-improvements-1" class="anchor"></a>Performance improvements</h2>
+<ul>
 <li>Kalman Filter and Smoother now fully written in c++.</li>
 </ul>
 </div>
-<div id="extra-functionality" class="section level2">
+<div id="extra-functionality-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#extra-functionality" class="anchor"></a>Extra functionality</h2>
+<a href="#extra-functionality-1" class="anchor"></a>Extra functionality</h2>
 <ul>
 <li>Computation of diagnostics now optional using <code>diagnostics = TRUE</code>.</li>
 <li>Added full system matrices to the statespacer object.</li>
 <li>Added predicted, filtered, and forecasted <code>P_star</code> and <code>P_inf</code>.</li>
 </ul>
 </div>
-<div id="bug-fixes" class="section level2">
+<div id="bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Fixed bug in predicting using explanatory variables.</li>
 <li>Fixed edge case in adding explanatory variables. The bug occurred when there was only 1 explanatory variable and 1 dependent variable supplied, causing the Z system matrix to be a vector instead of an array.</li>
@@ -191,9 +217,9 @@
 <h1 class="page-header" data-toc-text="0.2.1">
 <a href="#statespacer-021" class="anchor"></a>statespacer 0.2.1<small> 2020-07-15 </small>
 </h1>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if <code>first &lt;- list()</code>, then assigning <code>first$second[[["third"]] &lt;- 1</code> returns on Windows (and other platforms) a list named <code>first</code>, that contains another list named <code>second</code>, that contains a named element <code>third</code> equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named <code>first</code>, that contains a named element <code>second</code> equal to a named (<code>third</code>) length 1 numerical vector. So <code>second</code> is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.</li>
 </ul>
@@ -218,9 +244,9 @@
 </li>
 </ul>
 </div>
-<div id="performance-improvements-1" class="section level2">
+<div id="performance-improvements-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#performance-improvements-1" class="anchor"></a>Performance improvements</h2>
+<a href="#performance-improvements-2" class="anchor"></a>Performance improvements</h2>
 <ul>
 <li>
 <p>Major:</p>
@@ -239,9 +265,9 @@
 </li>
 </ul>
 </div>
-<div id="extra-functionality-1" class="section level2">
+<div id="extra-functionality-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#extra-functionality-1" class="anchor"></a>Extra functionality</h2>
+<a href="#extra-functionality-2" class="anchor"></a>Extra functionality</h2>
 <ul>
 <li><p>Printing progress now optional using <code>verbose = TRUE</code>.</p></li>
 <li><p>Computation of standard_errors now optional using <code>standard_errors = TRUE</code>.</p></li>

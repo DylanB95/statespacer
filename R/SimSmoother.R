@@ -53,6 +53,9 @@ SimSmoother <- function(object,
   y <- array(0, dim = c(N, p, nsim))
   eta <- array(0, dim = c(N, r, nsim))
   a <- array(0, dim = c(N, m, nsim))
+  if (components) {
+    a_t <- array(0, dim = c(m, nsim, N))
+  }
 
   # Current last filled column indices of a and eta
   eta_index <- 0
@@ -93,11 +96,15 @@ SimSmoother <- function(object,
       Q = Q,
       P_star = matrix(0),
       draw_initial = FALSE,
-      eta_only = FALSE
+      eta_only = FALSE,
+      transposed_state = components
     )
     y <- y + sim$y
     eta[ , eta_indices, ] <- sim$eta
     a[ , a_indices, ] <- sim$a
+    if (components) {
+      a_t[a_indices, , ] <- sim$a_t
+    }
   }
 
   ### Local Level + Slope ###
@@ -138,11 +145,15 @@ SimSmoother <- function(object,
       Q = Q,
       P_star = matrix(0),
       draw_initial = FALSE,
-      eta_only = FALSE
+      eta_only = FALSE,
+      transposed_state = components
     )
     y <- y + sim$y
     eta[ , eta_indices, ] <- sim$eta
     a[ , a_indices, ] <- sim$a
+    if (components) {
+      a_t[a_indices, , ] <- sim$a_t
+    }
   }
 
   ### BSM ###
@@ -180,11 +191,15 @@ SimSmoother <- function(object,
         Q = Q,
         P_star = matrix(0),
         draw_initial = FALSE,
-        eta_only = FALSE
+        eta_only = FALSE,
+        transposed_state = components
       )
       y <- y + sim$y
       eta[ , eta_indices, ] <- sim$eta
       a[ , a_indices, ] <- sim$a
+      if (components) {
+        a_t[a_indices, , ] <- sim$a_t
+      }
     }
   }
 
@@ -221,11 +236,15 @@ SimSmoother <- function(object,
       Q = Q,
       P_star = matrix(0),
       draw_initial = FALSE,
-      eta_only = FALSE
+      eta_only = FALSE,
+      transposed_state = components
     )
     y <- y + sim$y
     eta[ , eta_indices, ] <- sim$eta
     a[ , a_indices, ] <- sim$a
+    if (components) {
+      a_t[a_indices, , ] <- sim$a_t
+    }
   }
 
   ### Local Level + Explanatory Variables ###
@@ -265,11 +284,15 @@ SimSmoother <- function(object,
       Q = Q,
       P_star = matrix(0),
       draw_initial = FALSE,
-      eta_only = FALSE
+      eta_only = FALSE,
+      transposed_state = components
     )
     y <- y + sim$y
     eta[ , eta_indices, ] <- sim$eta
     a[ , a_indices, ] <- sim$a
+    if (components) {
+      a_t[a_indices, , ] <- sim$a_t
+    }
   }
 
   ### Local Level + Explanatory Variables + Slope ###
@@ -310,11 +333,15 @@ SimSmoother <- function(object,
       Q = Q,
       P_star = matrix(0),
       draw_initial = FALSE,
-      eta_only = FALSE
+      eta_only = FALSE,
+      transposed_state = components
     )
     y <- y + sim$y
     eta[ , eta_indices, ] <- sim$eta
     a[ , a_indices, ] <- sim$a
+    if (components) {
+      a_t[a_indices, , ] <- sim$a_t
+    }
   }
 
   ### Cycle ###
@@ -354,11 +381,15 @@ SimSmoother <- function(object,
         Q = Q,
         P_star = P_star,
         draw_initial = draw_initial,
-        eta_only = FALSE
+        eta_only = FALSE,
+        transposed_state = components
       )
       y <- y + sim$y
       eta[ , eta_indices, ] <- sim$eta
       a[ , a_indices, ] <- sim$a
+      if (components) {
+        a_t[a_indices, , ] <- sim$a_t
+      }
     }
   }
 
@@ -398,11 +429,15 @@ SimSmoother <- function(object,
         Q = Q,
         P_star = P_star,
         draw_initial = TRUE,
-        eta_only = FALSE
+        eta_only = FALSE,
+        transposed_state = components
       )
       y <- y + sim$y
       eta[ , eta_indices, ] <- sim$eta
       a[ , a_indices, ] <- sim$a
+      if (components) {
+        a_t[a_indices, , ] <- sim$a_t
+      }
     }
   }
 
@@ -442,11 +477,15 @@ SimSmoother <- function(object,
         Q = Q,
         P_star = P_star,
         draw_initial = TRUE,
-        eta_only = FALSE
+        eta_only = FALSE,
+        transposed_state = components
       )
       y <- y + sim$y
       eta[ , eta_indices, ] <- sim$eta
       a[ , a_indices, ] <- sim$a
+      if (components) {
+        a_t[a_indices, , ] <- sim$a_t
+      }
     }
   }
 
@@ -494,11 +533,15 @@ SimSmoother <- function(object,
       Q = Q,
       P_star = P_star,
       draw_initial = draw_initial,
-      eta_only = FALSE
+      eta_only = FALSE,
+      transposed_state = components
     )
     y <- y + sim$y
     eta[ , eta_indices, ] <- sim$eta
     a[ , a_indices, ] <- sim$a
+    if (components) {
+      a_t[a_indices, , ] <- sim$a_t
+    }
   }
 
   ### Residuals ###
@@ -521,7 +564,8 @@ SimSmoother <- function(object,
     Q = Q,
     P_star = matrix(0),
     draw_initial = FALSE,
-    eta_only = TRUE
+    eta_only = TRUE,
+    transposed_state = FALSE
   )
   epsilon <- sim$eta
   y <- y + epsilon
@@ -583,7 +627,7 @@ SimSmoother <- function(object,
   epsilon_smooth <- fast_smoother$a_smooth[ , 1:p, , drop = FALSE]
   eta_smooth <- fast_smoother$eta[ , -(1:p), , drop = FALSE]
   if (components) {
-    a_t <- fast_smoother$a_t[-(1:p), , , drop = FALSE]
+    a_t_smooth <- fast_smoother$a_t[-(1:p), , , drop = FALSE]
   }
 
   #### Adjust random samples by mean corrections ####
@@ -591,6 +635,10 @@ SimSmoother <- function(object,
   epsilon <- epsilon - epsilon_smooth +
     array(object$smoothed$epsilon, dim = c(N, p, nsim))
   eta <- eta - eta_smooth + array(object$smoothed$eta, dim = c(N, r, nsim))
+  if (components) {
+    a_t <- a_t - a_t_smooth +
+      aperm(array(object$smoothed$a, dim = c(N, m, nsim)), c(2, 3, 1))
+  }
 
   # Add the simulated samples of the state and disturbances to the list
   result$a <- a

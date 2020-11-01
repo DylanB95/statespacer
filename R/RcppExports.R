@@ -90,9 +90,11 @@ LogLikC <- function(y, y_isna, a, P_inf, P_star, Z, T, R, Q) {
 #'   should be simulated.
 #' @param eta_only Boolean indicating whether only the
 #'   disturbances should be simulated.
+#' @param transposed_state Boolean indicating whether a
+#'   transposed variant of the state should be returned.
 #'
 #' @noRd
-SimulateC <- function(nsim, repeat_Q, N, a, Z, T, R, Q, P_star, draw_initial, eta_only) {
-    .Call(`_statespacer_SimulateC`, nsim, repeat_Q, N, a, Z, T, R, Q, P_star, draw_initial, eta_only)
+SimulateC <- function(nsim, repeat_Q, N, a, Z, T, R, Q, P_star, draw_initial, eta_only, transposed_state) {
+    .Call(`_statespacer_SimulateC`, nsim, repeat_Q, N, a, Z, T, R, Q, P_star, draw_initial, eta_only, transposed_state)
 }
 

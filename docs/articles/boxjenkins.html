@@ -45,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -138,14 +138,14 @@
                    format_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,
                    initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-08 15:22:22</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-11-01 14:50:23</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1</span>
 <span class="co">#&gt; initial  value 5.022561 </span>
 <span class="co">#&gt; iter  10 value 4.114363</span>
 <span class="co">#&gt; final  value 4.111163 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-08 15:22:22</span>
-<span class="co">#&gt; Time difference of 0.178048849105835 secs</span></pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-11-01 14:50:23</span>
+<span class="co">#&gt; Time difference of 0.168357133865356 secs</span></pre></div>
 <p>Note that we eliminate the observation error by setting its variance to 0, although it’s perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>.</p>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit">
@@ -200,13 +200,13 @@
                    sarima_list <span class="op">=</span> <span class="va">sarima_list</span>,
                    initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-10-08 15:22:22</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-11-01 14:50:23</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -1.034434 </span>
 <span class="co">#&gt; final  value -1.616321 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-10-08 15:22:23</span>
-<span class="co">#&gt; Time difference of 0.962813138961792 secs</span></pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-11-01 14:50:24</span>
+<span class="co">#&gt; Time difference of 0.883394002914429 secs</span></pre></div>
 <p>We obtain the following estimates:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit">
 <span class="co"># Coefficients of the ARMA component</span>
