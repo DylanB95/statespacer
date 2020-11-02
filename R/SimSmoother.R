@@ -644,8 +644,8 @@ SimSmoother <- function(object,
   }
 
   # Add the simulated samples of the state and disturbances to the list
-  result$a <- a
   result$epsilon <- epsilon
+  result$a <- a
   result$eta <- eta
 
   #### Extract components ####
