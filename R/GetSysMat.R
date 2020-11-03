@@ -1407,7 +1407,7 @@ GetSysMat <- function(p,
         Q_kal <- CombineTRQ(H, Q_kal)
         P_star <- BlockMatrix(H, P_star)
       } else {
-        Q_kal <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1)], Q_kal)
+        Q_kal <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1), drop = FALSE], Q_kal)
         P_star <- BlockMatrix(H[, , 1], P_star)
       }
     }
@@ -1419,7 +1419,7 @@ GetSysMat <- function(p,
         Q_kal <- CombineTRQ(H, Q_kal)
         P_star <- BlockMatrix(H, P_star)
       } else {
-        Q_kal <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1)], Q_kal)
+        Q_kal <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1), drop = FALSE], Q_kal)
         P_star <- BlockMatrix(H[, , 1], P_star)
       }
     }

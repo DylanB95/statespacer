@@ -593,7 +593,7 @@ SimSmoother <- function(object,
     Q <- CombineTRQ(H, Q)
     P_star <- BlockMatrix(H, P_star)
   } else {
-    Q <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1)], Q)
+    Q <- CombineTRQ(H[, , c(2:dim(H)[[3]], 1), drop = FALSE], Q)
     P_star <- BlockMatrix(H[, , 1], P_star)
   }
   a1 <- rbind(matrix(0, p, 1), a1)
