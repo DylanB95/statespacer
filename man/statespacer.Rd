@@ -244,7 +244,7 @@ matrix of the initial state vector if it does not depend on the
 parameters. Must be a matrix.
 \item \code{H}: The H system matrix if it does not depend on the parameters.
 \item \code{transform_fun}: Function that returns transformed parameters for which
-standard errors have to be computed.
+standard errors have to be computed. Must have \code{param} as an argument.
 \item \code{transform_input}: A list containing additional arguments to
 \code{transform_fun.}
 \item \code{state_only}: The indices of the self specified state that do not play a

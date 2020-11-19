@@ -104,7 +104,8 @@
 
       
 
-      </header><script src="boxjenkins_files/header-attrs-2.4/header-attrs.js"></script><script src="boxjenkins_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="boxjenkins_files/header-attrs-2.5/header-attrs.js"></script><script src="boxjenkins_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="boxjenkins_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="boxjenkins_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Fitting ARIMA models with statespacer</h1>
@@ -122,8 +123,8 @@
 <h2 class="hasAnchor">
 <a href="#arima-modelling-of-the-yearly-sunspot-data" class="anchor"></a>ARIMA modelling of the yearly sunspot data</h2>
 <p>To showcase the estimation of ARIMA models, we make use of the <code>sunspot.year</code> data, which contains yearly numbers of sunspots from 1700 to 1988. See <code><a href="https://rdrr.io/r/datasets/sunspot.year.html">?sunspot.year</a></code> for details. We only use the data from 1770 to 1869, to stay in line with <span class="citation">Box et al. (2015)</span>. We estimate an <span class="math inline">\(\text{ARIMA}(3, ~ 0, ~ 0)\)</span> with deterministic level (or constant if you prefer) as follows:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="co"># Load statespacer</span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Load statespacer</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/">statespacer</a></span><span class="op">)</span>
 
 <span class="co"># Load the dataset</span>
@@ -138,18 +139,18 @@
                    format_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,
                    initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-11-03 11:55:17</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-11-19 15:41:04</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1 1</span>
 <span class="co">#&gt; initial  value 5.022561 </span>
 <span class="co">#&gt; iter  10 value 4.114363</span>
 <span class="co">#&gt; final  value 4.111163 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-11-03 11:55:17</span>
-<span class="co">#&gt; Time difference of 0.154911994934082 secs</span></pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-11-19 15:41:04</span>
+<span class="co">#&gt; Time difference of 0.16590690612793 secs</span></code></pre></div>
 <p>Note that we eliminate the observation error by setting its variance to 0, although it’s perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>.</p>
 <p>We obtain the following estimates:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="co"># Coefficients of the ARMA component</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Coefficients of the ARMA component</span>
 <span class="va">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>
    <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">AR</span><span class="op">$</span><span class="va">ARIMA1</span>,
    <span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">AR</span><span class="op">$</span><span class="va">ARIMA1</span>
@@ -179,7 +180,7 @@
 <span class="co">#&gt;                      [,1]</span>
 <span class="co">#&gt; Variance       222.496532</span>
 <span class="co">#&gt; Loglikelihood -411.116313</span>
-<span class="co">#&gt; AIC              8.322326</span></pre></div>
+<span class="co">#&gt; AIC              8.322326</span></code></pre></div>
 <p>We see that the results are fairly similar to the results as obtained by <span class="citation">Box et al. (2015)</span>. Differences may occur due to the different estimation procedures. We don’t have to eliminate observations, so we use the full information available at hand, in contrast to traditional estimation procedures. Note that not much has to be done to estimate VARIMA models. In fact, you only need to specify a dependent variable <code>y</code> that has more than one column! It’s also straightforward to add explanatory variables, by making use of the <code>addvar_list</code> option, see <code><a href="../articles/seatbelt.html">vignette("seatbelt", "statespacer")</a></code> for an example of adding explanatory variables.</p>
 </div>
 <div id="sarima-modelling-of-the-airline-data" class="section level2">
@@ -187,8 +188,8 @@
 <a href="#sarima-modelling-of-the-airline-data" class="anchor"></a>SARIMA modelling of the airline data</h2>
 <p>To showcase the estimation of SARIMA models, we make use of the classic <code>AirPassengers</code> data, which contains monthly totals of international airline passengers from 1949 to 1960. See <code><a href="https://rdrr.io/r/datasets/AirPassengers.html">?AirPassengers</a></code> for details. We estimate a <span class="math inline">\(\text{SARIMA}(0, ~ 1, ~ 1)_{1} ~ \times ~ (0, ~ 1, ~ 1)_{12}\)</span>. Note that in the multivariate case, there is a subtle difference between <span class="math inline">\(\text{SARIMA}(0, ~ 1, ~ 1)_{1} ~ \times ~ (0, ~ 1, ~ 1)_{12}\)</span> and <span class="math inline">\(\text{SARIMA}(0, ~ 1, ~ 1)_{12} ~ \times ~ (0, ~ 1, ~ 1)_{1}\)</span> as matrix multiplication is not commutative.</p>
 <p>We proceed as follows:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="co"># Load the dataset</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Load the dataset</span>
 <span class="va">Data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># The SARIMA specification, must be a list containing lists!</span>
@@ -200,16 +201,16 @@
                    sarima_list <span class="op">=</span> <span class="va">sarima_list</span>,
                    initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-11-03 11:55:18</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2020-11-19 15:41:04</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
 <span class="co">#&gt; initial  value -1.034434 </span>
 <span class="co">#&gt; final  value -1.616321 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-11-03 11:55:19</span>
-<span class="co">#&gt; Time difference of 0.874496936798096 secs</span></pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2020-11-19 15:41:05</span>
+<span class="co">#&gt; Time difference of 0.899671792984009 secs</span></code></pre></div>
 <p>We obtain the following estimates:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co"># Coefficients of the ARMA component</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Coefficients of the ARMA component</span>
 <span class="va">arma_coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>
    <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S1</span>, <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S12</span><span class="op">)</span>,
    <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S1</span>, <span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">SMA</span><span class="op">$</span><span class="va">SARIMA1</span><span class="op">$</span><span class="va">S12</span><span class="op">)</span>
@@ -232,7 +233,7 @@
 <span class="co">#&gt;                        [,1]</span>
 <span class="co">#&gt; Variance        0.001347882</span>
 <span class="co">#&gt; Loglikelihood 232.750284785</span>
-<span class="co">#&gt; AIC            -3.010420622</span></pre></div>
+<span class="co">#&gt; AIC            -3.010420622</span></code></pre></div>
 <p>As you can see, fitting the Box-Jenkins models with statespacer is quite easy!</p>
 </div>
 <div id="references" class="section level2 unnumbered">

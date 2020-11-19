@@ -468,7 +468,7 @@ matrix of the initial state vector if it does not depend on the
 parameters. Must be a matrix.</p></li>
 <li><p><code>H</code>: The H system matrix if it does not depend on the parameters.</p></li>
 <li><p><code>transform_fun</code>: Function that returns transformed parameters for which
-standard errors have to be computed.</p></li>
+standard errors have to be computed. Must have <code>param</code> as an argument.</p></li>
 <li><p><code>transform_input</code>: A list containing additional arguments to
 <code>transform_fun.</code></p></li>
 <li><p><code>state_only</code>: The indices of the self specified state that do not play a
@@ -494,7 +494,7 @@ matrix instead of a matrix.</p>
 Oxford university press.</p>
 <p>Ansley CF, Kohn R (1986).
 &#8220;A note on reparameterizing a vector autoregressive moving average model to enforce stationarity.&#8221;
-<em>Journal of Statistical Computation and Simulation</em>, <b>24</b>, 99--106.</p>
+<em>Journal of Statistical Computation and Simulation</em>, <b>24</b>(2), 99--106.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Dylan Beijers, <a href='mailto:dylanbeijers@gmail.com'>dylanbeijers@gmail.com</a></p>
