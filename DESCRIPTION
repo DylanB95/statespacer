@@ -28,6 +28,7 @@ Suggests:
     optimx (>= 2020-4.2),
     rmarkdown
 VignetteBuilder: knitr
+Encoding: UTF-8
 LazyData: true
 LinkingTo: 
     Rcpp,
