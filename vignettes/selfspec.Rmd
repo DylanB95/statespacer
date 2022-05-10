@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 A lot of models can be put in State Space form. Although the statespacer package covers a lot of those models by providing the most common components you would expect to see in a State Space model, there may always be the need to implement something more sophisticated and novel. For this purpose, the statespacer package provides the option to specify a component yourself!
 
-In this vignette, you will learn how to specify a component yourself. We will implement the dynamic Nelson-Siegel model as specified by @diebold2006macroeconomy, using the dataset that is provided by the YieldCurve package, @YieldCurve. 
+In this vignette, you will learn how to specify a component yourself. We will implement the dynamic Nelson-Siegel model as specified by @diebold2006macroeconomy, using interest rates of the Federal Reserve. See `?FedYieldCurve` for details.
 
 ## Dynamic Nelson-Siegel model
 The dynamic Nelson-Siegel model as specified by @diebold2006macroeconomy is as follows:
@@ -41,18 +41,17 @@ where $y_t(\tau)$ is the interest rate at time $t$ for maturity $\tau$, $\lambda
 Now that we have summarised the dynamic Nelson-Siegel model, we can go on and fit it using statespacer!
 
 ## Fitting the model
-First, we load the data. We use the dataset that is provided by the YieldCurve package, see @YieldCurve for details. This dataset consists of the monthly US interest rates for 8 different maturities from January 1982 up to December 2012. The maturities are 3, 6, 12, 24, 36, 60, 84, and 120 months. For this exhibition, we make use of the period from January 1985 up to December 2000.
+First, we load the data. We use the dataset contained in this package, see `?FedYieldCurve` for details. This dataset consists of the monthly US interest rates for 8 different maturities from January 1982 up to April 2022. The maturities are 3, 6, 12, 24, 36, 60, 84, and 120 months. For this exhibition, we make use of the period from January 1985 up to December 2000.
 
 ```{r, setup}
 # Load statespacer
 library(statespacer)
 
 # Load the dataset
-library(YieldCurve)
 data("FedYieldCurve")
-y <- window(FedYieldCurve, start = "1984-12-31", end = "2000-12-01")
-years <- index(y) # Used for plots later on
-y <- as.matrix(y)
+y <- FedYieldCurve[FedYieldCurve$Month >= "1985-01-01" & FedYieldCurve$Month <= "2000-12-01", ]
+years <- y$Month # Used for plots later on
+y <- as.matrix(y[-1])
 ```
 
 To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of `statespacer()` for extensive details about the format of this list!
