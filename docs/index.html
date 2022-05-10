@@ -33,6 +33,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -45,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -62,7 +64,7 @@
   <a href="articles/dictionary.html">Dictionary</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -83,8 +85,8 @@
   <a href="news/index.html">Changelog</a>
 </li>
 <li>
-  <a href="https://github.com/DylanB95/statespacer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/DylanB95/statespacer/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -106,15 +108,14 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="state-space-modelling-in-r-" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#state-space-modelling-in-r-" class="anchor"></a>State Space Modelling in R <a href="https://DylanB95.github.io/statespacer"><img src="reference/figures/logo.png" align="right" height="138.5"></a>
+<div class="section level1">
+<div class="page-header"><h1 id="state-space-modelling-in-r-">State Space Modelling in R <a href="https://DylanB95.github.io/statespacer" class="external-link"><img src="reference/figures/logo.png" align="right" height="138.5"></a>
+<a class="anchor" aria-label="anchor" href="#state-space-modelling-in-r-"></a>
 </h1></div>
 <!-- badges: start -->
-
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
 <p>statespacer is a package for state space modelling and forecasting in R. It provides functions that make estimating models in State Space form a breeze. This package implements state-of-the-art algorithms developed by various time series practitioners such as J. Durbin and S.J. Koopman. Details about the algorithms can be found in their book, “Time Series Analysis by State Space Methods”.</p>
 <p>If you are new to statespacer, check out <code><a href="articles/intro.html">vignette("intro", "statespacer")</a></code> for a quick start to the statespacer package! Also check out the references for the following functions:</p>
 <ul>
@@ -126,9 +127,9 @@
 <code><a href="reference/SimSmoother.html">SimSmoother()</a></code> for drawing random samples of a fitted State Space model conditional on the data.</li>
 </ul>
 </div>
-<div id="state-space-components" class="section level2">
-<h2 class="hasAnchor">
-<a href="#state-space-components" class="anchor"></a>State Space Components</h2>
+<div class="section level2">
+<h2 id="state-space-components">State Space Components<a class="anchor" aria-label="anchor" href="#state-space-components"></a>
+</h2>
 <p>This package supports numerous state space components:</p>
 <ul>
 <li>The Local Level</li>
@@ -146,56 +147,56 @@
 </ul>
 <p>These components can be used for both univariate, and multivariate models. The components can be combined in order to get more extensive models. Moreover, the user can control the format of the variance - covariance matrices of each of the components. This way, one could specify the components to be deterministic instead of stochastic. In the multivariate case, one could impose rank restrictions on the variance - covariance matrices such that commonalities in the components are estimated, like common levels, common slopes, etc.</p>
 </div>
-<div id="fitting-procedure" class="section level2">
-<h2 class="hasAnchor">
-<a href="#fitting-procedure" class="anchor"></a>Fitting Procedure</h2>
+<div class="section level2">
+<h2 id="fitting-procedure">Fitting Procedure<a class="anchor" aria-label="anchor" href="#fitting-procedure"></a>
+</h2>
 <p>The package employs a univariate treatment, and an exact initialisation for diffuse elements, to estimate the state parameters and compute the loglikelihood. Collapsing large observation vectors is supported as well. Moreover, missing observations are readily dealt with by putting the models in State Space form!</p>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p>You can install statespacer from CRAN with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"statespacer"</span><span class="op">)</span></code></pre></div>
-<div id="development-version" class="section level3">
-<h3 class="hasAnchor">
-<a href="#development-version" class="anchor"></a>Development version</h3>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"statespacer"</span><span class="op">)</span></code></pre></div>
+<div class="section level3">
+<h3 id="development-version">Development version<a class="anchor" aria-label="anchor" href="#development-version"></a>
+</h3>
 <p>To get a bug fix or to use a feature from the development version, you can install the development version of statespacer from GitHub.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"DylanB95/statespacer"</span><span class="op">)</span></code></pre></div>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"DylanB95/statespacer"</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
-<div id="usage" class="section level2">
-<h2 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h2>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/">statespacer</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/" class="external-link">statespacer</a></span><span class="op">)</span>
 
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="va">Nile</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span>
+<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">Nile</span><span class="op">)</span>
 
 <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,
                    local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,
-                   initial <span class="op">=</span> <span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+                   initial <span class="op">=</span> <span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">'p'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>, 
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">'p'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>, 
      xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="cn">NA</span>, 
      sub <span class="op">=</span> <span class="st">"The smoothed level with 90% confidence intervals, 
             and the observed data points"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
       type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">'gray'</span>
 <span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
       type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">'gray'</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
 </div>
-<div id="getting-help" class="section level2">
-<h2 class="hasAnchor">
-<a href="#getting-help" class="anchor"></a>Getting help</h2>
-<p>If you encounter a clear bug, please file an issue with a minimal reproducible example on <a href="https://github.com/DylanB95/statespacer/issues">GitHub</a>.</p>
+<div class="section level2">
+<h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h2>
+<p>If you encounter a clear bug, please file an issue with a minimal reproducible example on <a href="https://github.com/DylanB95/statespacer/issues" class="external-link">GitHub</a>.</p>
 <hr>
 <p>Please note that the ‘statespacer’ project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
@@ -204,61 +205,65 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=statespacer">https://​cloud.r-project.org/​package=statespacer</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/DylanB95/statespacer/">https://​github.com/​DylanB95/​statespacer/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/DylanB95/statespacer/issues/">https://​github.com/​DylanB95/​statespacer/​issues/​</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=statespacer" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/DylanB95/statespacer/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/DylanB95/statespacer/issues/" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+
 <div class="community">
-<h2>Community</h2>
+<h2 data-toc-skip>Community</h2>
 <ul class="list-unstyled">
 <li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
 </ul>
 </div>
+
 <div class="citation">
-<h2>Citation</h2>
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html">Citing statespacer</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>
-<a href="https://www.linkedin.com/in/dylanbeijers/">Dylan Beijers</a> <br><small class="roles"> Author, maintainer </small>  </li>
+<li><a href="authors.html#citation">Citing statespacer</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li><a href="https://travis-ci.com/DylanB95/statespacer"><img src="https://travis-ci.com/DylanB95/statespacer.svg?branch=master" alt="Travis build status"></a></li>
-<li><a href="https://www.tidyverse.org/lifecycle/#stable"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
-<li><a href="https://CRAN.R-project.org/package=statespacer"><img src="https://www.r-pkg.org/badges/version/statespacer" alt="CRAN status"></a></li>
+<li>
+<a href="https://www.linkedin.com/in/dylanbeijers/" class="external-link">Dylan Beijers</a> <br><small class="roles"> Author, maintainer </small>  </li>
 </ul>
 </div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://travis-ci.com/DylanB95/statespacer" class="external-link"><img src="https://travis-ci.com/DylanB95/statespacer.svg?branch=master" alt="Travis build status"></a></li>
+<li><a href="https://www.tidyverse.org/lifecycle/#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
+<li><a href="https://CRAN.R-project.org/package=statespacer" class="external-link"><img src="https://www.r-pkg.org/badges/version/statespacer" alt="CRAN status"></a></li>
+</ul>
 </div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.linkedin.com/in/dylanbeijers/">Dylan Beijers</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.linkedin.com/in/dylanbeijers/" class="external-link">Dylan Beijers</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer>

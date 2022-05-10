@@ -33,6 +33,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -45,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -62,7 +64,7 @@
   <a href="../articles/dictionary.html">Dictionary</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -83,8 +85,8 @@
   <a href="../news/index.html">Changelog</a>
 </li>
 <li>
-  <a href="https://github.com/DylanB95/statespacer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/DylanB95/statespacer/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -104,21 +106,20 @@
 
       
 
-      </header><script src="intro_files/header-attrs-2.5/header-attrs.js"></script><script src="intro_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="intro_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
-<script src="intro_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
+      </header><script src="intro_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to statespacer</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/DylanB95/statespacer/blob/master/vignettes/intro.Rmd"><code>vignettes/intro.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/DylanB95/statespacer/blob/HEAD/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
       <div class="hidden name"><code>intro.Rmd</code></div>
 
     </div>
 
     
     
-<p>This document provides a brief introduction to using the statespacer package. It does so by showcasing the estimation of a Local Level model on the well known Nile data. See <code><a href="https://rdrr.io/r/datasets/Nile.html">?Nile</a></code> for more information about this dataset.</p>
+<p>This document provides a brief introduction to using the statespacer package. It does so by showcasing the estimation of a Local Level model on the well known Nile data. See <code><a href="https://rdrr.io/r/datasets/Nile.html" class="external-link">?Nile</a></code> for more information about this dataset.</p>
 <p>To start, let’s first introduce the Local Level model. Mathematically, this model can be represented as follows:</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -130,66 +131,66 @@
 <p>Estimating this model using the statespacer package is simple. First, we load the data and extract the dependent variable. The dependent variable needs to be specified as a matrix, with each column being one of the dependents. In this case, we just have one column, as the Nile data comprises a univariate series.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Load statespacer</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/">statespacer</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/" class="external-link">statespacer</a></span><span class="op">)</span>
 
 <span class="co"># Load the dataset</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="va">Nile</span><span class="op">)</span></code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span>
+<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">Nile</span><span class="op">)</span></code></pre></div>
 <p>To fit a local level model, we simply call the <code><a href="../reference/statespacer.html">statespacer()</a></code> function. See <code><a href="../reference/statespacer.html">?statespacer</a></code> for further details.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,
                    local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,
-                   initial <span class="op">=</span> <span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,
+                   initial <span class="op">=</span> <span class="fl">0.5</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,
                    verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; Warning: Number of initial parameters is less than the required amount of</span>
 <span class="co">#&gt; parameters (2), recycling the initial parameters the required amount of times.</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2020-12-29 13:34:04</span>
+<span class="co">#&gt; Starting the optimisation procedure at: 2022-05-10 18:07:25</span>
 <span class="co">#&gt; Parameter scaling:[1] 1 1</span>
 <span class="co">#&gt; initial  value 6.623273 </span>
 <span class="co">#&gt; iter  10 value 6.334646</span>
 <span class="co">#&gt; final  value 6.334646 </span>
 <span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2020-12-29 13:34:04</span>
-<span class="co">#&gt; Time difference of 0.0312480926513672 secs</span></code></pre></div>
+<span class="co">#&gt; Finished the optimisation procedure at: 2022-05-10 18:07:25</span>
+<span class="co">#&gt; Time difference of 0.0312490463256836 secs</span></code></pre></div>
 <p>We get a warning message about the number of initial parameters, as we didn’t specify enough of them. We needed 2 initial parameters, but specified only 1. This is okay, as the function just replicates the specified parameters the required amount of times. This way, we don’t need to worry about how many parameters are needed. We could also specify too many initial parameters, in which case only the first few are used. This is particularly useful when we want random initial parameters. One could just simply specify <code>initial = rnorm(1000)</code>, and not have to worry about if enough parameters were supplied.</p>
 <p>Now, let’s check the estimated values of <span class="math inline">\(\sigma_\varepsilon^2\)</span> and <span class="math inline">\(\sigma_\eta^2\)</span>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span>, <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">level</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span>, <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">level</span><span class="op">)</span>
 <span class="co">#&gt; [1] 15100.252  1468.724</span></code></pre></div>
 <p>Note that we use the notation used in <span class="citation">Durbin and Koopman (2012)</span> for the system matrices. <span class="math inline">\(H\)</span> being the system matrix for the variance - covariance matrix of the observation equation, and <span class="math inline">\(Q\)</span> being the system matrix for the variance - covariance matrix of the state equation.</p>
 <p>Checking out the estimated level is easy as well. The filtered level:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">'p'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>, 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">'p'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>, 
      xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="cn">NA</span>, 
      sub <span class="op">=</span> <span class="st">"The filtered level with 90% confidence intervals, 
             and the observed data points"</span>
 <span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>, 
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>, 
       type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">'gray'</span>
 <span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>, 
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>, 
       type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">'gray'</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 <p>And the smoothed level:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">'p'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>, 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">'p'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>, 
      xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="cn">NA</span>, 
      sub <span class="op">=</span> <span class="st">"The smoothed level with 90% confidence intervals, 
             and the observed data points"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
       type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">'gray'</span>
 <span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="op">]</span><span class="op">)</span>,
       type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">'gray'</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
-<p>The object returned by <code><a href="../reference/statespacer.html">statespacer()</a></code> exhibits many other useful items. For more information about these items, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>. For more exhibitions of the statespacer package, please see the other tutorials on <a href="https://DylanB95.github.io/statespacer/" class="uri">https://DylanB95.github.io/statespacer/</a> or <code><a href="https://rdrr.io/r/utils/browseVignettes.html">browseVignettes("statespacer")</a></code>.</p>
-<div id="references" class="section level2 unnumbered">
-<h2 class="hasAnchor">
-<a href="#references" class="anchor"></a>References</h2>
+<p>The object returned by <code><a href="../reference/statespacer.html">statespacer()</a></code> exhibits many other useful items. For more information about these items, please see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code>. For more exhibitions of the statespacer package, please see the other tutorials on <a href="https://DylanB95.github.io/statespacer/" class="external-link uri">https://DylanB95.github.io/statespacer/</a> or <code>browseVignettes("statespacer")</code>.</p>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references hanging-indent">
 <div id="ref-durbin2012time">
 <p>Durbin, James, and Siem Jan Koopman. 2012. <em>Time Series Analysis by State Space Methods</em>. Oxford university press.</p>
@@ -209,11 +210,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.linkedin.com/in/dylanbeijers/">Dylan Beijers</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.linkedin.com/in/dylanbeijers/" class="external-link">Dylan Beijers</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer>

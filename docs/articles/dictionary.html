@@ -33,6 +33,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -45,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -62,7 +64,7 @@
   <a href="../articles/dictionary.html">Dictionary</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Tutorials
      
     <span class="caret"></span>
@@ -83,8 +85,8 @@
   <a href="../news/index.html">Changelog</a>
 </li>
 <li>
-  <a href="https://github.com/DylanB95/statespacer/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/DylanB95/statespacer/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -104,14 +106,13 @@
 
       
 
-      </header><script src="dictionary_files/header-attrs-2.5/header-attrs.js"></script><script src="dictionary_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="dictionary_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
-<script src="dictionary_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
+      </header><script src="dictionary_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Dictionary of statespacer</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/DylanB95/statespacer/blob/master/vignettes/dictionary.Rmd"><code>vignettes/dictionary.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/DylanB95/statespacer/blob/HEAD/vignettes/dictionary.Rmd" class="external-link"><code>vignettes/dictionary.Rmd</code></a></small>
       <div class="hidden name"><code>dictionary.Rmd</code></div>
 
     </div>
@@ -119,9 +120,9 @@
     
     
 <p>This document provides extensive details about the object that is returned by <code><a href="../reference/statespacer.html">statespacer()</a></code>. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by <span class="citation">Durbin and Koopman (2012)</span>. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!</p>
-<div id="the-general-linear-gaussian-state-space-model" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-general-linear-gaussian-state-space-model" class="anchor"></a>The general linear Gaussian state space model</h2>
+<div class="section level2">
+<h2 id="the-general-linear-gaussian-state-space-model">The general linear Gaussian state space model<a class="anchor" aria-label="anchor" href="#the-general-linear-gaussian-state-space-model"></a>
+</h2>
 <p>There are many ways to write down the form of the general linear Gaussian state space model. We use the form used by <span class="citation">Durbin and Koopman (2012)</span>:</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -132,23 +133,23 @@
 \]</span></p>
 <p>where <span class="math inline">\(y_t\)</span> is the <em>observation vector</em>, a <span class="math inline">\(p ~ \times ~ 1\)</span> vector of dependent variables at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\alpha_t\)</span> is the unobserved <em>state vector</em>, a <span class="math inline">\(m ~ \times ~ 1\)</span> vector of state variables at time <span class="math inline">\(t\)</span>, and <span class="math inline">\(\varepsilon_t\)</span> and <span class="math inline">\(\eta_t\)</span> are disturbance vectors of respectively the observation equation, and the state equation. To initialise the model, <span class="math inline">\(a_1\)</span> is used as the initial guess of the state vector, and <span class="math inline">\(P_1\)</span> is the corresponding uncertainty of that guess. The matrices <span class="math inline">\(Z_t\)</span>, <span class="math inline">\(H_t\)</span>, <span class="math inline">\(T_t\)</span>, <span class="math inline">\(R_t\)</span>, and <span class="math inline">\(Q_t\)</span> are called the <em>system matrices</em> of the state space model. Different specifications of these system matrices, lead to different interpretations of the model at hand.</p>
 </div>
-<div id="the-object-as-returned-by-statespacer" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-object-as-returned-by-statespacer" class="anchor"></a>The object as returned by statespacer</h2>
+<div class="section level2">
+<h2 id="the-object-as-returned-by-statespacer">The object as returned by statespacer<a class="anchor" aria-label="anchor" href="#the-object-as-returned-by-statespacer"></a>
+</h2>
 <p>Having obtained a better understanding of the notation used, it is easier to find our way in the object that is returned by <code><a href="../reference/statespacer.html">statespacer()</a></code>. Let’s say we store the object of statespacer in a variable called <code>fit</code>, that is, <code>fit &lt;- statespacer(...)</code>. <code>fit</code> is then a list, containing many items, including other lists. This section describes the items that are included in <code>fit</code> one by one.</p>
-<div id="function_call" class="section level3">
-<h3 class="hasAnchor">
-<a href="#function_call" class="anchor"></a>function_call</h3>
+<div class="section level3">
+<h3 id="function_call">function_call<a class="anchor" aria-label="anchor" href="#function_call"></a>
+</h3>
 <p><code>function_call</code> is a list that contains, as the name suggests, the call to the <code><a href="../reference/statespacer.html">statespacer()</a></code> function, including default values for the input arguments that were not specified. For details about the various input arguments, check out <code><a href="../reference/statespacer.html">?statespacer</a></code>.</p>
 </div>
-<div id="system_matrices" class="section level3">
-<h3 class="hasAnchor">
-<a href="#system_matrices" class="anchor"></a>system_matrices</h3>
+<div class="section level3">
+<h3 id="system_matrices">system_matrices<a class="anchor" aria-label="anchor" href="#system_matrices"></a>
+</h3>
 <p><code>system_matrices</code> is a list containing all of the system matrices of each of the components. For the variance - covariance matrices <span class="math inline">\(H\)</span> and <span class="math inline">\(Q\)</span>, it also contains 2 decompositions, namely the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition, where <span class="math inline">\(L\)</span> is the loading matrix and <span class="math inline">\(D\)</span> is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, <code>a1</code>, is also included, together with the corresponding uncertainty split out by its diffuse component, <code>P_inf</code>, and its stationary component <code>P_star</code>. Further, it contains <code>Z_padded</code>, which is a list containing the <span class="math inline">\(Z\)</span> matrices of the components augmented with zeroes, such that its dimension is <span class="math inline">\(p ~ \times ~ m\)</span>. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There’s also a vector called <code>state_label</code>, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are <code>lamba</code> (frequency) and <code>rho</code> (dampening factor) for the cycles, <code>AR</code> and <code>MA</code> for the ARIMA components, <code>SAR</code> and <code>SMA</code> for the SARIMA components, and <code>self_spec</code> for the self specified component. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter.</p>
 </div>
-<div id="predicted" class="section level3">
-<h3 class="hasAnchor">
-<a href="#predicted" class="anchor"></a>predicted</h3>
+<div class="section level3">
+<h3 id="predicted">predicted<a class="anchor" aria-label="anchor" href="#predicted"></a>
+</h3>
 <p><code>predicted</code> is a list that contains the one-step ahead predicted (predicting time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t ~ - ~ 1\)</span>) objects as returned by the Kalman filter:</p>
 <ul>
 <li>
@@ -176,14 +177,14 @@
 </ul>
 <p>Further, the contributions of the components to the predicted values are extracted separately.</p>
 </div>
-<div id="filtered" class="section level3">
-<h3 class="hasAnchor">
-<a href="#filtered" class="anchor"></a>filtered</h3>
+<div class="section level3">
+<h3 id="filtered">filtered<a class="anchor" aria-label="anchor" href="#filtered"></a>
+</h3>
 <p><code>filtered</code> is a list that contains the filtered (estimates for time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t\)</span>) objects as returned by the Kalman filter. Here, <code>a</code> is the filtered state, <code>P</code> the uncertainty of the filtered state, <code>P_inf</code> is the diffuse part of <code>P</code>, and <code>P_star</code> is the non-diffuse part of <code>P</code>. Further, the filtered values of the components are extracted separately.</p>
 </div>
-<div id="smoothed" class="section level3">
-<h3 class="hasAnchor">
-<a href="#smoothed" class="anchor"></a>smoothed</h3>
+<div class="section level3">
+<h3 id="smoothed">smoothed<a class="anchor" aria-label="anchor" href="#smoothed"></a>
+</h3>
 <p><code>smoothed</code> is a list that contains smoothed (estimates for time <span class="math inline">\(t\)</span> using all of the time points) objects as returned by the Kalman smoother:</p>
 <ul>
 <li>
@@ -201,9 +202,9 @@
 </ul>
 <p>Further, the smoothed values of the components are extracted separately.</p>
 </div>
-<div id="diagnostics" class="section level3">
-<h3 class="hasAnchor">
-<a href="#diagnostics" class="anchor"></a>diagnostics</h3>
+<div class="section level3">
+<h3 id="diagnostics">diagnostics<a class="anchor" aria-label="anchor" href="#diagnostics"></a>
+</h3>
 <p><code>diagnostics</code> is a list that contains items useful for diagnostic tests and model selection:</p>
 <ul>
 <li>
@@ -255,25 +256,25 @@
 <code>Heteroscedasticity_criticalvalues</code> are the critical values of the heteroscedasticity tests.</li>
 </ul>
 </div>
-<div id="optim" class="section level3">
-<h3 class="hasAnchor">
-<a href="#optim" class="anchor"></a>optim</h3>
-<p><code>optim</code> is the list as returned by <code><a href="https://rdrr.io/r/stats/optim.html">stats::optim</a></code> or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html">optimx::optimr</a></code>, depending on if you have optimx installed. See <code><a href="https://rdrr.io/r/stats/optim.html">?stats::optim</a></code> and <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html">?optimx::optimr</a></code> for details. Only returned if <code>fit = TRUE</code>.</p>
+<div class="section level3">
+<h3 id="optim">optim<a class="anchor" aria-label="anchor" href="#optim"></a>
+</h3>
+<p><code>optim</code> is the list as returned by <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim</a></code> or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">optimx::optimr</a></code>, depending on if you have optimx installed. See <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">?stats::optim</a></code> and <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">?optimx::optimr</a></code> for details. Only returned if <code>fit = TRUE</code>.</p>
 </div>
-<div id="loglik_fun" class="section level3">
-<h3 class="hasAnchor">
-<a href="#loglik_fun" class="anchor"></a>loglik_fun</h3>
+<div class="section level3">
+<h3 id="loglik_fun">loglik_fun<a class="anchor" aria-label="anchor" href="#loglik_fun"></a>
+</h3>
 <p><code>loglik_fun</code> is the loglikelihood function that takes <code>param</code> as its only argument. It returns the loglikelihood at the specified parameters.</p>
 </div>
-<div id="standard_errors" class="section level3">
-<h3 class="hasAnchor">
-<a href="#standard_errors" class="anchor"></a>standard_errors</h3>
+<div class="section level3">
+<h3 id="standard_errors">standard_errors<a class="anchor" aria-label="anchor" href="#standard_errors"></a>
+</h3>
 <p><code>standard_errors</code> is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from <code>system_matrices</code>, but only representing those system matrices that depend on the parameters. Only returned if <code>standard_errors = TRUE</code>.</p>
 </div>
 </div>
-<div id="order-of-parameter-input" class="section level2">
-<h2 class="hasAnchor">
-<a href="#order-of-parameter-input" class="anchor"></a>Order of parameter input</h2>
+<div class="section level2">
+<h2 id="order-of-parameter-input">Order of parameter input<a class="anchor" aria-label="anchor" href="#order-of-parameter-input"></a>
+</h2>
 <p>This section provides details about the parameter vector that’s supplied to <code><a href="../reference/statespacer.html">statespacer()</a></code>. It clarifies which elements are used for what components.</p>
 <p>Most components use a variance - covariance matrix, which are constructed using the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition. The parameters supplied to build the variance - covariance matrix are ordered as follows: First, parameters are used for the Diagonal matrix <span class="math inline">\(D\)</span> and transformed by <span class="math inline">\(exp(2x)\)</span>. Second, the remaining parameters are assigned columnwise to the Loading matrix <span class="math inline">\(L\)</span>, so first the <span class="math inline">\(1_{st}\)</span> column, then the <span class="math inline">\(2_{nd}\)</span> column, and so on.</p>
 <p>The parameters are assigned to the components in the following order:</p>
@@ -292,9 +293,9 @@
 </ol>
 <p>Care should be taken in specifying the initial parameters! Usually, I check out the variances of the dependent variables and then apply the transformation <span class="math inline">\(0.5\log(x)\)</span> to the variances, and specify those as initial values for the parameters that go to the various variance - covariance matrices. For the AR and MA coefficients, it might be beneficial to initialise them close to 0, to prevent them from converging to unit root solutions. Using the information in this section, it should make the trial and error process of finding proper initial parameters less cumbersome!</p>
 </div>
-<div id="references" class="section level2 unnumbered">
-<h2 class="hasAnchor">
-<a href="#references" class="anchor"></a>References</h2>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references hanging-indent">
 <div id="ref-durbin2012time">
 <p>Durbin, James, and Siem Jan Koopman. 2012. <em>Time Series Analysis by State Space Methods</em>. Oxford university press.</p>
@@ -314,11 +315,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.linkedin.com/in/dylanbeijers/">Dylan Beijers</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://www.linkedin.com/in/dylanbeijers/" class="external-link">Dylan Beijers</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer>

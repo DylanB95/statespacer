@@ -12,7 +12,7 @@ URL: https://DylanB95.github.io/statespacer/,
     https://github.com/DylanB95/statespacer/
 BugReports: https://github.com/DylanB95/statespacer/issues/
 License: MIT + file LICENSE
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
 Depends: R (>= 3.6)

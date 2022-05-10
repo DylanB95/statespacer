@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://dylanb95.github.io/statespacer/404.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/articles/boxjenkins.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/articles/dictionary.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/articles/intro.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/articles/seatbelt.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/articles/selfspec.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/authors.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/CODE_OF_CONDUCT.html</loc>
+  </url>
+  <url>
     <loc>https://dylanb95.github.io/statespacer/index.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/news/index.html</loc>
   </url>
   <url>
     <loc>https://dylanb95.github.io/statespacer/reference/BlockMatrix.html</loc>
@@ -13,30 +49,30 @@
     <loc>https://dylanb95.github.io/statespacer/reference/CoeffARMA.html</loc>
   </url>
   <url>
+    <loc>https://dylanb95.github.io/statespacer/reference/FedYieldCurve.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/reference/index.html</loc>
+  </url>
+  <url>
     <loc>https://dylanb95.github.io/statespacer/reference/predict.statespacer.html</loc>
   </url>
   <url>
     <loc>https://dylanb95.github.io/statespacer/reference/SimSmoother.html</loc>
   </url>
   <url>
+    <loc>https://dylanb95.github.io/statespacer/reference/StateSpaceEval.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/reference/StateSpaceFit.html</loc>
+  </url>
+  <url>
+    <loc>https://dylanb95.github.io/statespacer/reference/StateSpaceForecast.html</loc>
+  </url>
+  <url>
     <loc>https://dylanb95.github.io/statespacer/reference/statespacer-package.html</loc>
   </url>
   <url>
     <loc>https://dylanb95.github.io/statespacer/reference/statespacer.html</loc>
-  </url>
-  <url>
-    <loc>https://dylanb95.github.io/statespacer/articles/boxjenkins.html</loc>
-  </url>
-  <url>
-    <loc>https://dylanb95.github.io/statespacer/articles/dictionary.html</loc>
-  </url>
-  <url>
-    <loc>https://dylanb95.github.io/statespacer/articles/intro.html</loc>
-  </url>
-  <url>
-    <loc>https://dylanb95.github.io/statespacer/articles/seatbelt.html</loc>
-  </url>
-  <url>
-    <loc>https://dylanb95.github.io/statespacer/articles/selfspec.html</loc>
   </url>
 </urlset>
