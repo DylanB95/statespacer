@@ -28,4 +28,6 @@
 #'     maturity, quoted on investment basis, in percent per year.}
 #' }
 #' @source \url{https://www.federalreserve.gov/datadownload/Build.aspx?rel=H15}
+#' @examples
+#' data(FedYieldCurve)
 "FedYieldCurve"
