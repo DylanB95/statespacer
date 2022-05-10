@@ -1,3 +1,9 @@
+# statespacer 0.4.1
+
+## Removed dependency
+
+* Removes the dependency on the YieldCurve package by including an updated FedYieldCurve dataset in the statespacer package. See `?FedYieldCurve` for details.
+
 # statespacer 0.4.0
 
 ## Extra functionality
