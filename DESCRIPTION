@@ -1,6 +1,6 @@
 Package: statespacer
-Version: 0.4.0
-Date: 2020-11-19
+Version: 0.4.1
+Date: 2022-05-10
 Title: State Space Modelling in 'R'
 Description: A tool that makes estimating models in state space form 
     a breeze. See "Time Series Analysis by State Space Methods" by 
@@ -26,9 +26,9 @@ Suggests:
     knitr,
     numDeriv (>= 2016.8-1.1),
     optimx (>= 2020-4.2),
-    rmarkdown,
-    YieldCurve (>= 4.1)
+    rmarkdown
 VignetteBuilder: knitr
+LazyData: true
 LinkingTo: 
     Rcpp,
     RcppArmadillo
