@@ -13,3 +13,6 @@ addons:
       - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
       - g++-7
+
+brew_packages:
+- gcc
