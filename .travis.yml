@@ -6,6 +6,7 @@ cache: packages
 before_install:
   - mkdir -p ~/.R
   - echo 'CXX17 = g++-7 -std=gnu++17 -fPIC' > ~/.R/Makevars
+  - sudo apt-get install libgfortran-*
 
 addons:
   apt:
