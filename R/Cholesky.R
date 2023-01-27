@@ -77,10 +77,11 @@ Cholesky <- function(param = NULL, format = NULL, decompositions = TRUE) {
     #   D matrix: Diagonal matrix containing the magnitudes
     chol_L <- diag(1, dimension, dimension)
     chol_L[lower.tri(chol_L)] <- param[(dimension + 1):n_par]
-    chol_D <- diag(exp(2 * param[1:dimension]), dimension, dimension)
+    chol_D <- exp(2 * param[1:dimension])
     if (any(chol_D <= 1e-7)) {
       return(NA)
     }
+    chol_D <- diag(chol_D, dimension, dimension)
 
     # If format is specified
   } else {

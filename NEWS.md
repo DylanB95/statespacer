@@ -1,3 +1,9 @@
+# statespacer DEV
+
+## Bug Fixes
+
+* Fixes the returning of NA when calling `Cholesky()` without a format.
+
 # statespacer 0.4.1
 
 ## Removed dependency
