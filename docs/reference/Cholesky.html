@@ -18,7 +18,7 @@ decomposition."><meta property="og:image" content="https://dylanb95.github.io/st
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@ decomposition.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">Cholesky</span><span class="op">(</span>param <span class="op">=</span> <span class="cn">NULL</span>, format <span class="op">=</span> <span class="cn">NULL</span>, decompositions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Cholesky</span><span class="op">(</span>param <span class="op">=</span> <span class="cn">NULL</span>, format <span class="op">=</span> <span class="cn">NULL</span>, decompositions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -90,19 +90,26 @@ decomposition.</p>
     <dl><dt>param</dt>
 <dd><p>Vector containing the parameters used to construct the
 variance - covariance matrix.</p></dd>
+
+
 <dt>format</dt>
 <dd><p>Matrix representing the format for the Loading matrix L
 and Diagonal matrix D. The lower triangular part of the format is used
 as the format for the Loading matrix L. The diagonal of the format is
 used as the format for the Diagonal matrix D. Must be a matrix.</p></dd>
+
+
 <dt>decompositions</dt>
 <dd><p>Boolean indicating whether the loading and diagonal
 matrix of the Cholesky decomposition, and the correlation matrix and
 standard deviations should be returned.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A valid variance - covariance matrix.
+    
+
+<p>A valid variance - covariance matrix.
 If <code>decompositions = TRUE</code> then it returns a list containing:</p><ul><li><p><code>cov_mat</code>: The variance - covariance matrix.</p></li>
 <li><p><code>loading_matrix</code>: The loading matrix of the Cholesky decomposition.</p></li>
 <li><p><code>diagonal_matrix</code>: The diagonal matrix of the Cholesky decomposition.</p></li>
@@ -123,9 +130,9 @@ The parameters for the diagonal matrix are transformed using <code>exp(2 * x)</c
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">format</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">format</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span class="r-in"><span class="fu">Cholesky</span><span class="op">(</span>param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span>, format <span class="op">=</span> <span class="va">format</span>, decompositions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">format</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">format</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="fu">Cholesky</span><span class="op">(</span>param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span>, format <span class="op">=</span> <span class="va">format</span>, decompositions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cov_mat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]       [,2]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 54.59815   54.59815</span>
@@ -165,7 +172,7 @@ The parameters for the diagonal matrix are transformed using <code>exp(2 * x)</c
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -80,40 +80,40 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">statespacer</span><span class="op">(</span>
-  <span class="va">y</span>,
-  H_format <span class="op">=</span> <span class="cn">NULL</span>,
-  local_level_ind <span class="op">=</span> <span class="cn">FALSE</span>,
-  slope_ind <span class="op">=</span> <span class="cn">FALSE</span>,
-  BSM_vec <span class="op">=</span> <span class="cn">NULL</span>,
-  cycle_ind <span class="op">=</span> <span class="cn">FALSE</span>,
-  addvar_list <span class="op">=</span> <span class="cn">NULL</span>,
-  level_addvar_list <span class="op">=</span> <span class="cn">NULL</span>,
-  arima_list <span class="op">=</span> <span class="cn">NULL</span>,
-  sarima_list <span class="op">=</span> <span class="cn">NULL</span>,
-  self_spec_list <span class="op">=</span> <span class="cn">NULL</span>,
-  exclude_level <span class="op">=</span> <span class="cn">NULL</span>,
-  exclude_slope <span class="op">=</span> <span class="cn">NULL</span>,
-  exclude_BSM_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">BSM_vec</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">0</span><span class="op">)</span>,
-  exclude_cycle_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,
-  exclude_arima_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">arima_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">0</span><span class="op">)</span>,
-  exclude_sarima_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sarima_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">0</span><span class="op">)</span>,
-  damping_factor_ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">exclude_cycle_list</span><span class="op">)</span><span class="op">)</span>,
-  format_level <span class="op">=</span> <span class="cn">NULL</span>,
-  format_slope <span class="op">=</span> <span class="cn">NULL</span>,
-  format_BSM_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">BSM_vec</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="cn">NULL</span><span class="op">)</span>,
-  format_cycle_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">exclude_cycle_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="cn">NULL</span><span class="op">)</span>,
-  format_addvar <span class="op">=</span> <span class="cn">NULL</span>,
-  format_level_addvar <span class="op">=</span> <span class="cn">NULL</span>,
-  fit <span class="op">=</span> <span class="cn">TRUE</span>,
-  initial <span class="op">=</span> <span class="fl">0</span>,
-  method <span class="op">=</span> <span class="st">"BFGS"</span>,
-  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  collapse <span class="op">=</span> <span class="cn">FALSE</span>,
-  diagnostics <span class="op">=</span> <span class="cn">TRUE</span>,
-  standard_errors <span class="op">=</span> <span class="cn">NULL</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">statespacer</span><span class="op">(</span></span>
+<span>  <span class="va">y</span>,</span>
+<span>  H_format <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  local_level_ind <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  slope_ind <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  BSM_vec <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cycle_ind <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  addvar_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  level_addvar_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  arima_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sarima_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  self_spec_list <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  exclude_level <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  exclude_slope <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  exclude_BSM_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">BSM_vec</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  exclude_cycle_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  exclude_arima_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">arima_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  exclude_sarima_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sarima_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  damping_factor_ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">exclude_cycle_list</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  format_level <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  format_slope <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  format_BSM_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">BSM_vec</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>  format_cycle_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">exclude_cycle_list</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>  format_addvar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  format_level_addvar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fit <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  initial <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"BFGS"</span>,</span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  collapse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  diagnostics <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  standard_errors <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -121,21 +121,33 @@
     <dl><dt>y</dt>
 <dd><p>N x p matrix containing the N observations of the p
 dependent variables.</p></dd>
+
+
 <dt>H_format</dt>
 <dd><p>Format of the H system matrix,
 the variance - covariance matrix of the observation equation.</p></dd>
+
+
 <dt>local_level_ind</dt>
 <dd><p>Boolean indicating whether a local level should
 be added to the state space model.</p></dd>
+
+
 <dt>slope_ind</dt>
 <dd><p>Boolean indicating whether a local level + slope should
 be added to the state space model.</p></dd>
+
+
 <dt>BSM_vec</dt>
 <dd><p>Vector containing the BSM seasonalities that have to be added
 to the state space model.</p></dd>
+
+
 <dt>cycle_ind</dt>
 <dd><p>Boolean indicating whether a cycle has to be added
 to the state space model.</p></dd>
+
+
 <dt>addvar_list</dt>
 <dd><p>A list containing the explanatory variables for each of
 the dependent variables. The list should contain p (number of dependent
@@ -143,6 +155,8 @@ variables) elements. Each element of the list should be a N x k_p matrix,
 with k_p being the number of explanatory variables for the pth
 dependent variable. If no explanatory variables should be added for one
 of the dependent variables, then set the corresponding element to <code>NULL</code>.</p></dd>
+
+
 <dt>level_addvar_list</dt>
 <dd><p>A list containing the explanatory variables for
 each of the dependent variables. The list should contain p (number of
@@ -151,6 +165,8 @@ N x k_p matrix, with k_p being the number of explanatory variables
 for the pth dependent variable. If no explanatory variables should be
 added for one of the dependent variables, then set the corresponding
 element to <code>NULL</code>.</p></dd>
+
+
 <dt>arima_list</dt>
 <dd><p>Specifications of the ARIMA components, should be a list
 containing vectors of length 3 with the following format: <code>c(AR, I, MA)</code>.
@@ -161,6 +177,8 @@ component is invertible.
 See Ansley and Kohn (1986)
  for details about
 the transformation used.</p></dd>
+
+
 <dt>sarima_list</dt>
 <dd><p>Specifications of the SARIMA components, should be a list
 containing lists that contain 4 named vectors. Vectors should be named:
@@ -172,94 +190,141 @@ See Ansley and Kohn (1986)
  for details about
 the transformation used. Note: For multivariate models, the order of "s"
 matters, as matrix multiplication is not commutative!</p></dd>
+
+
 <dt>self_spec_list</dt>
 <dd><p>A list containing the specification of the self
 specified component. See the Details section for extensive details about
 the format that must be followed for this argument.</p></dd>
+
+
 <dt>exclude_level</dt>
 <dd><p>Vector containing the dependent variables that should
 not get a local level.</p></dd>
+
+
 <dt>exclude_slope</dt>
 <dd><p>Vector containing the dependent variables that should
 not get a slope.</p></dd>
+
+
 <dt>exclude_BSM_list</dt>
 <dd><p>List of vectors, each vector containing the
 dependent variables that should not get the corresponding BSM component.</p></dd>
+
+
 <dt>exclude_cycle_list</dt>
 <dd><p>The dependent variables that should not get the
 corresponding cycle component. Should be a list of vectors to allow
 different dependent variables to be excluded for different cycles.</p></dd>
+
+
 <dt>exclude_arima_list</dt>
 <dd><p>The dependent variables that should not be
 involved in the corresponding ARIMA component. Should be a list of
 vectors to allow different dependent variables to be excluded for
 different ARIMA components.</p></dd>
+
+
 <dt>exclude_sarima_list</dt>
 <dd><p>The dependent variables that should not be
 involved in the corresponding SARIMA component. Should be a list of
 vectors to allow different dependent variables to be excluded for
 different SARIMA components.</p></dd>
+
+
 <dt>damping_factor_ind</dt>
 <dd><p>Boolean indicating whether a damping factor should
 be included. Must be a vector if multiple cycles are included,
 to indicate which cycles should include a damping factor.</p></dd>
+
+
 <dt>format_level</dt>
 <dd><p>Format of the Q_level system matrix
 the variance - covariance matrix of the level state equation.</p></dd>
+
+
 <dt>format_slope</dt>
 <dd><p>Format of the Q_slope system matrix,
 the variance - covariance matrix of the slope state equation.</p></dd>
+
+
 <dt>format_BSM_list</dt>
 <dd><p>Format of the Q_BSM system matrix,
 the variance - covariance matrix of the BSM state equation. Should be a
 list to allow different formats for different seasonality periods.</p></dd>
+
+
 <dt>format_cycle_list</dt>
 <dd><p>Format of the Q_cycle system matrix,
 the variance - covariance matrix of the cycle state equation. Should be a
 list to allow different formats for different cycles.</p></dd>
+
+
 <dt>format_addvar</dt>
 <dd><p>Format of the Q_addvar system matrix, the
 variance - covariance matrix of the explanatory variables state equation.</p></dd>
+
+
 <dt>format_level_addvar</dt>
 <dd><p>Format of the Q_level_addvar system matrix, the
 variance - covariance matrix of the explanatory variables of the level
 state equation.</p></dd>
+
+
 <dt>fit</dt>
 <dd><p>Boolean indicating whether the model should be fit by an
 iterative optimisation procedure. If <code>FALSE</code>, the model is only evaluated
 at the initial values.</p></dd>
+
+
 <dt>initial</dt>
 <dd><p>Vector of initial values for the parameter search.
 The initial values are recycled or truncated if too few or too many values
 have been specified.</p></dd>
+
+
 <dt>method</dt>
 <dd><p>Method that should be used by the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>
 or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">optimr</a></code> function to estimate the parameters. Only
 used if <code>fit = TRUE</code>.</p></dd>
+
+
 <dt>control</dt>
 <dd><p>A list of control parameters for the
 <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code> or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">optimr</a></code> function. Only
 used if <code>fit = TRUE</code>.</p></dd>
+
+
 <dt>collapse</dt>
 <dd><p>Boolean indicating whether the observation vector should be
 collapsed. Should only be set to <code>TRUE</code> if the dimensionality of the
 observation vector exceeds the dimensionality of the state vector.
 If this is the case, computational gains can be achieved by collapsing
 the observation vector.</p></dd>
+
+
 <dt>diagnostics</dt>
 <dd><p>Boolean indicating whether diagnostical tests should be
 computed. Defaults to <code>TRUE</code>.</p></dd>
+
+
 <dt>standard_errors</dt>
 <dd><p>Boolean indicating whether standard errors should be
 computed. <span class="pkg">numDeriv</span> must be installed in order to compute the
 standard errors! Defaults to <code>TRUE</code> if <span class="pkg">numDeriv</span> is available.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>Boolean indicating whether the progress of the optimisation
 procedure should be printed. Only used if <code>fit = TRUE</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A statespacer object containing:</p><ul><li><p><code>function_call</code>: A list containing the input to the function.</p></li>
+    
+
+<p>A statespacer object containing:</p><ul><li><p><code>function_call</code>: A list containing the input to the function.</p></li>
 <li><p><code>system_matrices</code>: A list containing the system matrices of
 the State Space model.</p></li>
 <li><p><code>predicted</code>: A list containing the predicted components of
@@ -350,47 +415,47 @@ Oxford university press.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Fits a local level model for the Nile data</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">Nile</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">statespacer</span><span class="op">(</span>initial <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="va">y</span>, local_level_ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Plots the filtered estimates</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span class="r-in">  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>,</span>
-<span class="r-in">  type <span class="op">=</span> <span class="st">"p"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>,</span>
-<span class="r-in">  xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="cn">NA</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span>
-<span class="r-in">  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span></span>
-<span class="r-in">    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span>
-<span class="r-in">  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span>
-<span class="r-in">  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span></span>
-<span class="r-in">    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span>
-<span class="r-in">  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span>
-<span class="r-in"><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Fits a local level model for the Nile data</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">Nile</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">statespacer</span><span class="op">(</span>initial <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="va">y</span>, local_level_ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plots the filtered estimates</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"p"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="cn">NA</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span></span></span>
+<span class="r-in"><span>    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">filtered</span><span class="op">$</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="statespacer-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Plots the smoothed estimates</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span class="r-in">  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>,</span>
-<span class="r-in">  type <span class="op">=</span> <span class="st">"p"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>,</span>
-<span class="r-in">  xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="cn">NA</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span>
-<span class="r-in">  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span></span>
-<span class="r-in">    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span>
-<span class="r-in">  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span>
-<span class="r-in">  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span></span>
-<span class="r-in">    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span>
-<span class="r-in">  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span>
-<span class="r-in"><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plots the smoothed estimates</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">function_call</span><span class="op">$</span><span class="va">y</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"p"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1400</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="cn">NA</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fl">1871</span><span class="op">:</span><span class="fl">1970</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">-</span></span></span>
+<span class="r-in"><span>    <span class="fl">1.644854</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="st">"gray"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="statespacer-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
@@ -406,7 +471,7 @@ Oxford university press.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

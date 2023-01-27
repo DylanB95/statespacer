@@ -47,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
 
       
 
-      </header><script src="selfspec_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Specify it yourself!</h1>
@@ -119,205 +119,268 @@
 
     
     
-<p>A lot of models can be put in State Space form. Although the statespacer package covers a lot of those models by providing the most common components you would expect to see in a State Space model, there may always be the need to implement something more sophisticated and novel. For this purpose, the statespacer package provides the option to specify a component yourself!</p>
-<p>In this vignette, you will learn how to specify a component yourself. We will implement the dynamic Nelson-Siegel model as specified by <span class="citation">Diebold, Rudebusch, and Aruoba (2006)</span>, using interest rates of the Federal Reserve. See <code><a href="../reference/FedYieldCurve.html">?FedYieldCurve</a></code> for details.</p>
+<p>A lot of models can be put in State Space form. Although the
+statespacer package covers a lot of those models by providing the most
+common components you would expect to see in a State Space model, there
+may always be the need to implement something more sophisticated and
+novel. For this purpose, the statespacer package provides the option to
+specify a component yourself!</p>
+<p>In this vignette, you will learn how to specify a component yourself.
+We will implement the dynamic Nelson-Siegel model as specified by <span class="citation">Diebold, Rudebusch, and Aruoba (2006)</span>, using
+interest rates of the Federal Reserve. See <code><a href="../reference/FedYieldCurve.html">?FedYieldCurve</a></code>
+for details.</p>
 <div class="section level2">
 <h2 id="dynamic-nelson-siegel-model">Dynamic Nelson-Siegel model<a class="anchor" aria-label="anchor" href="#dynamic-nelson-siegel-model"></a>
 </h2>
-<p>The dynamic Nelson-Siegel model as specified by <span class="citation">Diebold, Rudebusch, and Aruoba (2006)</span> is as follows:</p>
+<p>The dynamic Nelson-Siegel model as specified by <span class="citation">Diebold, Rudebusch, and Aruoba (2006)</span> is as
+follows:</p>
 <p><span class="math display">\[
 \begin{aligned}
- y_t(\tau) ~ &amp;= ~ \beta_{1t} ~ + \beta_{2t} \left( \frac{1 ~ - ~ e^{-\lambda\tau}}{\lambda\tau}  \right) ~ + ~ \beta_{3t} \left( \frac{1 ~ - ~ e^{-\lambda\tau}}{\lambda\tau} ~ - ~ e^{-\lambda\tau}  \right) ~ + ~ \varepsilon_t(\tau), &amp;\varepsilon_t ~ &amp;\sim ~ N(0, ~ \sigma^2I_p), \\
- \beta_{t+1} ~ &amp;= ~ \left( I ~ - ~ \Phi\right)\mu ~ + ~ \Phi\beta_t + \eta_t, &amp;\eta_t ~ &amp;\sim ~ N(0, ~ \Sigma_{\eta}), \\ 
+y_t(\tau) ~ &amp;= ~ \beta_{1t} ~ + \beta_{2t} \left( \frac{1 ~ - ~
+e^{-\lambda\tau}}{\lambda\tau}  \right) ~ + ~ \beta_{3t} \left( \frac{1
+~ - ~ e^{-\lambda\tau}}{\lambda\tau} ~ - ~ e^{-\lambda\tau}  \right) ~ +
+~ \varepsilon_t(\tau), &amp;\varepsilon_t ~ &amp;\sim ~ N(0, ~
+\sigma^2I_p), \\
+\beta_{t+1} ~ &amp;= ~ \left( I ~ - ~ \Phi\right)\mu ~ + ~ \Phi\beta_t +
+\eta_t, &amp;\eta_t ~ &amp;\sim ~ N(0, ~ \Sigma_{\eta}), \\
   &amp; &amp;\beta_1 ~ &amp;\sim ~ N(\mu, ~ P_{\beta}),
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(y_t(\tau)\)</span> is the interest rate at time <span class="math inline">\(t\)</span> for maturity <span class="math inline">\(\tau\)</span>, <span class="math inline">\(\lambda\)</span> is a constant, <span class="math inline">\(p\)</span> is the number of maturities (dependent variables), <span class="math inline">\(\beta_t\)</span> is the unobserved vector containing the factors <span class="math inline">\(\beta_{1t}\)</span>, <span class="math inline">\(\beta_{2t}\)</span>, <span class="math inline">\(\beta_{3t}\)</span>, <span class="math inline">\(\mu\)</span> is a vector containing the means of the factors, <span class="math inline">\(\Phi\)</span> is a vector autoregressive coefficient matrix corresponding to a stationary process, and <span class="math inline">\(P_\beta\)</span> is the initial uncertainty of <span class="math inline">\(\beta_1\)</span> that is chosen such that <span class="math inline">\(P_\beta ~ - ~ \Phi P_\beta \Phi^{\top} ~ = ~ \Sigma_\eta\)</span>. The factors in <span class="math inline">\(\beta\)</span> have an interesting interpretation: <span class="math inline">\(\beta_1\)</span> can be seen as the level for all interest rates, <span class="math inline">\(\beta_2\)</span> identifies the slope of the yield curve, and <span class="math inline">\(\beta_3\)</span> represents the shape of the yield curve.</p>
-<p>Now that we have summarised the dynamic Nelson-Siegel model, we can go on and fit it using statespacer!</p>
+<p>where <span class="math inline">\(y_t(\tau)\)</span> is the interest
+rate at time <span class="math inline">\(t\)</span> for maturity <span class="math inline">\(\tau\)</span>, <span class="math inline">\(\lambda\)</span> is a constant, <span class="math inline">\(p\)</span> is the number of maturities (dependent
+variables), <span class="math inline">\(\beta_t\)</span> is the
+unobserved vector containing the factors <span class="math inline">\(\beta_{1t}\)</span>, <span class="math inline">\(\beta_{2t}\)</span>, <span class="math inline">\(\beta_{3t}\)</span>, <span class="math inline">\(\mu\)</span> is a vector containing the means of
+the factors, <span class="math inline">\(\Phi\)</span> is a vector
+autoregressive coefficient matrix corresponding to a stationary process,
+and <span class="math inline">\(P_\beta\)</span> is the initial
+uncertainty of <span class="math inline">\(\beta_1\)</span> that is
+chosen such that <span class="math inline">\(P_\beta ~ - ~ \Phi P_\beta
+\Phi^{\top} ~ = ~ \Sigma_\eta\)</span>. The factors in <span class="math inline">\(\beta\)</span> have an interesting interpretation:
+<span class="math inline">\(\beta_1\)</span> can be seen as the level
+for all interest rates, <span class="math inline">\(\beta_2\)</span>
+identifies the slope of the yield curve, and <span class="math inline">\(\beta_3\)</span> represents the shape of the yield
+curve.</p>
+<p>Now that we have summarised the dynamic Nelson-Siegel model, we can
+go on and fit it using statespacer!</p>
 </div>
 <div class="section level2">
 <h2 id="fitting-the-model">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model"></a>
 </h2>
-<p>First, we load the data. We use the dataset contained in this package, see <code><a href="../reference/FedYieldCurve.html">?FedYieldCurve</a></code> for details. This dataset consists of the monthly US interest rates for 8 different maturities from January 1982 up to April 2022. The maturities are 3, 6, 12, 24, 36, 60, 84, and 120 months. For this exhibition, we make use of the period from January 1985 up to December 2000.</p>
+<p>First, we load the data. We use the dataset contained in this
+package, see <code><a href="../reference/FedYieldCurve.html">?FedYieldCurve</a></code> for details. This dataset
+consists of the monthly US interest rates for 8 different maturities
+from January 1982 up to April 2022. The maturities are 3, 6, 12, 24, 36,
+60, 84, and 120 months. For this exhibition, we make use of the period
+from January 1985 up to December 2000.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Load statespacer</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/" class="external-link">statespacer</a></span><span class="op">)</span>
-
-<span class="co"># Load the dataset</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"FedYieldCurve"</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="va">FedYieldCurve</span><span class="op">[</span><span class="va">FedYieldCurve</span><span class="op">$</span><span class="va">Month</span> <span class="op">&gt;=</span> <span class="st">"1985-01-01"</span> <span class="op">&amp;</span> <span class="va">FedYieldCurve</span><span class="op">$</span><span class="va">Month</span> <span class="op">&lt;=</span> <span class="st">"2000-12-01"</span>, <span class="op">]</span>
-<span class="va">years</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">Month</span> <span class="co"># Used for plots later on</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></code></pre></div>
-<p>To fit the dynamic Nelson-Siegel model using statespacer, we need to pass on a list containing the specification of the model. See the Details section of <code><a href="../reference/statespacer.html">statespacer()</a></code> for extensive details about the format of this list!</p>
+<code class="sourceCode R"><span><span class="co"># Load statespacer</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/" class="external-link">statespacer</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load the dataset</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"FedYieldCurve"</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">FedYieldCurve</span><span class="op">[</span><span class="va">FedYieldCurve</span><span class="op">$</span><span class="va">Month</span> <span class="op">&gt;=</span> <span class="st">"1985-01-01"</span> <span class="op">&amp;</span> <span class="va">FedYieldCurve</span><span class="op">$</span><span class="va">Month</span> <span class="op">&lt;=</span> <span class="st">"2000-12-01"</span>, <span class="op">]</span></span>
+<span><span class="va">years</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">Month</span> <span class="co"># Used for plots later on</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p>To fit the dynamic Nelson-Siegel model using statespacer, we need to
+pass on a list containing the specification of the model. See the
+Details section of <code><a href="../reference/statespacer.html">statespacer()</a></code> for extensive details
+about the format of this list!</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Specifying the list</span>
-<span class="va">self_spec_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="co"># We want to specify the H matrix ourselves</span>
-<span class="va">self_spec_list</span><span class="op">$</span><span class="va">H_spec</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span>
-
-<span class="co"># We have got 6 state parameters: 3 factors and 3 fixed means</span>
-<span class="va">self_spec_list</span><span class="op">$</span><span class="va">state_num</span> <span class="op">&lt;-</span> <span class="fl">6</span>
-
-<span class="co"># In total we need 20 parameters:</span>
-<span class="co">#   1 for lambda</span>
-<span class="co">#   1 for sigma2 (H)</span>
-<span class="co">#   6 for the variance - covariance matrix Sigma_eta (Q)</span>
-<span class="co">#   9 for the vector autoregressive coefficient matrix Phi</span>
-<span class="co">#   3 for the means mu</span>
-<span class="va">self_spec_list</span><span class="op">$</span><span class="va">param_num</span> <span class="op">&lt;-</span> <span class="fl">20</span>
-
-<span class="co"># R is a fixed diagonal matrix</span>
-<span class="va">self_spec_list</span><span class="op">$</span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span>
-
-<span class="co"># P_inf is a matrix of zeroes, as all state parameters are stationary</span>
-<span class="va">self_spec_list</span><span class="op">$</span><span class="va">P_inf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span>
-
-<span class="co"># Needed because we want to use collapse = TRUE</span>
-<span class="co"># The fixed means only appear in the state equations, </span>
-<span class="co"># not in the observation equations. So the 4th, 5th, and 6th state parameters</span>
-<span class="co"># are state_only.</span>
-<span class="va">self_spec_list</span><span class="op">$</span><span class="va">state_only</span> <span class="op">&lt;-</span> <span class="fl">4</span><span class="op">:</span><span class="fl">6</span></code></pre></div>
-<p>We also specify <code>state_only</code> as we want to collapse the observation vector, which results in considerable computational savings. As our system matrices depend on the parameters, we specify <code>sys_mat_fun</code>.</p>
+<code class="sourceCode R"><span><span class="co"># Specifying the list</span></span>
+<span><span class="va">self_spec_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># We want to specify the H matrix ourselves</span></span>
+<span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">H_spec</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span></span>
+<span><span class="co"># We have got 6 state parameters: 3 factors and 3 fixed means</span></span>
+<span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">state_num</span> <span class="op">&lt;-</span> <span class="fl">6</span></span>
+<span></span>
+<span><span class="co"># In total we need 20 parameters:</span></span>
+<span><span class="co">#   1 for lambda</span></span>
+<span><span class="co">#   1 for sigma2 (H)</span></span>
+<span><span class="co">#   6 for the variance - covariance matrix Sigma_eta (Q)</span></span>
+<span><span class="co">#   9 for the vector autoregressive coefficient matrix Phi</span></span>
+<span><span class="co">#   3 for the means mu</span></span>
+<span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">param_num</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
+<span></span>
+<span><span class="co"># R is a fixed diagonal matrix</span></span>
+<span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># P_inf is a matrix of zeroes, as all state parameters are stationary</span></span>
+<span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">P_inf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Needed because we want to use collapse = TRUE</span></span>
+<span><span class="co"># The fixed means only appear in the state equations, </span></span>
+<span><span class="co"># not in the observation equations. So the 4th, 5th, and 6th state parameters</span></span>
+<span><span class="co"># are state_only.</span></span>
+<span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">state_only</span> <span class="op">&lt;-</span> <span class="fl">4</span><span class="op">:</span><span class="fl">6</span></span></code></pre></div>
+<p>We also specify <code>state_only</code> as we want to collapse the
+observation vector, which results in considerable computational savings.
+As our system matrices depend on the parameters, we specify
+<code>sys_mat_fun</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">self_spec_list</span><span class="op">$</span><span class="va">sys_mat_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="op">{</span>
-  
-  <span class="co"># Maturities of the interest rates</span>
-  <span class="va">maturity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">12</span>, <span class="fl">24</span>, <span class="fl">36</span>, <span class="fl">60</span>, <span class="fl">84</span>, <span class="fl">120</span><span class="op">)</span>
-  
-  <span class="co"># The constant lambda</span>
-  <span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
-  
-  <span class="co"># The variance of the observation errors</span>
-  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>
-  <span class="va">H</span> <span class="op">&lt;-</span> <span class="va">sigma2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span>, <span class="fl">8</span><span class="op">)</span>
-
-  <span class="co"># Z matrix corresponding to the factors</span>
-  <span class="va">lambda_maturity</span> <span class="op">&lt;-</span> <span class="va">lambda</span> <span class="op">*</span> <span class="va">maturity</span>
-  <span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">lambda_maturity</span><span class="op">)</span>
-  <span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span>, <span class="fl">3</span><span class="op">)</span>
-  <span class="va">Z</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">z</span><span class="op">)</span> <span class="op">/</span> <span class="va">lambda_maturity</span>
-  <span class="va">Z</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">Z</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">z</span>
-
-  <span class="co"># Variance of the state disturbances</span>
-  <span class="va">Q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Cholesky.html">Cholesky</a></span><span class="op">(</span>param <span class="op">=</span> <span class="va">param</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, decompositions <span class="op">=</span> <span class="cn">FALSE</span>, format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="co"># Vector autoregressive coefficient matrix, enforcing stationarity</span>
-  <span class="va">Tmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoeffARMA.html">CoeffARMA</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="va">param</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">17</span><span class="op">]</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,
-                 variance <span class="op">=</span> <span class="va">Q</span>,
-                 ar <span class="op">=</span> <span class="fl">1</span>, ma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">$</span><span class="va">ar</span><span class="op">[</span>,,<span class="fl">1</span><span class="op">]</span>
-
-  <span class="co"># Initial uncertainty of the factors</span>
-  <span class="va">T_kronecker</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/kronecker.html" class="external-link">kronecker</a></span><span class="op">(</span><span class="va">Tmat</span>, <span class="va">Tmat</span><span class="op">)</span>
-  <span class="va">Tinv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">T_kronecker</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">T_kronecker</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="va">T_kronecker</span><span class="op">)</span>
-  <span class="va">vecQ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">Q</span><span class="op">)</span>
-  <span class="va">vecPstar</span> <span class="op">&lt;-</span> <span class="va">Tinv</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">vecQ</span>
-  <span class="va">P_star</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">vecPstar</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">Tmat</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">Tmat</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>
-
-  <span class="co"># Adding parts corresponding to the fixed means to the system matrices</span>
-  <span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">Z</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># Not used in the observation equation</span>
-  <span class="va">Q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BlockMatrix.html">BlockMatrix</a></span><span class="op">(</span><span class="va">Q</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># Fixed, so no variance in its errors</span>
-  <span class="va">a1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">param</span><span class="op">[</span><span class="fl">18</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>, <span class="fl">6</span>, <span class="fl">1</span><span class="op">)</span> <span class="co"># Fixed means go into the initial guess</span>
-  <span class="va">Tmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">Tmat</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">-</span> <span class="va">Tmat</span><span class="op">)</span>
-  <span class="va">Tmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">Tmat</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">P_star</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BlockMatrix.html">BlockMatrix</a></span><span class="op">(</span><span class="va">P_star</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
-
-  <span class="co"># Return the system matrices</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>H <span class="op">=</span> <span class="va">H</span>, Z <span class="op">=</span> <span class="va">Z</span>, Tmat <span class="op">=</span> <span class="va">Tmat</span>, Q <span class="op">=</span> <span class="va">Q</span>, a1 <span class="op">=</span> <span class="va">a1</span>, P_star <span class="op">=</span> <span class="va">P_star</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
-<p>If we want to obtain standard errors of certain (functions of) parameters, we specify <code>transform_fun</code>.</p>
+<code class="sourceCode R"><span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">sys_mat_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  </span>
+<span>  <span class="co"># Maturities of the interest rates</span></span>
+<span>  <span class="va">maturity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">12</span>, <span class="fl">24</span>, <span class="fl">36</span>, <span class="fl">60</span>, <span class="fl">84</span>, <span class="fl">120</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># The constant lambda</span></span>
+<span>  <span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># The variance of the observation errors</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">H</span> <span class="op">&lt;-</span> <span class="va">sigma2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Z matrix corresponding to the factors</span></span>
+<span>  <span class="va">lambda_maturity</span> <span class="op">&lt;-</span> <span class="va">lambda</span> <span class="op">*</span> <span class="va">maturity</span></span>
+<span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">lambda_maturity</span><span class="op">)</span></span>
+<span>  <span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="va">Z</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">z</span><span class="op">)</span> <span class="op">/</span> <span class="va">lambda_maturity</span></span>
+<span>  <span class="va">Z</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">Z</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">z</span></span>
+<span></span>
+<span>  <span class="co"># Variance of the state disturbances</span></span>
+<span>  <span class="va">Q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Cholesky.html">Cholesky</a></span><span class="op">(</span>param <span class="op">=</span> <span class="va">param</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, decompositions <span class="op">=</span> <span class="cn">FALSE</span>, format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Vector autoregressive coefficient matrix, enforcing stationarity</span></span>
+<span>  <span class="va">Tmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoeffARMA.html">CoeffARMA</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="va">param</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">17</span><span class="op">]</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                 variance <span class="op">=</span> <span class="va">Q</span>,</span>
+<span>                 ar <span class="op">=</span> <span class="fl">1</span>, ma <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">$</span><span class="va">ar</span><span class="op">[</span>,,<span class="fl">1</span><span class="op">]</span></span>
+<span></span>
+<span>  <span class="co"># Initial uncertainty of the factors</span></span>
+<span>  <span class="va">T_kronecker</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/kronecker.html" class="external-link">kronecker</a></span><span class="op">(</span><span class="va">Tmat</span>, <span class="va">Tmat</span><span class="op">)</span></span>
+<span>  <span class="va">Tinv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">T_kronecker</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">T_kronecker</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="va">T_kronecker</span><span class="op">)</span></span>
+<span>  <span class="va">vecQ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">Q</span><span class="op">)</span></span>
+<span>  <span class="va">vecPstar</span> <span class="op">&lt;-</span> <span class="va">Tinv</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">vecQ</span></span>
+<span>  <span class="va">P_star</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">vecPstar</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">Tmat</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">Tmat</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Adding parts corresponding to the fixed means to the system matrices</span></span>
+<span>  <span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">Z</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># Not used in the observation equation</span></span>
+<span>  <span class="va">Q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BlockMatrix.html">BlockMatrix</a></span><span class="op">(</span><span class="va">Q</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># Fixed, so no variance in its errors</span></span>
+<span>  <span class="va">a1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">param</span><span class="op">[</span><span class="fl">18</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>, <span class="fl">6</span>, <span class="fl">1</span><span class="op">)</span> <span class="co"># Fixed means go into the initial guess</span></span>
+<span>  <span class="va">Tmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">Tmat</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">-</span> <span class="va">Tmat</span><span class="op">)</span></span>
+<span>  <span class="va">Tmat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">Tmat</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">P_star</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BlockMatrix.html">BlockMatrix</a></span><span class="op">(</span><span class="va">P_star</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Return the system matrices</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>H <span class="op">=</span> <span class="va">H</span>, Z <span class="op">=</span> <span class="va">Z</span>, Tmat <span class="op">=</span> <span class="va">Tmat</span>, Q <span class="op">=</span> <span class="va">Q</span>, a1 <span class="op">=</span> <span class="va">a1</span>, P_star <span class="op">=</span> <span class="va">P_star</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>If we want to obtain standard errors of certain (functions of)
+parameters, we specify <code>transform_fun</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">self_spec_list</span><span class="op">$</span><span class="va">transform_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
-  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>
-  <span class="va">means</span> <span class="op">&lt;-</span> <span class="va">param</span><span class="op">[</span><span class="fl">18</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lambda</span>, <span class="va">sigma2</span>, <span class="va">means</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
-<p>Getting proper initial values can be a bit tricky, see <code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code> for details. Playing around with the parameters corresponding to <span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\sigma^2\)</span>, the diagonal elements of <span class="math inline">\(\Sigma_\eta\)</span>, and the diagonal elements of <span class="math inline">\(\Phi\)</span> lead to the following initial values:</p>
+<code class="sourceCode R"><span><span class="va">self_spec_list</span><span class="op">$</span><span class="va">transform_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">param</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">means</span> <span class="op">&lt;-</span> <span class="va">param</span><span class="op">[</span><span class="fl">18</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lambda</span>, <span class="va">sigma2</span>, <span class="va">means</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Getting proper initial values can be a bit tricky, see
+<code><a href="../articles/dictionary.html">vignette("dictionary", "statespacer")</a></code> for details. Playing
+around with the parameters corresponding to <span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\sigma^2\)</span>, the diagonal elements of <span class="math inline">\(\Sigma_\eta\)</span>, and the diagonal elements of
+<span class="math inline">\(\Phi\)</span> lead to the following initial
+values:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">initial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></code></pre></div>
-<p>However, for building this vignette, we make use of the already optimal parameters, to reduce the building time. But you can go ahead and use the initial values as specified above!</p>
+<code class="sourceCode R"><span><span class="va">initial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<p>However, for building this vignette, we make use of the already
+optimal parameters, to reduce the building time. But you can go ahead
+and use the initial values as specified above!</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Optimal parameters</span>
-<span class="va">initial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.27000018</span>, <span class="op">-</span><span class="fl">2.82637721</span>, <span class="op">-</span><span class="fl">1.35280609</span>, <span class="op">-</span><span class="fl">1.74569078</span>,
-             <span class="op">-</span><span class="fl">0.89761151</span>, <span class="op">-</span><span class="fl">0.77767132</span>, <span class="fl">1.01894143</span>, <span class="fl">0.42965982</span>,
-             <span class="fl">13.69072496</span>, <span class="fl">3.46050373</span>, <span class="op">-</span><span class="fl">10.36767668</span>, <span class="op">-</span><span class="fl">0.07334641</span>,
-             <span class="fl">6.68658053</span>, <span class="fl">0.76975206</span>, <span class="fl">0.02852844</span>, <span class="fl">0.50448668</span>,
-             <span class="fl">2.99984132</span>, <span class="fl">8.16851107</span>, <span class="op">-</span><span class="fl">2.28360681</span>, <span class="op">-</span><span class="fl">0.45333494</span><span class="op">)</span></code></pre></div>
-<p>Next, we fit the model! Notice that we use <code>collapse = TRUE</code>. This saves about <span class="math inline">\(60\%\)</span> of the computation time compared to <code>collapse = FALSE</code>, see for yourself!</p>
+<code class="sourceCode R"><span><span class="co"># Optimal parameters</span></span>
+<span><span class="va">initial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.27000018</span>, <span class="op">-</span><span class="fl">2.82637721</span>, <span class="op">-</span><span class="fl">1.35280609</span>, <span class="op">-</span><span class="fl">1.74569078</span>,</span>
+<span>             <span class="op">-</span><span class="fl">0.89761151</span>, <span class="op">-</span><span class="fl">0.77767132</span>, <span class="fl">1.01894143</span>, <span class="fl">0.42965982</span>,</span>
+<span>             <span class="fl">13.69072496</span>, <span class="fl">3.46050373</span>, <span class="op">-</span><span class="fl">10.36767668</span>, <span class="op">-</span><span class="fl">0.07334641</span>,</span>
+<span>             <span class="fl">6.68658053</span>, <span class="fl">0.76975206</span>, <span class="fl">0.02852844</span>, <span class="fl">0.50448668</span>,</span>
+<span>             <span class="fl">2.99984132</span>, <span class="fl">8.16851107</span>, <span class="op">-</span><span class="fl">2.28360681</span>, <span class="op">-</span><span class="fl">0.45333494</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we fit the model! Notice that we use
+<code>collapse = TRUE</code>. This saves about <span class="math inline">\(60\%\)</span> of the computation time compared to
+<code>collapse = FALSE</code>, see for yourself!</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,
-                   self_spec_list <span class="op">=</span> <span class="va">self_spec_list</span>,
-                   collapse <span class="op">=</span> <span class="cn">TRUE</span>,
-                   initial <span class="op">=</span> <span class="va">initial</span>,
-                   method <span class="op">=</span> <span class="st">"BFGS"</span>,
-                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2022-05-10 19:37:39</span>
-<span class="co">#&gt; Parameter scaling: [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span>
-<span class="co">#&gt; initial  value -7.005830 </span>
-<span class="co">#&gt; final  value -7.005830 </span>
-<span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2022-05-10 19:37:39</span>
-<span class="co">#&gt; Time difference of 0.218874216079712 secs</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>                   self_spec_list <span class="op">=</span> <span class="va">self_spec_list</span>,</span>
+<span>                   collapse <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   initial <span class="op">=</span> <span class="va">initial</span>,</span>
+<span>                   method <span class="op">=</span> <span class="st">"BFGS"</span>,</span>
+<span>                   verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   standard_errors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Starting the optimisation procedure at: 2023-01-27 22:27:02</span></span>
+<span><span class="co">#&gt; Parameter scaling: [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; initial  value -7.005830 </span></span>
+<span><span class="co">#&gt; final  value -7.005830 </span></span>
+<span><span class="co">#&gt; converged</span></span>
+<span><span class="co">#&gt; Finished the optimisation procedure at: 2023-01-27 22:27:03</span></span>
+<span><span class="co">#&gt; Time difference of 0.234375 secs</span></span></code></pre></div>
 <p>Now, let us take a look at the smoothed factors:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># The level beta_1</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">years</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">a</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'l'</span>, 
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"level of yield curve"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># The level beta_1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">years</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">a</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'l'</span>, </span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"level of yield curve"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selfspec_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="co"># The slope beta_2</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">years</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">a</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'l'</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"slope of yield curve"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span></span>
+<span><span class="co"># The slope beta_2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">years</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">a</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'l'</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"slope of yield curve"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selfspec_files/figure-html/unnamed-chunk-8-2.png" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="co"># The shape beta_3</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">years</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">a</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'l'</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"shape of yield curve"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span></span>
+<span><span class="co"># The shape beta_3</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">years</span>, <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">a</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">'l'</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"shape of yield curve"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selfspec_files/figure-html/unnamed-chunk-8-3.png" width="700"></p>
 <p>And the fitted parameters:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lambda"</span>, <span class="st">"sigma2"</span>, <span class="st">"mu1"</span>, <span class="st">"mu2"</span>, <span class="st">"mu3"</span><span class="op">)</span>, 
-  <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">self_spec</span>,
-  <span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">self_spec</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Parameter"</span>, <span class="st">"Value"</span>, <span class="st">"Standard Error"</span><span class="op">)</span>
-<span class="va">parameters</span>
-<span class="co">#&gt;      Parameter Value                 Standard Error        </span>
-<span class="co">#&gt; [1,] "lambda"  "0.0788734675869143"  "0.00166083246855279" </span>
-<span class="co">#&gt; [2,] "sigma2"  "0.00350755481323171" "0.000152447300266026"</span>
-<span class="co">#&gt; [3,] "mu1"     "8.16851309430248"    "3.21496503175097"    </span>
-<span class="co">#&gt; [4,] "mu2"     "-2.28360746378163"   "2.18546277568084"    </span>
-<span class="co">#&gt; [5,] "mu3"     "-0.453332653223046"  "0.847730039798435"</span>
-
-<span class="co"># Vector autoregressive coefficient matrix</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="cn">T</span><span class="op">$</span><span class="va">self_spec</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>
-<span class="co">#&gt;             [,1]        [,2]        [,3]</span>
-<span class="co">#&gt; [1,]  0.98560512 -0.02011121 0.005610613</span>
-<span class="co">#&gt; [2,] -0.02067387  0.94926548 0.062614132</span>
-<span class="co">#&gt; [3,] -0.03372090 -0.04115240 0.964511388</span>
-
-<span class="co"># Variance of the state disturbances</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">self_spec</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>
-<span class="co">#&gt;             [,1]        [,2]        [,3]</span>
-<span class="co">#&gt; [1,]  0.06682860 -0.05197057  0.06809424</span>
-<span class="co">#&gt; [2,] -0.05197057  0.07087454 -0.03986801</span>
-<span class="co">#&gt; [3,]  0.06809424 -0.03986801  0.24109771</span></code></pre></div>
-<p>As you can see, specifying components yourself is actually not as hard as it sounds! Doing this with statespacer allows you to make use of the various algorithms that are implemented in this package, such as dealing with missing observations, exact initialisation of diffuse state parameters, univariate treatment of multivariate models, and the collapsing of the observation vector!</p>
-<p>If you want to learn more about the dynamic Nelson-Siegel model, take a look at <span class="citation">Diebold, Rudebusch, and Aruoba (2006)</span> and <span class="citation">Koopman, Mallee, and Van der Wel (2010)</span>. They propose various extensions of the model implemented in this vignette.</p>
+<code class="sourceCode R"><span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lambda"</span>, <span class="st">"sigma2"</span>, <span class="st">"mu1"</span>, <span class="st">"mu2"</span>, <span class="st">"mu3"</span><span class="op">)</span>, </span>
+<span>  <span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">self_spec</span>,</span>
+<span>  <span class="va">fit</span><span class="op">$</span><span class="va">standard_errors</span><span class="op">$</span><span class="va">self_spec</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Parameter"</span>, <span class="st">"Value"</span>, <span class="st">"Standard Error"</span><span class="op">)</span></span>
+<span><span class="va">parameters</span></span>
+<span><span class="co">#&gt;      Parameter Value                 Standard Error        </span></span>
+<span><span class="co">#&gt; [1,] "lambda"  "0.0788734675869143"  "0.00166083246855279" </span></span>
+<span><span class="co">#&gt; [2,] "sigma2"  "0.00350755481323171" "0.000152447300266026"</span></span>
+<span><span class="co">#&gt; [3,] "mu1"     "8.16851309430248"    "3.21496503175097"    </span></span>
+<span><span class="co">#&gt; [4,] "mu2"     "-2.28360746378163"   "2.18546277568084"    </span></span>
+<span><span class="co">#&gt; [5,] "mu3"     "-0.453332653223046"  "0.847730039798435"</span></span>
+<span></span>
+<span><span class="co"># Vector autoregressive coefficient matrix</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="cn">T</span><span class="op">$</span><span class="va">self_spec</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="co">#&gt;             [,1]        [,2]        [,3]</span></span>
+<span><span class="co">#&gt; [1,]  0.98560512 -0.02011121 0.005610613</span></span>
+<span><span class="co">#&gt; [2,] -0.02067387  0.94926548 0.062614132</span></span>
+<span><span class="co">#&gt; [3,] -0.03372090 -0.04115240 0.964511388</span></span>
+<span></span>
+<span><span class="co"># Variance of the state disturbances</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">self_spec</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="co">#&gt;             [,1]        [,2]        [,3]</span></span>
+<span><span class="co">#&gt; [1,]  0.06682860 -0.05197057  0.06809424</span></span>
+<span><span class="co">#&gt; [2,] -0.05197057  0.07087454 -0.03986801</span></span>
+<span><span class="co">#&gt; [3,]  0.06809424 -0.03986801  0.24109771</span></span></code></pre></div>
+<p>As you can see, specifying components yourself is actually not as
+hard as it sounds! Doing this with statespacer allows you to make use of
+the various algorithms that are implemented in this package, such as
+dealing with missing observations, exact initialisation of diffuse state
+parameters, univariate treatment of multivariate models, and the
+collapsing of the observation vector!</p>
+<p>If you want to learn more about the dynamic Nelson-Siegel model, take
+a look at <span class="citation">Diebold, Rudebusch, and Aruoba
+(2006)</span> and <span class="citation">Koopman, Mallee, and Van der
+Wel (2010)</span>. They propose various extensions of the model
+implemented in this vignette.</p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references hanging-indent">
-<div id="ref-diebold2006macroeconomy">
-<p>Diebold, Francis X, Glenn D Rudebusch, and S Boragan Aruoba. 2006. “The Macroeconomy and the Yield Curve: A Dynamic Latent Factor Approach.” <em>Journal of Econometrics</em> 131 (1-2): 309–38.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-diebold2006macroeconomy" class="csl-entry">
+Diebold, Francis X, Glenn D Rudebusch, and S Boragan Aruoba. 2006.
+<span>“The Macroeconomy and the Yield Curve: A Dynamic Latent Factor
+Approach.”</span> <em>Journal of Econometrics</em> 131 (1-2): 309–38.
 </div>
-<div id="ref-koopman2010analyzing">
-<p>Koopman, Siem Jan, Max IP Mallee, and Michel Van der Wel. 2010. “Analyzing the Term Structure of Interest Rates Using the Dynamic Nelson–Siegel Model with Time-Varying Parameters.” <em>Journal of Business &amp; Economic Statistics</em> 28 (3): 329–43.</p>
+<div id="ref-koopman2010analyzing" class="csl-entry">
+Koopman, Siem Jan, Max IP Mallee, and Michel Van der Wel. 2010.
+<span>“Analyzing the Term Structure of Interest Rates Using the Dynamic
+Nelson–Siegel Model with Time-Varying Parameters.”</span> <em>Journal of
+Business &amp; Economic Statistics</em> 28 (3): 329–43.
 </div>
 </div>
 </div>
@@ -340,7 +403,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

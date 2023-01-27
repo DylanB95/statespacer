@@ -1,4 +1,8 @@
-# statespacer DEV
+# statespacer 0.5.0
+
+## Extra functionality
+
+* Adds the option to generate forward simulations. See `?predict.statespacer` for details.
 
 ## Bug Fixes
 

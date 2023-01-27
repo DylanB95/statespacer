@@ -47,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
 
       
 
-      </header><script src="dictionary_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Dictionary of statespacer</h1>
@@ -119,38 +119,97 @@
 
     
     
-<p>This document provides extensive details about the object that is returned by <code><a href="../reference/statespacer.html">statespacer()</a></code>. In order to do so, we start with introducing the form of the general linear Gaussian state space model, following the notation used by <span class="citation">Durbin and Koopman (2012)</span>. Obtaining a grasp of the notation used will help to get the most out of the statespacer package!</p>
+<p>This document provides extensive details about the object that is
+returned by <code><a href="../reference/statespacer.html">statespacer()</a></code>. In order to do so, we start with
+introducing the form of the general linear Gaussian state space model,
+following the notation used by <span class="citation">Durbin and Koopman
+(2012)</span>. Obtaining a grasp of the notation used will help to get
+the most out of the statespacer package!</p>
 <div class="section level2">
 <h2 id="the-general-linear-gaussian-state-space-model">The general linear Gaussian state space model<a class="anchor" aria-label="anchor" href="#the-general-linear-gaussian-state-space-model"></a>
 </h2>
-<p>There are many ways to write down the form of the general linear Gaussian state space model. We use the form used by <span class="citation">Durbin and Koopman (2012)</span>:</p>
+<p>There are many ways to write down the form of the general linear
+Gaussian state space model. We use the form used by <span class="citation">Durbin and Koopman (2012)</span>:</p>
 <p><span class="math display">\[
 \begin{aligned}
- y_t ~ &amp;= ~ Z_t\alpha_t ~ + ~ \varepsilon_t, &amp;\varepsilon_t ~ &amp;\sim ~ N(0, ~ H_t), \\
- \alpha_{t+1} ~ &amp;= ~ T_t\alpha_t ~ + ~ R_t\eta_t, &amp;\eta_t ~ &amp;\sim ~ N(0, ~ Q_t), \\
- &amp; &amp;\alpha_1 ~ &amp;\sim ~ N(a_1, ~ P_1),
+y_t ~ &amp;= ~ Z_t\alpha_t ~ + ~ \varepsilon_t, &amp;\varepsilon_t ~
+&amp;\sim ~ N(0, ~ H_t), \\
+\alpha_{t+1} ~ &amp;= ~ T_t\alpha_t ~ + ~ R_t\eta_t, &amp;\eta_t ~
+&amp;\sim ~ N(0, ~ Q_t), \\
+&amp; &amp;\alpha_1 ~ &amp;\sim ~ N(a_1, ~ P_1),
 \end{aligned}
 \]</span></p>
-<p>where <span class="math inline">\(y_t\)</span> is the <em>observation vector</em>, a <span class="math inline">\(p ~ \times ~ 1\)</span> vector of dependent variables at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\alpha_t\)</span> is the unobserved <em>state vector</em>, a <span class="math inline">\(m ~ \times ~ 1\)</span> vector of state variables at time <span class="math inline">\(t\)</span>, and <span class="math inline">\(\varepsilon_t\)</span> and <span class="math inline">\(\eta_t\)</span> are disturbance vectors of respectively the observation equation, and the state equation. To initialise the model, <span class="math inline">\(a_1\)</span> is used as the initial guess of the state vector, and <span class="math inline">\(P_1\)</span> is the corresponding uncertainty of that guess. The matrices <span class="math inline">\(Z_t\)</span>, <span class="math inline">\(H_t\)</span>, <span class="math inline">\(T_t\)</span>, <span class="math inline">\(R_t\)</span>, and <span class="math inline">\(Q_t\)</span> are called the <em>system matrices</em> of the state space model. Different specifications of these system matrices, lead to different interpretations of the model at hand.</p>
+<p>where <span class="math inline">\(y_t\)</span> is the <em>observation
+vector</em>, a <span class="math inline">\(p ~ \times ~ 1\)</span>
+vector of dependent variables at time <span class="math inline">\(t\)</span>, <span class="math inline">\(\alpha_t\)</span> is the unobserved <em>state
+vector</em>, a <span class="math inline">\(m ~ \times ~ 1\)</span>
+vector of state variables at time <span class="math inline">\(t\)</span>, and <span class="math inline">\(\varepsilon_t\)</span> and <span class="math inline">\(\eta_t\)</span> are disturbance vectors of
+respectively the observation equation, and the state equation. To
+initialise the model, <span class="math inline">\(a_1\)</span> is used
+as the initial guess of the state vector, and <span class="math inline">\(P_1\)</span> is the corresponding uncertainty of
+that guess. The matrices <span class="math inline">\(Z_t\)</span>, <span class="math inline">\(H_t\)</span>, <span class="math inline">\(T_t\)</span>, <span class="math inline">\(R_t\)</span>, and <span class="math inline">\(Q_t\)</span> are called the <em>system
+matrices</em> of the state space model. Different specifications of
+these system matrices, lead to different interpretations of the model at
+hand.</p>
 </div>
 <div class="section level2">
 <h2 id="the-object-as-returned-by-statespacer">The object as returned by statespacer<a class="anchor" aria-label="anchor" href="#the-object-as-returned-by-statespacer"></a>
 </h2>
-<p>Having obtained a better understanding of the notation used, it is easier to find our way in the object that is returned by <code><a href="../reference/statespacer.html">statespacer()</a></code>. Let’s say we store the object of statespacer in a variable called <code>fit</code>, that is, <code>fit &lt;- statespacer(...)</code>. <code>fit</code> is then a list, containing many items, including other lists. This section describes the items that are included in <code>fit</code> one by one.</p>
+<p>Having obtained a better understanding of the notation used, it is
+easier to find our way in the object that is returned by
+<code><a href="../reference/statespacer.html">statespacer()</a></code>. Let’s say we store the object of statespacer
+in a variable called <code>fit</code>, that is,
+<code>fit &lt;- statespacer(...)</code>. <code>fit</code> is then a
+list, containing many items, including other lists. This section
+describes the items that are included in <code>fit</code> one by
+one.</p>
 <div class="section level3">
 <h3 id="function_call">function_call<a class="anchor" aria-label="anchor" href="#function_call"></a>
 </h3>
-<p><code>function_call</code> is a list that contains, as the name suggests, the call to the <code><a href="../reference/statespacer.html">statespacer()</a></code> function, including default values for the input arguments that were not specified. For details about the various input arguments, check out <code><a href="../reference/statespacer.html">?statespacer</a></code>.</p>
+<p><code>function_call</code> is a list that contains, as the name
+suggests, the call to the <code><a href="../reference/statespacer.html">statespacer()</a></code> function, including
+default values for the input arguments that were not specified. For
+details about the various input arguments, check out
+<code><a href="../reference/statespacer.html">?statespacer</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="system_matrices">system_matrices<a class="anchor" aria-label="anchor" href="#system_matrices"></a>
 </h3>
-<p><code>system_matrices</code> is a list containing all of the system matrices of each of the components. For the variance - covariance matrices <span class="math inline">\(H\)</span> and <span class="math inline">\(Q\)</span>, it also contains 2 decompositions, namely the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition, where <span class="math inline">\(L\)</span> is the loading matrix and <span class="math inline">\(D\)</span> is the diagonal matrix, and the correlation / standard deviation decomposition. The initial guess for the state vector, <code>a1</code>, is also included, together with the corresponding uncertainty split out by its diffuse component, <code>P_inf</code>, and its stationary component <code>P_star</code>. Further, it contains <code>Z_padded</code>, which is a list containing the <span class="math inline">\(Z\)</span> matrices of the components augmented with zeroes, such that its dimension is <span class="math inline">\(p ~ \times ~ m\)</span>. These matrices are useful to extract individual components (which is already done for you), or to extract standard deviations of the components. There’s also a vector called <code>state_label</code>, which labels the state vector to indicate which state parameters belongs to which components. If components are specified that introduce parameters into the system matrices, then these parameters are also included here. At the moment, these parameters are <code>lamba</code> (frequency) and <code>rho</code> (dampening factor) for the cycles, <code>AR</code> and <code>MA</code> for the ARIMA components, <code>SAR</code> and <code>SMA</code> for the SARIMA components, and <code>self_spec</code> for the self specified component. Note that coefficients of explanatory variables are put into the state vector, so these are treated as state parameters, and readily returned by the Kalman filter.</p>
+<p><code>system_matrices</code> is a list containing all of the system
+matrices of each of the components. For the variance - covariance
+matrices <span class="math inline">\(H\)</span> and <span class="math inline">\(Q\)</span>, it also contains 2 decompositions,
+namely the Cholesky <span class="math inline">\(LDL^{\top}\)</span>
+decomposition, where <span class="math inline">\(L\)</span> is the
+loading matrix and <span class="math inline">\(D\)</span> is the
+diagonal matrix, and the correlation / standard deviation decomposition.
+The initial guess for the state vector, <code>a1</code>, is also
+included, together with the corresponding uncertainty split out by its
+diffuse component, <code>P_inf</code>, and its stationary component
+<code>P_star</code>. Further, it contains <code>Z_padded</code>, which
+is a list containing the <span class="math inline">\(Z\)</span> matrices
+of the components augmented with zeroes, such that its dimension is
+<span class="math inline">\(p ~ \times ~ m\)</span>. These matrices are
+useful to extract individual components (which is already done for you),
+or to extract standard deviations of the components. There’s also a
+vector called <code>state_label</code>, which labels the state vector to
+indicate which state parameters belongs to which components. If
+components are specified that introduce parameters into the system
+matrices, then these parameters are also included here. At the moment,
+these parameters are <code>lamba</code> (frequency) and <code>rho</code>
+(dampening factor) for the cycles, <code>AR</code> and <code>MA</code>
+for the ARIMA components, <code>SAR</code> and <code>SMA</code> for the
+SARIMA components, and <code>self_spec</code> for the self specified
+component. Note that coefficients of explanatory variables are put into
+the state vector, so these are treated as state parameters, and readily
+returned by the Kalman filter.</p>
 </div>
 <div class="section level3">
 <h3 id="predicted">predicted<a class="anchor" aria-label="anchor" href="#predicted"></a>
 </h3>
-<p><code>predicted</code> is a list that contains the one-step ahead predicted (predicting time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t ~ - ~ 1\)</span>) objects as returned by the Kalman filter:</p>
+<p><code>predicted</code> is a list that contains the one-step ahead
+predicted (predicting time <span class="math inline">\(t\)</span> using
+data up to time <span class="math inline">\(t ~ - ~ 1\)</span>) objects
+as returned by the Kalman filter:</p>
 <ul>
 <li>
 <code>yfit</code> is the predicted value of <span class="math inline">\(y\)</span>.</li>
@@ -167,25 +226,37 @@
 <li>
 <code>P_star</code> is the non-diffuse part of <code>P</code>.</li>
 <li>
-<code>a_fc</code> is the predicted state for time <span class="math inline">\(N ~ + ~ 1\)</span> (<span class="math inline">\(N\)</span> being the last observed time point).</li>
+<code>a_fc</code> is the predicted state for time <span class="math inline">\(N ~ + ~ 1\)</span> (<span class="math inline">\(N\)</span> being the last observed time
+point).</li>
 <li>
 <code>P_fc</code> is the uncertainty of <code>a_fc</code>.</li>
 <li>
 <code>P_inf_fc</code> is the diffuse part of <code>P_fc</code>.</li>
 <li>
-<code>P_star_fc</code> is the non-diffuse part of <code>P_fc</code>.</li>
+<code>P_star_fc</code> is the non-diffuse part of
+<code>P_fc</code>.</li>
 </ul>
-<p>Further, the contributions of the components to the predicted values are extracted separately.</p>
+<p>Further, the contributions of the components to the predicted values
+are extracted separately.</p>
 </div>
 <div class="section level3">
 <h3 id="filtered">filtered<a class="anchor" aria-label="anchor" href="#filtered"></a>
 </h3>
-<p><code>filtered</code> is a list that contains the filtered (estimates for time <span class="math inline">\(t\)</span> using data up to time <span class="math inline">\(t\)</span>) objects as returned by the Kalman filter. Here, <code>a</code> is the filtered state, <code>P</code> the uncertainty of the filtered state, <code>P_inf</code> is the diffuse part of <code>P</code>, and <code>P_star</code> is the non-diffuse part of <code>P</code>. Further, the filtered values of the components are extracted separately.</p>
+<p><code>filtered</code> is a list that contains the filtered (estimates
+for time <span class="math inline">\(t\)</span> using data up to time
+<span class="math inline">\(t\)</span>) objects as returned by the
+Kalman filter. Here, <code>a</code> is the filtered state,
+<code>P</code> the uncertainty of the filtered state, <code>P_inf</code>
+is the diffuse part of <code>P</code>, and <code>P_star</code> is the
+non-diffuse part of <code>P</code>. Further, the filtered values of the
+components are extracted separately.</p>
 </div>
 <div class="section level3">
 <h3 id="smoothed">smoothed<a class="anchor" aria-label="anchor" href="#smoothed"></a>
 </h3>
-<p><code>smoothed</code> is a list that contains smoothed (estimates for time <span class="math inline">\(t\)</span> using all of the time points) objects as returned by the Kalman smoother:</p>
+<p><code>smoothed</code> is a list that contains smoothed (estimates for
+time <span class="math inline">\(t\)</span> using all of the time
+points) objects as returned by the Kalman smoother:</p>
 <ul>
 <li>
 <code>a</code> is the smoothed state.</li>
@@ -198,107 +269,179 @@
 <li>
 <code>epsilon</code> the smoothed observation disturbance.</li>
 <li>
-<code>epsilon_var</code> the uncertainty of <code>epsilon</code>.</li>
+<code>epsilon_var</code> the uncertainty of
+<code>epsilon</code>.</li>
 </ul>
-<p>Further, the smoothed values of the components are extracted separately.</p>
+<p>Further, the smoothed values of the components are extracted
+separately.</p>
 </div>
 <div class="section level3">
 <h3 id="diagnostics">diagnostics<a class="anchor" aria-label="anchor" href="#diagnostics"></a>
 </h3>
-<p><code>diagnostics</code> is a list that contains items useful for diagnostic tests and model selection:</p>
+<p><code>diagnostics</code> is a list that contains items useful for
+diagnostic tests and model selection:</p>
 <ul>
 <li>
-<code>initialisation_steps</code> is the number of timesteps required before initialisation was achieved of the diffuse elements of the state vector.</li>
+<code>initialisation_steps</code> is the number of timesteps
+required before initialisation was achieved of the diffuse elements of
+the state vector.</li>
 <li>
-<code>loglik</code> is the loglikelihood value at the estimated parameters.</li>
+<code>loglik</code> is the loglikelihood value at the estimated
+parameters.</li>
 <li>
-<code>AIC</code> is the Akaike Information Criterion for the model.</li>
+<code>AIC</code> is the Akaike Information Criterion for the
+model.</li>
 <li>
-<code>BIC</code> is the Bayesian Information Criterion for the model.</li>
+<code>BIC</code> is the Bayesian Information Criterion for the
+model.</li>
 <li>
 <code>r</code> is the scaled smoothed state disturbance.</li>
 <li>
 <code>N</code> is the uncertainty of <code>r</code>.</li>
 <li>
-<code>param_indices</code> is a list containing the indices of the parameters in the parameter vector for each of the components.</li>
+<code>param_indices</code> is a list containing the indices of the
+parameters in the parameter vector for each of the components.</li>
 <li>
-<code>hessian</code> is the hessian of the loglikelihood evaluated at the estimated parameters.</li>
+<code>hessian</code> is the hessian of the loglikelihood evaluated
+at the estimated parameters.</li>
 </ul>
-<p>The following objects are only returned if <code>diagnostics = TRUE</code>:</p>
+<p>The following objects are only returned if
+<code>diagnostics = TRUE</code>:</p>
 <ul>
 <li>
 <code>e</code> is the smoothing error.</li>
 <li>
 <code>D</code> is the uncertainty of <code>e</code>.</li>
 <li>
-<code>Tstat_observation</code> is the T-statistic for testing whether deviations from the observation equation are significant.</li>
+<code>Tstat_observation</code> is the T-statistic for testing
+whether deviations from the observation equation are significant.</li>
 <li>
-<code>Tstat_state</code> is the T-statistic for testing whether deviations from the state equation are significant.</li>
+<code>Tstat_state</code> is the T-statistic for testing whether
+deviations from the state equation are significant.</li>
 <li>
 <code>v_normalised</code> is the normalised prediction error.</li>
 <li>
-<code>Skewness</code> is the skewness of <code>v_normalised</code>.</li>
+<code>Skewness</code> is the skewness of
+<code>v_normalised</code>.</li>
 <li>
-<code>Kurtosis</code> is the Kurtosis of <code>v_normalised</code>.</li>
+<code>Kurtosis</code> is the Kurtosis of
+<code>v_normalised</code>.</li>
 <li>
-<code>Jarque_Bera</code> is the Jarque-Bera statistic for testing for normality.</li>
+<code>Jarque_Bera</code> is the Jarque-Bera statistic for testing
+for normality.</li>
 <li>
-<code>Jarque_Bera_criticalvalue</code> is the critical value of the Jarque-Bera test.</li>
+<code>Jarque_Bera_criticalvalue</code> is the critical value of the
+Jarque-Bera test.</li>
 <li>
-<code>correlogram</code> is the correlogram of <code>v_normalised</code>.</li>
+<code>correlogram</code> is the correlogram of
+<code>v_normalised</code>.</li>
 <li>
-<code>Box_Ljung</code> are the Box-Ljung statistics for testing for serial correlation.</li>
+<code>Box_Ljung</code> are the Box-Ljung statistics for testing for
+serial correlation.</li>
 <li>
-<code>Box_Ljung_criticalvalues</code> are the critical values of the Box-Ljung tests.</li>
+<code>Box_Ljung_criticalvalues</code> are the critical values of the
+Box-Ljung tests.</li>
 <li>
-<code>Heteroscedasticity</code> are statistics for testing for heteroscedasticity.</li>
+<code>Heteroscedasticity</code> are statistics for testing for
+heteroscedasticity.</li>
 <li>
-<code>Heteroscedasticity_criticalvalues</code> are the critical values of the heteroscedasticity tests.</li>
+<code>Heteroscedasticity_criticalvalues</code> are the critical
+values of the heteroscedasticity tests.</li>
 </ul>
 </div>
 <div class="section level3">
 <h3 id="optim">optim<a class="anchor" aria-label="anchor" href="#optim"></a>
 </h3>
-<p><code>optim</code> is the list as returned by <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim</a></code> or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">optimx::optimr</a></code>, depending on if you have optimx installed. See <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">?stats::optim</a></code> and <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">?optimx::optimr</a></code> for details. Only returned if <code>fit = TRUE</code>.</p>
+<p><code>optim</code> is the list as returned by
+<code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim</a></code> or <code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">optimx::optimr</a></code>, depending on
+if you have optimx installed. See <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">?stats::optim</a></code> and
+<code><a href="https://rdrr.io/pkg/optimx/man/optimr.html" class="external-link">?optimx::optimr</a></code> for details. Only returned if
+<code>fit = TRUE</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="loglik_fun">loglik_fun<a class="anchor" aria-label="anchor" href="#loglik_fun"></a>
 </h3>
-<p><code>loglik_fun</code> is the loglikelihood function that takes <code>param</code> as its only argument. It returns the loglikelihood at the specified parameters.</p>
+<p><code>loglik_fun</code> is the loglikelihood function that takes
+<code>param</code> as its only argument. It returns the loglikelihood at
+the specified parameters.</p>
 </div>
 <div class="section level3">
 <h3 id="standard_errors">standard_errors<a class="anchor" aria-label="anchor" href="#standard_errors"></a>
 </h3>
-<p><code>standard_errors</code> is a list that contains the standard errors for the transformed parameters. Its structure mimicks the structure from <code>system_matrices</code>, but only representing those system matrices that depend on the parameters. Only returned if <code>standard_errors = TRUE</code>.</p>
+<p><code>standard_errors</code> is a list that contains the standard
+errors for the transformed parameters. Its structure mimicks the
+structure from <code>system_matrices</code>, but only representing those
+system matrices that depend on the parameters. Only returned if
+<code>standard_errors = TRUE</code>.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="order-of-parameter-input">Order of parameter input<a class="anchor" aria-label="anchor" href="#order-of-parameter-input"></a>
 </h2>
-<p>This section provides details about the parameter vector that’s supplied to <code><a href="../reference/statespacer.html">statespacer()</a></code>. It clarifies which elements are used for what components.</p>
-<p>Most components use a variance - covariance matrix, which are constructed using the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition. The parameters supplied to build the variance - covariance matrix are ordered as follows: First, parameters are used for the Diagonal matrix <span class="math inline">\(D\)</span> and transformed by <span class="math inline">\(exp(2x)\)</span>. Second, the remaining parameters are assigned columnwise to the Loading matrix <span class="math inline">\(L\)</span>, so first the <span class="math inline">\(1_{st}\)</span> column, then the <span class="math inline">\(2_{nd}\)</span> column, and so on.</p>
-<p>The parameters are assigned to the components in the following order:</p>
+<p>This section provides details about the parameter vector that’s
+supplied to <code><a href="../reference/statespacer.html">statespacer()</a></code>. It clarifies which elements are
+used for what components.</p>
+<p>Most components use a variance - covariance matrix, which are
+constructed using the Cholesky <span class="math inline">\(LDL^{\top}\)</span> decomposition. The parameters
+supplied to build the variance - covariance matrix are ordered as
+follows: First, parameters are used for the Diagonal matrix <span class="math inline">\(D\)</span> and transformed by <span class="math inline">\(exp(2x)\)</span>. Second, the remaining parameters
+are assigned columnwise to the Loading matrix <span class="math inline">\(L\)</span>, so first the <span class="math inline">\(1_{st}\)</span> column, then the <span class="math inline">\(2_{nd}\)</span> column, and so on.</p>
+<p>The parameters are assigned to the components in the following
+order:</p>
 <ol style="list-style-type: decimal">
-<li>The variance - covariance matrix, <span class="math inline">\(H\)</span>, of the observation equation. Unless the <span class="math inline">\(H\)</span> matrix is self-specified!</li>
+<li>The variance - covariance matrix, <span class="math inline">\(H\)</span>, of the observation equation. Unless
+the <span class="math inline">\(H\)</span> matrix is
+self-specified!</li>
 <li>The Local Level component.</li>
 <li>The Local Level component + Slope in that order.</li>
-<li>The BSM components, in the order of the specified <code>BSM_vec</code>.</li>
-<li>Explanatory Variables, if the coefficients are time-varying. The coefficients themselves go into the state vector, so they don’t need any parameters!</li>
-<li>Local Level + Explanatory Variables in the Level. First the parameters go to the variance - covariance matrix of the Level, after which the remaining parameters go to the variance - covariance matrix of the Explanatory Variables (if time-varying).</li>
-<li>Local Level + Slope + Explanatory Variables in the Level. First the parameters go to the variance - covariance matrix of the Level, then they go to the variance - covariance matrix of the Slope, after which the remaining parameters go to the variance - covariance matrix of the Explanatory Variables (if time-varying).</li>
-<li>The Cycle components, in the order of the specified cycles. The first parameter is used for the frequency, <span class="math inline">\(\lambda\)</span>, of the cycle. The second parameter is used for the damping factor, <span class="math inline">\(\rho\)</span>, of the cycle, but only if <code>damping_factor_ind = TRUE</code>. The remaining parameters are used for the variance - covariance matrix.</li>
-<li>ARIMA, in the order of the specified ARIMA components. First, the parameters are used for the variance - covariance matrix. Then, the remaining parameters are first used for the AR coefficients, and then the MA coefficients.</li>
-<li>SARIMA, in the order of the specified SARIMA components. First, the parameters are used for the variance - covariance matrix. Then, the remaining parameters are used in the order of the specified seasonalities <code>s</code>, first used for the AR coefficients of the first seasonality, and then the MA coefficients of the first seasonality, and so on for the subsequent seasonalities.</li>
+<li>The BSM components, in the order of the specified
+<code>BSM_vec</code>.</li>
+<li>Explanatory Variables, if the coefficients are time-varying. The
+coefficients themselves go into the state vector, so they don’t need any
+parameters!</li>
+<li>Local Level + Explanatory Variables in the Level. First the
+parameters go to the variance - covariance matrix of the Level, after
+which the remaining parameters go to the variance - covariance matrix of
+the Explanatory Variables (if time-varying).</li>
+<li>Local Level + Slope + Explanatory Variables in the Level. First the
+parameters go to the variance - covariance matrix of the Level, then
+they go to the variance - covariance matrix of the Slope, after which
+the remaining parameters go to the variance - covariance matrix of the
+Explanatory Variables (if time-varying).</li>
+<li>The Cycle components, in the order of the specified cycles. The
+first parameter is used for the frequency, <span class="math inline">\(\lambda\)</span>, of the cycle. The second
+parameter is used for the damping factor, <span class="math inline">\(\rho\)</span>, of the cycle, but only if
+<code>damping_factor_ind = TRUE</code>. The remaining parameters are
+used for the variance - covariance matrix.</li>
+<li>ARIMA, in the order of the specified ARIMA components. First, the
+parameters are used for the variance - covariance matrix. Then, the
+remaining parameters are first used for the AR coefficients, and then
+the MA coefficients.</li>
+<li>SARIMA, in the order of the specified SARIMA components. First, the
+parameters are used for the variance - covariance matrix. Then, the
+remaining parameters are used in the order of the specified
+seasonalities <code>s</code>, first used for the AR coefficients of the
+first seasonality, and then the MA coefficients of the first
+seasonality, and so on for the subsequent seasonalities.</li>
 <li>The self-specified part.</li>
 </ol>
-<p>Care should be taken in specifying the initial parameters! Usually, I check out the variances of the dependent variables and then apply the transformation <span class="math inline">\(0.5\log(x)\)</span> to the variances, and specify those as initial values for the parameters that go to the various variance - covariance matrices. For the AR and MA coefficients, it might be beneficial to initialise them close to 0, to prevent them from converging to unit root solutions. Using the information in this section, it should make the trial and error process of finding proper initial parameters less cumbersome!</p>
+<p>Care should be taken in specifying the initial parameters! Usually, I
+check out the variances of the dependent variables and then apply the
+transformation <span class="math inline">\(0.5\log(x)\)</span> to the
+variances, and specify those as initial values for the parameters that
+go to the various variance - covariance matrices. For the AR and MA
+coefficients, it might be beneficial to initialise them close to 0, to
+prevent them from converging to unit root solutions. Using the
+information in this section, it should make the trial and error process
+of finding proper initial parameters less cumbersome!</p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references hanging-indent">
-<div id="ref-durbin2012time">
-<p>Durbin, James, and Siem Jan Koopman. 2012. <em>Time Series Analysis by State Space Methods</em>. Oxford university press.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-durbin2012time" class="csl-entry">
+Durbin, James, and Siem Jan Koopman. 2012. <em>Time Series Analysis by
+State Space Methods</em>. Oxford university press.
 </div>
 </div>
 </div>
@@ -321,7 +464,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

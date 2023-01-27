@@ -10,6 +10,7 @@
   level_addvar_list_fc = NULL,
   self_spec_list_fc = NULL,
   forecast_period = 1,
+  nsim = 0,
   ...
 )
 }
@@ -41,6 +42,8 @@ followed for this argument.}
 
 \item{forecast_period}{Number of time steps to forecast ahead.}
 
+\item{nsim}{Number of simulations to generate over the forecast period.}
+
 \item{...}{Arguments passed on to the \code{predict} generic. Should not be used!}
 }
 \value{
@@ -49,19 +52,24 @@ In addition, it returns the components of the forecasts, as specified
 by the State Space model.
 }
 \description{
-Produces forecasts using a fitted State Space Model.
+Produces forecasts and out of sample simulations using a fitted State Space Model.
 }
 \examples{
-# Fits a local level model for the Nile data
+# Fit a SARIMA model on the AirPassengers data
 library(datasets)
-y <- matrix(Nile)
-fit <- statespacer(initial = 10, y = y, local_level_ind = TRUE)
+Data <- matrix(log(AirPassengers))
+sarima_list <- list(list(s = c(12, 1), ar = c(0, 0), i = c(1, 1), ma = c(1, 1)))
+fit <- statespacer(y = Data, 
+                   H_format = matrix(0), 
+                   sarima_list = sarima_list, 
+                   initial = c(0.5*log(var(diff(Data))), 0, 0))
 
-# Obtain forecasts for 10 steps ahead using the fitted model
-fc <- predict(fit, forecast_period = 10)
+# Obtain forecasts for 100 steps ahead using the fitted model
+fc <- predict(fit, forecast_period = 100, nsim = 10)
 
-# Plot the forecasts
-plot(1:10, fc$y_fc, type = "l")
+# Plot the forecasts and one of the simulation paths
+plot(fc$y_fc, type = 'l')
+lines(fc$sim$y[, 1, 1], type = 'p')
 }
 \references{
 \insertRef{durbin2012time}{statespacer}

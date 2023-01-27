@@ -1,6 +1,6 @@
 Package: statespacer
-Version: 0.4.1
-Date: 2022-05-10
+Version: 0.5.0
+Date: 2023-01-27
 Title: State Space Modelling in 'R'
 Description: A tool that makes estimating models in state space form 
     a breeze. See "Time Series Analysis by State Space Methods" by 
@@ -12,7 +12,7 @@ URL: https://DylanB95.github.io/statespacer/,
     https://github.com/DylanB95/statespacer/
 BugReports: https://github.com/DylanB95/statespacer/issues/
 License: MIT + file LICENSE
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 RdMacros: Rdpack
 Depends: R (>= 3.6)

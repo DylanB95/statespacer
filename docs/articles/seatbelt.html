@@ -47,7 +47,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -106,7 +106,7 @@
 
       
 
-      </header><script src="seatbelt_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>statespacer applied to UK Road Deaths</h1>
@@ -119,285 +119,319 @@
 
     
     
-<p>A lot of time series exhibit some form of seasonality. An example of such a time series is the UK Road Deaths dataset, see <code><a href="https://rdrr.io/r/datasets/UKDriverDeaths.html" class="external-link">?Seatbelts</a></code> for details about this dataset. In this vignette you will learn how to deal with this seasonality using the statespacer package. Moreover, you will learn how to add explanatory variables to the State Space model, and how to estimate multivariate models if there is more than one dependent variable available. We also show you how to control the variance - covariance matrices of the various components. The UK Road Deaths dataset provides to be an excellent dataset at hand to showcase all of these functionalities of the statespacer package! The approach used in this document follows that of <span class="citation">Commandeur and Koopman (2007)</span>.</p>
+<p>A lot of time series exhibit some form of seasonality. An example of
+such a time series is the UK Road Deaths dataset, see
+<code><a href="https://rdrr.io/r/datasets/UKDriverDeaths.html" class="external-link">?Seatbelts</a></code> for details about this dataset. In this vignette
+you will learn how to deal with this seasonality using the statespacer
+package. Moreover, you will learn how to add explanatory variables to
+the State Space model, and how to estimate multivariate models if there
+is more than one dependent variable available. We also show you how to
+control the variance - covariance matrices of the various components.
+The UK Road Deaths dataset provides to be an excellent dataset at hand
+to showcase all of these functionalities of the statespacer package! The
+approach used in this document follows that of <span class="citation">Commandeur and Koopman (2007)</span>.</p>
 <div class="section level2">
 <h2 id="data-preparation">Data preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a>
 </h2>
-<p>To start, we need to load the package and the dataset. We also log-transform the dependent variables, and some of the explanatory variables.</p>
+<p>To start, we need to load the package and the dataset. We also
+log-transform the dependent variables, and some of the explanatory
+variables.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Load statespacer</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/" class="external-link">statespacer</a></span><span class="op">)</span>
-
-<span class="co"># Load the dataset</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span>
-<span class="va">Data</span> <span class="op">&lt;-</span> <span class="va">Seatbelts</span>
-
-<span class="co"># Data preparation</span>
-<span class="co"># The log of "drivers", "front", and "rear" will be used as dependent variables</span>
-<span class="co"># The log of "PetrolPrice" and "kms" will be used as explanatory variables</span>
-<span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span>, <span class="st">"front"</span>, <span class="st">"rear"</span>, <span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span>, <span class="st">"front"</span>, <span class="st">"rear"</span>, <span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Load statespacer</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://DylanB95.github.io/statespacer/" class="external-link">statespacer</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load the dataset</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">datasets</span><span class="op">)</span></span>
+<span><span class="va">Data</span> <span class="op">&lt;-</span> <span class="va">Seatbelts</span></span>
+<span></span>
+<span><span class="co"># Data preparation</span></span>
+<span><span class="co"># The log of "drivers", "front", and "rear" will be used as dependent variables</span></span>
+<span><span class="co"># The log of "PetrolPrice" and "kms" will be used as explanatory variables</span></span>
+<span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span>, <span class="st">"front"</span>, <span class="st">"rear"</span>, <span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span>, <span class="st">"front"</span>, <span class="st">"rear"</span>, <span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="univariate-model-with-deterministic-level-and-seasonal">Univariate model with deterministic level and seasonal<a class="anchor" aria-label="anchor" href="#univariate-model-with-deterministic-level-and-seasonal"></a>
 </h2>
-<p>We start off with estimating a univariate model for the “drivers” variable. We specify a deterministic seasonal component of period 12, and a deterministic level. Furthermore, we take the log of “PetrolPrice” together with the “law” dummy as explanatory variables.</p>
+<p>We start off with estimating a univariate model for the “drivers”
+variable. We specify a deterministic seasonal component of period 12,
+and a deterministic level. Furthermore, we take the log of “PetrolPrice”
+together with the “law” dummy as explanatory variables.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Dependent variable</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="st">"drivers"</span><span class="op">]</span><span class="op">)</span>
-
-<span class="co"># Period of the seasonal component</span>
-<span class="va">BSM_vec</span> <span class="op">&lt;-</span> <span class="fl">12</span>
-
-<span class="co"># Explanatory variables</span>
-<span class="co"># Note: Must be a list of matrices! </span>
-<span class="co">#       Each dependent gets its own matrix of explanatory variables.</span>
-<span class="va">addvar_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PetrolPrice"</span>, <span class="st">"law"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># Format of the variance - covariance matrix of the level component</span>
-<span class="co"># By setting the elements of this matrix to 0, </span>
-<span class="co"># the component becomes deterministic.</span>
-<span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>
-
-<span class="co"># Format of the variance - covariance matrix of the seasonal component</span>
-<span class="co"># Note: This format must be a list of matrices, because multiple </span>
-<span class="co">#       seasonalities can be specified!</span>
-<span class="va">format_BSM_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># Fitting the model</span>
-<span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,
-                   local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,
-                   BSM_vec <span class="op">=</span> <span class="va">BSM_vec</span>,
-                   addvar_list <span class="op">=</span> <span class="va">addvar_list</span>,
-                   format_level <span class="op">=</span> <span class="va">format_level</span>, 
-                   format_BSM_list <span class="op">=</span> <span class="va">format_BSM_list</span>,
-                   method <span class="op">=</span> <span class="st">"BFGS"</span>,
-                   initial <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,
-                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2022-05-10 19:37:00</span>
-<span class="co">#&gt; Parameter scaling:[1] 1</span>
-<span class="co">#&gt; initial  value -0.443442 </span>
-<span class="co">#&gt; final  value -0.735372 </span>
-<span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2022-05-10 19:37:00</span>
-<span class="co">#&gt; Time difference of 0.115932941436768 secs</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Dependent variable</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="st">"drivers"</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Period of the seasonal component</span></span>
+<span><span class="va">BSM_vec</span> <span class="op">&lt;-</span> <span class="fl">12</span></span>
+<span></span>
+<span><span class="co"># Explanatory variables</span></span>
+<span><span class="co"># Note: Must be a list of matrices! </span></span>
+<span><span class="co">#       Each dependent gets its own matrix of explanatory variables.</span></span>
+<span><span class="va">addvar_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PetrolPrice"</span>, <span class="st">"law"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Format of the variance - covariance matrix of the level component</span></span>
+<span><span class="co"># By setting the elements of this matrix to 0, </span></span>
+<span><span class="co"># the component becomes deterministic.</span></span>
+<span><span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Format of the variance - covariance matrix of the seasonal component</span></span>
+<span><span class="co"># Note: This format must be a list of matrices, because multiple </span></span>
+<span><span class="co">#       seasonalities can be specified!</span></span>
+<span><span class="va">format_BSM_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Fitting the model</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>                   local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   BSM_vec <span class="op">=</span> <span class="va">BSM_vec</span>,</span>
+<span>                   addvar_list <span class="op">=</span> <span class="va">addvar_list</span>,</span>
+<span>                   format_level <span class="op">=</span> <span class="va">format_level</span>, </span>
+<span>                   format_BSM_list <span class="op">=</span> <span class="va">format_BSM_list</span>,</span>
+<span>                   method <span class="op">=</span> <span class="st">"BFGS"</span>,</span>
+<span>                   initial <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Starting the optimisation procedure at: 2023-01-27 22:26:22</span></span>
+<span><span class="co">#&gt; Parameter scaling:[1] 1</span></span>
+<span><span class="co">#&gt; initial  value -0.443442 </span></span>
+<span><span class="co">#&gt; final  value -0.735372 </span></span>
+<span><span class="co">#&gt; converged</span></span>
+<span><span class="co">#&gt; Finished the optimisation procedure at: 2023-01-27 22:26:22</span></span>
+<span><span class="co">#&gt; Time difference of 0.122833013534546 secs</span></span></code></pre></div>
 <p>Let’s check out the estimates:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># The estimated variance of the observation disturbance</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span>
-<span class="co">#&gt;             [,1]</span>
-<span class="co">#&gt; [1,] 0.007402481</span>
-
-<span class="co"># Smoothed estimate of the level</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>
-<span class="co">#&gt; [1] 6.401571</span>
-
-<span class="co"># Smoothed estimate of the coefficient of log "PetrolPrice"</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span>
-<span class="co">#&gt; [1] -0.4521301</span>
-
-<span class="co"># Smoothed estimate of the coefficient of the "law" dummy</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span>
-<span class="co">#&gt; [1] -0.1971395</span>
-
-<span class="co"># Plot the data next to the smoothed level + explanatory variables components</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span><span class="op">)</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6.95</span>, <span class="fl">8.1</span><span class="op">)</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"logarithm of drivers"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, 
-      <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar</span>, type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="fl">1978</span>, <span class="fl">8.09</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log(drivers)"</span>, <span class="st">"level + regression effects"</span><span class="op">)</span>, 
-       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>, lwd<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># The estimated variance of the observation disturbance</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span></span>
+<span><span class="co">#&gt;             [,1]</span></span>
+<span><span class="co">#&gt; [1,] 0.007402481</span></span>
+<span></span>
+<span><span class="co"># Smoothed estimate of the level</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span></span>
+<span><span class="co">#&gt; [1] 6.401571</span></span>
+<span></span>
+<span><span class="co"># Smoothed estimate of the coefficient of log "PetrolPrice"</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] -0.4521301</span></span>
+<span></span>
+<span><span class="co"># Smoothed estimate of the coefficient of the "law" dummy</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] -0.1971395</span></span>
+<span></span>
+<span><span class="co"># Plot the data next to the smoothed level + explanatory variables components</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span><span class="op">)</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6.95</span>, <span class="fl">8.1</span><span class="op">)</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"logarithm of drivers"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>      <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar</span>, type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="fl">1978</span>, <span class="fl">8.09</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log(drivers)"</span>, <span class="st">"level + regression effects"</span><span class="op">)</span>, </span>
+<span>       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>, lwd<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seatbelt_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="univariate-model-with-stochastic-level-and-seasonal">Univariate model with stochastic level and seasonal<a class="anchor" aria-label="anchor" href="#univariate-model-with-stochastic-level-and-seasonal"></a>
 </h2>
-<p>Now, let’s specify a stochastic level and seasonal component. This can be done by setting the entries in the format of the components to 1.</p>
+<p>Now, let’s specify a stochastic level and seasonal component. This
+can be done by setting the entries in the format of the components to
+1.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># By setting the entries in the format to 1, the component becomes stochastic</span>
-<span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">format_BSM_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>
-<span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,
-                   local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,
-                   BSM_vec <span class="op">=</span> <span class="va">BSM_vec</span>,
-                   addvar_list <span class="op">=</span> <span class="va">addvar_list</span>,
-                   format_level <span class="op">=</span> <span class="va">format_level</span>,
-                   format_BSM_list <span class="op">=</span> <span class="va">format_BSM_list</span>,
-                   method <span class="op">=</span> <span class="st">"BFGS"</span>,
-                   initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,
-                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2022-05-10 19:37:01</span>
-<span class="co">#&gt; Parameter scaling:[1] 1 1 1</span>
-<span class="co">#&gt; initial  value -0.172423 </span>
-<span class="co">#&gt; iter  10 value -0.893962</span>
-<span class="co">#&gt; iter  20 value -0.915493</span>
-<span class="co">#&gt; iter  30 value -0.915515</span>
-<span class="co">#&gt; final  value -0.915517 </span>
-<span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2022-05-10 19:37:02</span>
-<span class="co">#&gt; Time difference of 1.43517804145813 secs</span>
-
-<span class="co"># The estimated variance of the observation disturbance</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span>
-<span class="co">#&gt;             [,1]</span>
-<span class="co">#&gt; [1,] 0.003786183</span>
-
-<span class="co"># The estimated variance of the level disturbance</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">level</span>
-<span class="co">#&gt;              [,1]</span>
-<span class="co">#&gt; [1,] 0.0002676875</span>
-
-<span class="co"># The estimated variance of the seasonal disturbance</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">BSM12</span>
-<span class="co">#&gt;              [,1]</span>
-<span class="co">#&gt; [1,] 1.161438e-06</span>
-
-<span class="co"># Smoothed estimate of the coefficient of log "PetrolPrice"</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span>
-<span class="co">#&gt; [1] -0.2913944</span>
-
-<span class="co"># Smoothed estimate of the coefficient of the "law" dummy</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span>
-<span class="co">#&gt; [1] -0.2377374</span>
-
-<span class="co"># Plot the data next to the smoothed level + explanatory variables components</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span><span class="op">)</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6.95</span>, <span class="fl">8.1</span><span class="op">)</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"logarithm of drivers"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, 
-      <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar</span>, type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="fl">1978</span>, <span class="fl">8.09</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log(drivers)"</span>, <span class="st">"level + regression effects"</span><span class="op">)</span>, 
-       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>, lwd<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># By setting the entries in the format to 1, the component becomes stochastic</span></span>
+<span><span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">format_BSM_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>                   local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   BSM_vec <span class="op">=</span> <span class="va">BSM_vec</span>,</span>
+<span>                   addvar_list <span class="op">=</span> <span class="va">addvar_list</span>,</span>
+<span>                   format_level <span class="op">=</span> <span class="va">format_level</span>,</span>
+<span>                   format_BSM_list <span class="op">=</span> <span class="va">format_BSM_list</span>,</span>
+<span>                   method <span class="op">=</span> <span class="st">"BFGS"</span>,</span>
+<span>                   initial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Starting the optimisation procedure at: 2023-01-27 22:26:23</span></span>
+<span><span class="co">#&gt; Parameter scaling:[1] 1 1 1</span></span>
+<span><span class="co">#&gt; initial  value -0.172423 </span></span>
+<span><span class="co">#&gt; iter  10 value -0.893962</span></span>
+<span><span class="co">#&gt; iter  20 value -0.915493</span></span>
+<span><span class="co">#&gt; iter  30 value -0.915515</span></span>
+<span><span class="co">#&gt; final  value -0.915517 </span></span>
+<span><span class="co">#&gt; converged</span></span>
+<span><span class="co">#&gt; Finished the optimisation procedure at: 2023-01-27 22:26:24</span></span>
+<span><span class="co">#&gt; Time difference of 1.6506929397583 secs</span></span>
+<span></span>
+<span><span class="co"># The estimated variance of the observation disturbance</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span></span>
+<span><span class="co">#&gt;             [,1]</span></span>
+<span><span class="co">#&gt; [1,] 0.003786183</span></span>
+<span></span>
+<span><span class="co"># The estimated variance of the level disturbance</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">level</span></span>
+<span><span class="co">#&gt;              [,1]</span></span>
+<span><span class="co">#&gt; [1,] 0.0002676875</span></span>
+<span></span>
+<span><span class="co"># The estimated variance of the seasonal disturbance</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">BSM12</span></span>
+<span><span class="co">#&gt;              [,1]</span></span>
+<span><span class="co">#&gt; [1,] 1.161438e-06</span></span>
+<span></span>
+<span><span class="co"># Smoothed estimate of the coefficient of log "PetrolPrice"</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] -0.2913944</span></span>
+<span></span>
+<span><span class="co"># Smoothed estimate of the coefficient of the "law" dummy</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] -0.2377374</span></span>
+<span></span>
+<span><span class="co"># Plot the data next to the smoothed level + explanatory variables components</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drivers"</span><span class="op">)</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6.95</span>, <span class="fl">8.1</span><span class="op">)</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"logarithm of drivers"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>      <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span> <span class="op">+</span> <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar</span>, type <span class="op">=</span> <span class="st">'l'</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="fl">1978</span>, <span class="fl">8.09</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log(drivers)"</span>, <span class="st">"level + regression effects"</span><span class="op">)</span>, </span>
+<span>       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>, lwd<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">2.5</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seatbelt_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
-<p>Plotting the stochastic seasonal, we can see that it barely changes over time, which is in line with the near zero value of its variance. It might be worthwhile to set the seasonal component to be deterministic, while letting the level be stochastic. I’ll leave that as an exercise for you. You can compare the AICs of both models, and see which one scores better!</p>
+<p>Plotting the stochastic seasonal, we can see that it barely changes
+over time, which is in line with the near zero value of its variance. It
+might be worthwhile to set the seasonal component to be deterministic,
+while letting the level be stochastic. I’ll leave that as an exercise
+for you. You can compare the AICs of both models, and see which one
+scores better!</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Plot the stochastic seasonal</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, 
-     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">BSM12</span>,
-     type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.3</span><span class="op">)</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"stochastic seasonal"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Plot the stochastic seasonal</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">BSM12</span>,</span>
+<span>     type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.3</span><span class="op">)</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"stochastic seasonal"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seatbelt_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
 <p>And for the sake of completeness, the irregular component:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, 
-     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">epsilon</span>,
-     type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span>, <span class="fl">0.15</span><span class="op">)</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"irregular component"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">epsilon</span>,</span>
+<span>     type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span>, <span class="fl">0.15</span><span class="op">)</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"irregular component"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seatbelt_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="bivariate-model-of-front-and-rear-passengers">Bivariate model of front and rear passengers<a class="anchor" aria-label="anchor" href="#bivariate-model-of-front-and-rear-passengers"></a>
 </h2>
-<p>The previous models dealt with a univariate series. However, it might be interesting to model multiple series simultaneously. In this section we’ll just do that. We’ll take the logs of “front” and “rear” as dependent variables, the “law” dummy together with the logs of “PetrolPrice” and “kms” as explanatory variables, a stochastic local level component, and a deterministic seasonal component with period 12.</p>
+<p>The previous models dealt with a univariate series. However, it might
+be interesting to model multiple series simultaneously. In this section
+we’ll just do that. We’ll take the logs of “front” and “rear” as
+dependent variables, the “law” dummy together with the logs of
+“PetrolPrice” and “kms” as explanatory variables, a stochastic local
+level component, and a deterministic seasonal component with period
+12.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Dependent variable</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"front"</span>, <span class="st">"rear"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
-
-<span class="co"># Explanatory variables</span>
-<span class="co"># Note: Must be a list of matrices! </span>
-<span class="co">#       Each dependent gets its own matrix of explanatory variables.</span>
-<span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span>, <span class="st">"law"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
-<span class="va">addvar_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">X</span><span class="op">)</span>
-
-<span class="co"># Format of the variance - covariance matrix of the level component</span>
-<span class="co"># Note: Only the lower triangular part of the format is used.</span>
-<span class="co">#       The format specifies which elements in the matrices L and D should be </span>
-<span class="co">#       non-zero, where L and D are the matrices of the Cholesky LDL decomposition.</span>
-<span class="co">#       The diagonal is used to specify which elements of the Diagonal matrix</span>
-<span class="co">#       should be non-zero. The lower triangular part excluding the diagonal </span>
-<span class="co">#       specifies which elements in the Loading matrix should be non-zero.</span>
-<span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>
-
-<span class="co"># Format of the variance - covariance matrix of the seasonal component</span>
-<span class="co"># Note: This format must be a list of matrices, because multiple seasonalities</span>
-<span class="co">#       can be specified!</span>
-<span class="va">format_BSM_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># Format of the variance - covariance matrix of the observation disturbances</span>
-<span class="va">H_format</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>
-
-<span class="co"># Fitting the model</span>
-<span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,
-                   H_format <span class="op">=</span> <span class="va">H_format</span>,
-                   local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,
-                   BSM_vec <span class="op">=</span> <span class="va">BSM_vec</span>,
-                   addvar_list <span class="op">=</span> <span class="va">addvar_list</span>,
-                   format_level <span class="op">=</span> <span class="va">format_level</span>, 
-                   format_BSM_list <span class="op">=</span> <span class="va">format_BSM_list</span>,
-                   method <span class="op">=</span> <span class="st">"BFGS"</span>,
-                   initial <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,
-                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt; Starting the optimisation procedure at: 2022-05-10 19:37:03</span>
-<span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span>
-<span class="co">#&gt; initial  value 0.389588 </span>
-<span class="co">#&gt; iter  10 value -1.583525</span>
-<span class="co">#&gt; iter  20 value -1.676129</span>
-<span class="co">#&gt; iter  30 value -1.676530</span>
-<span class="co">#&gt; final  value -1.676537 </span>
-<span class="co">#&gt; converged</span>
-<span class="co">#&gt; Finished the optimisation procedure at: 2022-05-10 19:37:23</span>
-<span class="co">#&gt; Time difference of 20.2983732223511 secs</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Dependent variable</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"front"</span>, <span class="st">"rear"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Explanatory variables</span></span>
+<span><span class="co"># Note: Must be a list of matrices! </span></span>
+<span><span class="co">#       Each dependent gets its own matrix of explanatory variables.</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PetrolPrice"</span>, <span class="st">"kms"</span>, <span class="st">"law"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">addvar_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">X</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Format of the variance - covariance matrix of the level component</span></span>
+<span><span class="co"># Note: Only the lower triangular part of the format is used.</span></span>
+<span><span class="co">#       The format specifies which elements in the matrices L and D should be </span></span>
+<span><span class="co">#       non-zero, where L and D are the matrices of the Cholesky LDL decomposition.</span></span>
+<span><span class="co">#       The diagonal is used to specify which elements of the Diagonal matrix</span></span>
+<span><span class="co">#       should be non-zero. The lower triangular part excluding the diagonal </span></span>
+<span><span class="co">#       specifies which elements in the Loading matrix should be non-zero.</span></span>
+<span><span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Format of the variance - covariance matrix of the seasonal component</span></span>
+<span><span class="co"># Note: This format must be a list of matrices, because multiple seasonalities</span></span>
+<span><span class="co">#       can be specified!</span></span>
+<span><span class="va">format_BSM_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Format of the variance - covariance matrix of the observation disturbances</span></span>
+<span><span class="va">H_format</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Fitting the model</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statespacer.html">statespacer</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>                   H_format <span class="op">=</span> <span class="va">H_format</span>,</span>
+<span>                   local_level_ind <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   BSM_vec <span class="op">=</span> <span class="va">BSM_vec</span>,</span>
+<span>                   addvar_list <span class="op">=</span> <span class="va">addvar_list</span>,</span>
+<span>                   format_level <span class="op">=</span> <span class="va">format_level</span>, </span>
+<span>                   format_BSM_list <span class="op">=</span> <span class="va">format_BSM_list</span>,</span>
+<span>                   method <span class="op">=</span> <span class="st">"BFGS"</span>,</span>
+<span>                   initial <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                   verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Starting the optimisation procedure at: 2023-01-27 22:26:25</span></span>
+<span><span class="co">#&gt; Parameter scaling:[1] 1 1 1 1 1 1</span></span>
+<span><span class="co">#&gt; initial  value 0.389588 </span></span>
+<span><span class="co">#&gt; iter  10 value -1.583525</span></span>
+<span><span class="co">#&gt; iter  20 value -1.676129</span></span>
+<span><span class="co">#&gt; iter  30 value -1.676530</span></span>
+<span><span class="co">#&gt; final  value -1.676537 </span></span>
+<span><span class="co">#&gt; converged</span></span>
+<span><span class="co">#&gt; Finished the optimisation procedure at: 2023-01-27 22:26:47</span></span>
+<span><span class="co">#&gt; Time difference of 21.6194899082184 secs</span></span></code></pre></div>
 <p>Checking out the estimates and plotting the levels:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># The estimated variance - covariance matrix of the observation disturbance</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span>
-<span class="co">#&gt;             [,1]        [,2]</span>
-<span class="co">#&gt; [1,] 0.005402166 0.004449533</span>
-<span class="co">#&gt; [2,] 0.004449533 0.008566858</span>
-
-<span class="co"># The estimated variance - covariance matrix of the level disturbance</span>
-<span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">level</span>
-<span class="co">#&gt;              [,1]         [,2]</span>
-<span class="co">#&gt; [1,] 0.0002556392 0.0002247045</span>
-<span class="co">#&gt; [2,] 0.0002247045 0.0002319561</span>
-
-<span class="co"># Coefficients + T-stats</span>
-<span class="va">coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"front PetrolPrice"</span>, <span class="st">"front kms"</span>, <span class="st">"front law"</span>, 
-    <span class="st">"rear PetrolPrice"</span>, <span class="st">"rear kms"</span>, <span class="st">"rear law"</span><span class="op">)</span>,
-  <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,
-  <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span> <span class="op">/</span> <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff_se</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">coeff</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Variable"</span>, <span class="st">"Coefficient"</span>, <span class="st">"T-Stat"</span><span class="op">)</span>
-<span class="va">coeff</span>
-<span class="co">#&gt;      Variable            Coefficient            T-Stat              </span>
-<span class="co">#&gt; [1,] "front PetrolPrice" "-0.307614725147148"   "-2.89859626429636" </span>
-<span class="co">#&gt; [2,] "front kms"         "0.151804533845405"    "1.16776599145457"  </span>
-<span class="co">#&gt; [3,] "front law"         "-0.337045855755964"   "-6.8465900001092"  </span>
-<span class="co">#&gt; [4,] "rear PetrolPrice"  "-0.0857571167429686"  "-0.763892583248194"</span>
-<span class="co">#&gt; [5,] "rear kms"          "0.550388642278283"    "3.79267012550696"  </span>
-<span class="co">#&gt; [6,] "rear law"          "0.000887675953556412" "0.0171342275602963"</span>
-
-<span class="co"># plot of level for "front"</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, 
-     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"level of front passengers"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># The estimated variance - covariance matrix of the observation disturbance</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">H</span><span class="op">$</span><span class="va">H</span></span>
+<span><span class="co">#&gt;             [,1]        [,2]</span></span>
+<span><span class="co">#&gt; [1,] 0.005402166 0.004449533</span></span>
+<span><span class="co">#&gt; [2,] 0.004449533 0.008566858</span></span>
+<span></span>
+<span><span class="co"># The estimated variance - covariance matrix of the level disturbance</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q</span><span class="op">$</span><span class="va">level</span></span>
+<span><span class="co">#&gt;              [,1]         [,2]</span></span>
+<span><span class="co">#&gt; [1,] 0.0002556392 0.0002247045</span></span>
+<span><span class="co">#&gt; [2,] 0.0002247045 0.0002319561</span></span>
+<span></span>
+<span><span class="co"># Coefficients + T-stats</span></span>
+<span><span class="va">coeff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"front PetrolPrice"</span>, <span class="st">"front kms"</span>, <span class="st">"front law"</span>, </span>
+<span>    <span class="st">"rear PetrolPrice"</span>, <span class="st">"rear kms"</span>, <span class="st">"rear law"</span><span class="op">)</span>,</span>
+<span>  <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span>,</span>
+<span>  <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span> <span class="op">/</span> <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">addvar_coeff_se</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">coeff</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Variable"</span>, <span class="st">"Coefficient"</span>, <span class="st">"T-Stat"</span><span class="op">)</span></span>
+<span><span class="va">coeff</span></span>
+<span><span class="co">#&gt;      Variable            Coefficient            T-Stat              </span></span>
+<span><span class="co">#&gt; [1,] "front PetrolPrice" "-0.307614725147148"   "-2.89859626429636" </span></span>
+<span><span class="co">#&gt; [2,] "front kms"         "0.151804533845405"    "1.16776599145457"  </span></span>
+<span><span class="co">#&gt; [3,] "front law"         "-0.337045855755964"   "-6.8465900001092"  </span></span>
+<span><span class="co">#&gt; [4,] "rear PetrolPrice"  "-0.0857571167429686"  "-0.763892583248194"</span></span>
+<span><span class="co">#&gt; [5,] "rear kms"          "0.550388642278283"    "3.79267012550696"  </span></span>
+<span><span class="co">#&gt; [6,] "rear law"          "0.000887675953556412" "0.0171342275602963"</span></span>
+<span></span>
+<span><span class="co"># plot of level for "front"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"level of front passengers"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seatbelt_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="co"># plot of level for "rear"</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, 
-     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>,
-     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"level of rear passengers"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span></span>
+<span><span class="co"># plot of level for "rear"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/stats/tsp.html" class="external-link">tsp</a></span><span class="op">(</span><span class="va">Data</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>     <span class="va">fit</span><span class="op">$</span><span class="va">smoothed</span><span class="op">$</span><span class="va">level</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"year"</span>, ylab <span class="op">=</span> <span class="st">"level of rear passengers"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="seatbelt_files/figure-html/unnamed-chunk-8-2.png" width="672"></p>
-<p>We see that the levels closely resemble each other. In fact, their correlation is almost equal to 1:</p>
+<p>We see that the levels closely resemble each other. In fact, their
+correlation is almost equal to 1:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q_correlation_matrix</span><span class="op">$</span><span class="va">level</span>
-<span class="co">#&gt;           [,1]      [,2]</span>
-<span class="co">#&gt; [1,] 1.0000000 0.9227738</span>
-<span class="co">#&gt; [2,] 0.9227738 1.0000000</span></code></pre></div>
-<p>It is possible to restrict the rank of the variance - covariance matrix of the level component to be 1. This can be done by setting <code>format_level</code> as follows:</p>
+<code class="sourceCode R"><span><span class="va">fit</span><span class="op">$</span><span class="va">system_matrices</span><span class="op">$</span><span class="va">Q_correlation_matrix</span><span class="op">$</span><span class="va">level</span></span>
+<span><span class="co">#&gt;           [,1]      [,2]</span></span>
+<span><span class="co">#&gt; [1,] 1.0000000 0.9227738</span></span>
+<span><span class="co">#&gt; [2,] 0.9227738 1.0000000</span></span></code></pre></div>
+<p>It is possible to restrict the rank of the variance - covariance
+matrix of the level component to be 1. This can be done by setting
+<code>format_level</code> as follows:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>
-<span class="va">format_level</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></code></pre></div>
-<p>Feel free to estimate the model with this new specification yourself! I’d also suggest dropping the “law” dummy for the “rear” passengers, but keeping it in for the “front” passengers.</p>
+<code class="sourceCode R"><span><span class="va">format_level</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">format_level</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></code></pre></div>
+<p>Feel free to estimate the model with this new specification yourself!
+I’d also suggest dropping the “law” dummy for the “rear” passengers, but
+keeping it in for the “front” passengers.</p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references hanging-indent">
-<div id="ref-commandeur2007introduction">
-<p>Commandeur, Jacques JF, and Siem Jan Koopman. 2007. <em>An Introduction to State Space Time Series Analysis</em>. Oxford University Press.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-commandeur2007introduction" class="csl-entry">
+Commandeur, Jacques JF, and Siem Jan Koopman. 2007. <em>An Introduction
+to State Space Time Series Analysis</em>. Oxford University Press.
 </div>
 </div>
 </div>
@@ -420,7 +454,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

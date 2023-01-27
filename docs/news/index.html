@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">statespacer</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -75,28 +75,44 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.4.1" id="statespacer-041">statespacer 0.4.1<a class="anchor" aria-label="anchor" href="#statespacer-041"></a></h2>
+<h2 class="page-header" data-toc-text="0.5.0" id="statespacer-050">statespacer 0.5.0<a class="anchor" aria-label="anchor" href="#statespacer-050"></a></h2>
+<div class="section level3">
+<h3 id="extra-functionality-0-5-0">Extra functionality<a class="anchor" aria-label="anchor" href="#extra-functionality-0-5-0"></a></h3>
+<ul><li>Adds the option to generate forward simulations. See <code><a href="../reference/predict.statespacer.html">?predict.statespacer</a></code> for details.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-5-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-5-0"></a></h3>
+<ul><li>Fixes the returning of NA when calling <code><a href="../reference/Cholesky.html">Cholesky()</a></code> without a format.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.4.1" id="statespacer-041">statespacer 0.4.1<small>2022-05-10</small><a class="anchor" aria-label="anchor" href="#statespacer-041"></a></h2>
 <div class="section level3">
 <h3 id="removed-dependency-0-4-1">Removed dependency<a class="anchor" aria-label="anchor" href="#removed-dependency-0-4-1"></a></h3>
-<ul><li>Removes the dependency on the YieldCurve package by including an updated FedYieldCurve dataset in the statespacer package. See <code><a href="../reference/FedYieldCurve.html">?FedYieldCurve</a></code> for details.</li></ul></div>
+<ul><li>Removes the dependency on the YieldCurve package by including an updated FedYieldCurve dataset in the statespacer package. See <code><a href="../reference/FedYieldCurve.html">?FedYieldCurve</a></code> for details.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.4.0" id="statespacer-040">statespacer 0.4.0<small>2020-11-19</small><a class="anchor" aria-label="anchor" href="#statespacer-040"></a></h2>
 <div class="section level3">
 <h3 id="extra-functionality-0-4-0">Extra functionality<a class="anchor" aria-label="anchor" href="#extra-functionality-0-4-0"></a></h3>
-<ul><li>Introduces the simulation smoother for drawing random samples conditional on the observed data. See <code><a href="../reference/SimSmoother.html">?SimSmoother</a></code> for details.</li></ul></div>
+<ul><li>Introduces the simulation smoother for drawing random samples conditional on the observed data. See <code><a href="../reference/SimSmoother.html">?SimSmoother</a></code> for details.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="performance-improvements-0-4-0">Performance improvements<a class="anchor" aria-label="anchor" href="#performance-improvements-0-4-0"></a></h3>
-<ul><li>Extraction of components now done a bit more efficiently.</li></ul></div>
+<ul><li>Extraction of components now done a bit more efficiently.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-4-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-0"></a></h3>
-<ul><li>Fixed incrementation of initialisation_steps during initialisation when the dependent variable was missing.</li></ul></div>
+<ul><li>Fixed incrementation of initialisation_steps during initialisation when the dependent variable was missing.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.3.0" id="statespacer-030">statespacer 0.3.0<small>2020-09-15</small><a class="anchor" aria-label="anchor" href="#statespacer-030"></a></h2>
 <div class="section level3">
 <h3 id="performance-improvements-0-3-0">Performance improvements<a class="anchor" aria-label="anchor" href="#performance-improvements-0-3-0"></a></h3>
-<ul><li>Kalman Filter and Smoother now fully written in c++.</li></ul></div>
+<ul><li>Kalman Filter and Smoother now fully written in c++.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="extra-functionality-0-3-0">Extra functionality<a class="anchor" aria-label="anchor" href="#extra-functionality-0-3-0"></a></h3>
 <ul><li>Computation of diagnostics now optional using <code>diagnostics = TRUE</code>.</li>
@@ -113,7 +129,8 @@
 <h2 class="page-header" data-toc-text="0.2.1" id="statespacer-021">statespacer 0.2.1<small>2020-07-15</small><a class="anchor" aria-label="anchor" href="#statespacer-021"></a></h2>
 <div class="section level3">
 <h3 id="bug-fixes-0-2-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-1"></a></h3>
-<ul><li>Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if <code>first &lt;- list()</code>, then assigning <code>first$second[[["third"]] &lt;- 1</code> returns on Windows (and other platforms) a list named <code>first</code>, that contains another list named <code>second</code>, that contains a named element <code>third</code> equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named <code>first</code>, that contains a named element <code>second</code> equal to a named (<code>third</code>) length 1 numerical vector. So <code>second</code> is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.</li></ul></div>
+<ul><li>Patch for macOS. On macOS, assignment of nested lists is handled a bit differently than on other platforms. For instance, if <code>first &lt;- list()</code>, then assigning <code>first$second[[["third"]] &lt;- 1</code> returns on Windows (and other platforms) a list named <code>first</code>, that contains another list named <code>second</code>, that contains a named element <code>third</code> equal to an unnamed length 1 numerical vector. On macOS though, it returns a list named <code>first</code>, that contains a named element <code>second</code> equal to a named (<code>third</code>) length 1 numerical vector. So <code>second</code> is a list on the other platforms, while being a named numerical vector on macOS. This caused a bug on macOS while computing standard errors.</li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2.0" id="statespacer-020">statespacer 0.2.0<small>2020-07-13</small><a class="anchor" aria-label="anchor" href="#statespacer-020"></a></h2>
@@ -125,12 +142,14 @@
 <li><p>Replaced <code>StateSpaceEval(...)</code> for <code>statespacer(..., fit = FALSE)</code>.</p></li>
 <li><p><code><a href="../reference/statespacer.html">statespacer()</a></code> returns a list object of class <code>statespacer</code>.</p></li>
 <li><p>Replaced <code>StateSpaceForecast()</code> for the S3 method <code><a href="../reference/predict.statespacer.html">predict.statespacer()</a></code>.</p></li>
-</ul></li></ul></div>
+</ul></li>
+</ul></div>
 <div class="section level3">
 <h3 id="performance-improvements-0-2-0">Performance improvements<a class="anchor" aria-label="anchor" href="#performance-improvements-0-2-0"></a></h3>
 <ul><li>
 <p>Major:</p>
-<ul><li>Calculation of loglikelihood now done using c++. Major performance improvement as the loglikelihood potentially gets calculated a lot of times by the optimisation procedure.</li></ul></li>
+<ul><li>Calculation of loglikelihood now done using c++. Major performance improvement as the loglikelihood potentially gets calculated a lot of times by the optimisation procedure.</li>
+</ul></li>
 <li>
 <p>Minor:</p>
 <ul><li><p>Making use of crossprod and tcrossprod.</p></li>
@@ -147,7 +166,8 @@
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.0" id="statespacer-010">statespacer 0.1.0<small>2020-05-16</small><a class="anchor" aria-label="anchor" href="#statespacer-010"></a></h2>
-<ul><li>Initial release to CRAN!</li></ul></div>
+<ul><li>Initial release to CRAN!</li>
+</ul></div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -162,7 +182,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
