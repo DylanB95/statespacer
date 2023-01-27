@@ -22,32 +22,32 @@ various time series practitioners such as J. Durbin and S.J. Koopman.
 Details about the algorithms can be found in their book, “Time Series
 Analysis by State Space Methods”.
 
-If you are new to statespacer, check out `vignette("intro",
-"statespacer")` for a quick start to the statespacer package\! Also
-check out the references for the following functions:
+If you are new to statespacer, check out
+`vignette("intro", "statespacer")` for a quick start to the statespacer
+package! Also check out the references for the following functions:
 
-  - `statespacer()` for fitting State Space models.
-  - `predict.statespacer()` for producing forecasts and out-of-sample
-    simulations using fitted State Space models.
-  - `SimSmoother()` for drawing random samples of the hidden state of
-    a State Space model conditional on the data.
+- `statespacer()` for fitting State Space models.
+- `predict.statespacer()` for producing forecasts and out-of-sample
+  simulations using fitted State Space models.
+- `SimSmoother()` for drawing random samples of the hidden state of a
+  State Space model conditional on the data.
 
 ## State Space Components
 
 This package supports numerous state space components:
 
-  - The Local Level
-  - The Local Level + Slope
-  - Smoothing Splines
-  - Trigonometric Seasonality, BSM
-  - (Business) Cycles
-  - Explanatory Variables
-  - Explanatory Variables with time-varying coefficients
-  - Explanatory Variables in the Local Level
-  - Explanatory Variables in the Local Level + Slope
-  - ARIMA
-  - SARIMA
-  - Moreover, you can specify a component yourself\!
+- The Local Level
+- The Local Level + Slope
+- Smoothing Splines
+- Trigonometric Seasonality, BSM
+- (Business) Cycles
+- Explanatory Variables
+- Explanatory Variables with time-varying coefficients
+- Explanatory Variables in the Local Level
+- Explanatory Variables in the Local Level + Slope
+- ARIMA
+- SARIMA
+- Moreover, you can specify a component yourself!
 
 These components can be used for both univariate, and multivariate
 models. The components can be combined in order to get more extensive
@@ -64,7 +64,7 @@ The package employs a univariate treatment, and an exact initialisation
 for diffuse elements, to estimate the state parameters and compute the
 loglikelihood. Collapsing large observation vectors is supported as
 well. Moreover, missing observations are readily dealt with by putting
-the models in State Space form\!
+the models in State Space form!
 
 ## Installation
 
@@ -117,7 +117,7 @@ If you encounter a clear bug, please file an issue with a minimal
 reproducible example on
 [GitHub](https://github.com/DylanB95/statespacer/issues).
 
------
+------------------------------------------------------------------------
 
 Please note that the ‘statespacer’ project is released with a
 [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to
