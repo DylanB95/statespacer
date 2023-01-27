@@ -598,10 +598,10 @@ predict.statespacer <- function(object,
       if (nsim > 0) {
         
         # Model components
-        Z <- object$system_matrices$Z[[paste0("Cycle", i)]]
-        Tmat <- object$system_matrices$T[[paste0("Cycle", i)]]
-        R <- object$system_matrices$R[[paste0("Cycle", i)]]
-        Q <- object$system_matrices$Q[[paste0("Cycle", i)]]
+        Z <- object$system_matrices$Z[[paste0("Cycle", j)]]
+        Tmat <- object$system_matrices$T[[paste0("Cycle", j)]]
+        R <- object$system_matrices$R[[paste0("Cycle", j)]]
+        Q <- object$system_matrices$Q[[paste0("Cycle", j)]]
         dim(Z) <- c(dim(Z), 1)
         dim(Tmat) <- c(dim(Tmat), 1)
         dim(R) <- c(dim(R), 1)
@@ -634,7 +634,7 @@ predict.statespacer <- function(object,
           eta_only = FALSE,
           transposed_state = FALSE
         )
-        sim_list[[paste0("Cycle", i)]] <- sim$y
+        sim_list[[paste0("Cycle", j)]] <- sim$y
         y_sim <- y_sim + sim$y
         eta_sim[ , eta_indices, ] <- sim$eta
         a_sim[ , a_indices, ] <- sim$a
@@ -655,10 +655,10 @@ predict.statespacer <- function(object,
       if (nsim > 0) {
         
         # Model components
-        Z <- object$system_matrices$Z[[paste0("ARIMA", i)]]
-        Tmat <- object$system_matrices$T[[paste0("ARIMA", i)]]
-        R <- object$system_matrices$R[[paste0("ARIMA", i)]]
-        Q <- object$system_matrices$Q[[paste0("ARIMA", i)]]
+        Z <- object$system_matrices$Z[[paste0("ARIMA", j)]]
+        Tmat <- object$system_matrices$T[[paste0("ARIMA", j)]]
+        R <- object$system_matrices$R[[paste0("ARIMA", j)]]
+        Q <- object$system_matrices$Q[[paste0("ARIMA", j)]]
         dim(Z) <- c(dim(Z), 1)
         dim(Tmat) <- c(dim(Tmat), 1)
         dim(R) <- c(dim(R), 1)
@@ -712,10 +712,10 @@ predict.statespacer <- function(object,
       if (nsim > 0) {
         
         # Model components
-        Z <- object$system_matrices$Z[[paste0("SARIMA", i)]]
-        Tmat <- object$system_matrices$T[[paste0("SARIMA", i)]]
-        R <- object$system_matrices$R[[paste0("SARIMA", i)]]
-        Q <- object$system_matrices$Q[[paste0("SARIMA", i)]]
+        Z <- object$system_matrices$Z[[paste0("SARIMA", j)]]
+        Tmat <- object$system_matrices$T[[paste0("SARIMA", j)]]
+        R <- object$system_matrices$R[[paste0("SARIMA", j)]]
+        Q <- object$system_matrices$Q[[paste0("SARIMA", j)]]
         dim(Z) <- c(dim(Z), 1)
         dim(Tmat) <- c(dim(Tmat), 1)
         dim(R) <- c(dim(R), 1)
@@ -748,7 +748,7 @@ predict.statespacer <- function(object,
           eta_only = FALSE,
           transposed_state = FALSE
         )
-        sim_list[[paste0("SARIMA", i)]] <- sim$y
+        sim_list[[paste0("SARIMA", j)]] <- sim$y
         y_sim <- y_sim + sim$y
         eta_sim[ , eta_indices, ] <- sim$eta
         a_sim[ , a_indices, ] <- sim$a
