@@ -1,6 +1,6 @@
 #' State Space Model Forecasting
 #'
-#' Produces forecasts using a fitted State Space Model.
+#' Produces forecasts and out of sample simulations using a fitted State Space Model.
 #'
 #' @param object A statespacer object as returned by \code{\link{statespacer}}.
 #' @param addvar_list_fc A list containing the explanatory variables for each
@@ -24,6 +24,7 @@
 #'   See \code{\link{statespacer}} for details about the format that must be
 #'   followed for this argument.
 #' @param forecast_period Number of time steps to forecast ahead.
+#' @param nsim Number of simulations to generate over the forecast period.
 #' @param ... Arguments passed on to the `predict` generic. Should not be used!
 #'
 #' @return
@@ -53,6 +54,7 @@ predict.statespacer <- function(object,
                                 level_addvar_list_fc = NULL,
                                 self_spec_list_fc = NULL,
                                 forecast_period = 1,
+                                nsim = 0,
                                 ...) {
 
   # Check if specification of addvar_list_fc is in line with the object
@@ -114,7 +116,7 @@ predict.statespacer <- function(object,
 
   # Initialising list to return
   result <- list()
-
+  
   # Number of observations
   N <- dim(object$function_call$y)[[1]]
 
@@ -130,6 +132,19 @@ predict.statespacer <- function(object,
   a_fc <- matrix(0, forecast_period, m) # N_fc x m
   P_fc <- array(0, dim = c(m, m, forecast_period)) # m x m x N_fc
   Fmat_fc <- array(0, dim = c(p, p, forecast_period)) # p x p x N_fc
+  
+  # Initialising objects for storing simulations
+  if (nsim > 0) {
+    r <- dim(object$system_matrices$R$full)[[2]]
+    sim_list <- list()
+    y_sim <- array(0, dim = c(forecast_period, p, nsim))
+    eta_sim <- array(0, dim = c(forecast_period, r, nsim))
+    a_sim <- array(0, dim = c(forecast_period, m, nsim))
+  }
+  
+  # Current last filled column indices of a and eta
+  eta_index <- 0
+  a_index <- 0
 
   # Obtaining forecast for one step ahead to initialise the forecasting sequence
   a_fc[1, ] <- object$predicted$a_fc
@@ -236,6 +251,52 @@ predict.statespacer <- function(object,
     tempZ_t <- t(tempZ)
     result$level <- a_fc %*% tempZ_t
     Z_padded$level <- tempZ
+    
+    # Generate simulations
+    if (nsim > 0) {
+      
+      # Model components
+      Z <- object$system_matrices$Z$level
+      Tmat <- object$system_matrices$T$level
+      R <- object$system_matrices$R$level
+      Q <- object$system_matrices$Q$level
+      dim(Z) <- c(dim(Z), 1)
+      dim(Tmat) <- c(dim(Tmat), 1)
+      dim(R) <- c(dim(R), 1)
+      dim(Q) <- c(dim(Q), 1)
+      
+      # Indices of eta and a components
+      eta_num <- dim(R)[[2]]
+      a_num <- dim(Z)[[2]]
+      eta_indices <- eta_index + 1:eta_num
+      a_indices <- a_index + 1:a_num
+      eta_index <- eta_index + eta_num
+      a_index <- a_index + a_num
+      
+      # Forecasted state and uncertainty
+      a1 <- object$predicted$a_fc[a_indices]
+      P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+      
+      # Obtain random samples of component
+      sim <- SimulateC(
+        nsim = nsim,
+        repeat_Q = 1,
+        N = forecast_period,
+        a = a1,
+        Z = Z,
+        T = Tmat,
+        R = R,
+        Q = Q,
+        P_star = P1,
+        draw_initial = TRUE,
+        eta_only = FALSE,
+        transposed_state = FALSE
+      )
+      sim_list$level <- sim$y
+      y_sim <- y_sim + sim$y
+      eta_sim[ , eta_indices, ] <- sim$eta
+      a_sim[ , a_indices, ] <- sim$a
+    }
   }
 
   # Local Level + Slope
@@ -245,6 +306,55 @@ predict.statespacer <- function(object,
     tempZ_t <- t(tempZ)
     result$level <- a_fc %*% tempZ_t
     Z_padded$level <- tempZ
+    
+    # Generate simulations
+    if (nsim > 0) {
+      
+      # Model components
+      Z <- object$system_matrices$Z$level
+      Tmat <- object$system_matrices$T$level
+      R <- object$system_matrices$R$level
+      Q <- BlockMatrix(
+        object$system_matrices$Q$level,
+        object$system_matrices$Q$slope
+      )
+      dim(Z) <- c(dim(Z), 1)
+      dim(Tmat) <- c(dim(Tmat), 1)
+      dim(R) <- c(dim(R), 1)
+      dim(Q) <- c(dim(Q), 1)
+      
+      # Indices of eta and a components
+      eta_num <- dim(R)[[2]]
+      a_num <- dim(Z)[[2]]
+      eta_indices <- eta_index + 1:eta_num
+      a_indices <- a_index + 1:a_num
+      eta_index <- eta_index + eta_num
+      a_index <- a_index + a_num
+      
+      # Forecasted state and uncertainty
+      a1 <- object$predicted$a_fc[a_indices]
+      P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+      
+      # Obtain random samples of component
+      sim <- SimulateC(
+        nsim = nsim,
+        repeat_Q = 1,
+        N = forecast_period,
+        a = a1,
+        Z = Z,
+        T = Tmat,
+        R = R,
+        Q = Q,
+        P_star = P1,
+        draw_initial = TRUE,
+        eta_only = FALSE,
+        transposed_state = FALSE
+      )
+      sim_list$level <- sim$y
+      y_sim <- y_sim + sim$y
+      eta_sim[ , eta_indices, ] <- sim$eta
+      a_sim[ , a_indices, ] <- sim$a
+    }
   }
 
   # BSM
@@ -255,6 +365,52 @@ predict.statespacer <- function(object,
       tempZ_t <- t(tempZ)
       result[[paste0("BSM", s)]] <- a_fc %*% tempZ_t
       Z_padded[[paste0("BSM", s)]] <- tempZ
+      
+      # Generate simulations
+      if (nsim > 0) {
+        
+        # Model components
+        Z <- object$system_matrices$Z[[paste0("BSM", s)]]
+        Tmat <- object$system_matrices$T[[paste0("BSM", s)]]
+        R <- object$system_matrices$R[[paste0("BSM", s)]]
+        Q <- object$system_matrices$Q[[paste0("BSM", s)]]
+        dim(Z) <- c(dim(Z), 1)
+        dim(Tmat) <- c(dim(Tmat), 1)
+        dim(R) <- c(dim(R), 1)
+        dim(Q) <- c(dim(Q), 1)
+        
+        # Indices of eta and a components
+        eta_num <- dim(R)[[2]]
+        a_num <- dim(Z)[[2]]
+        eta_indices <- eta_index + 1:eta_num
+        a_indices <- a_index + 1:a_num
+        eta_index <- eta_index + eta_num
+        a_index <- a_index + a_num
+        
+        # Forecasted state and uncertainty
+        a1 <- object$predicted$a_fc[a_indices]
+        P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+        
+        # Obtain random samples of component
+        sim <- SimulateC(
+          nsim = nsim,
+          repeat_Q = s - 1,
+          N = forecast_period,
+          a = a1,
+          Z = Z,
+          T = Tmat,
+          R = R,
+          Q = Q,
+          P_star = P1,
+          draw_initial = TRUE,
+          eta_only = FALSE,
+          transposed_state = FALSE
+        )
+        sim_list[[paste0("BSM", s)]] <- sim$y
+        y_sim <- y_sim + sim$y
+        eta_sim[ , eta_indices, ] <- sim$eta
+        a_sim[ , a_indices, ] <- sim$a
+      }
     }
   }
 
@@ -267,6 +423,51 @@ predict.statespacer <- function(object,
       result$addvar[i, ] <- matrix(tempZ[, , i], nrow = p) %*% matrix(a_fc[i, ])
     }
     Z_padded$addvar <- tempZ
+    
+    # Generate simulations
+    if (nsim > 0) {
+      
+      # Model components
+      Z <- sys_mat$Z$addvar
+      Tmat <- object$system_matrices$T$addvar
+      R <- object$system_matrices$R$addvar
+      Q <- object$system_matrices$Q$addvar
+      dim(Tmat) <- c(dim(Tmat), 1)
+      dim(R) <- c(dim(R), 1)
+      dim(Q) <- c(dim(Q), 1)
+      
+      # Indices of eta and a components
+      eta_num <- dim(R)[[2]]
+      a_num <- dim(Z)[[2]]
+      eta_indices <- eta_index + 1:eta_num
+      a_indices <- a_index + 1:a_num
+      eta_index <- eta_index + eta_num
+      a_index <- a_index + a_num
+      
+      # Forecasted state and uncertainty
+      a1 <- object$predicted$a_fc[a_indices]
+      P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+      
+      # Obtain random samples of component
+      sim <- SimulateC(
+        nsim = nsim,
+        repeat_Q = 1,
+        N = forecast_period,
+        a = a1,
+        Z = Z,
+        T = Tmat,
+        R = R,
+        Q = Q,
+        P_star = P1,
+        draw_initial = TRUE,
+        eta_only = FALSE,
+        transposed_state = FALSE
+      )
+      sim_list$addvar <- sim$y
+      y_sim <- y_sim + sim$y
+      eta_sim[ , eta_indices, ] <- sim$eta
+      a_sim[ , a_indices, ] <- sim$a
+    }
   }
 
   # level_addvar
@@ -276,6 +477,54 @@ predict.statespacer <- function(object,
     tempZ_t <- t(tempZ)
     result$level <- a_fc %*% tempZ_t
     Z_padded$level <- tempZ
+    
+    # Generate simulations
+    if (nsim > 0) {
+      
+      # Model components
+      Z <- object$system_matrices$Z$level
+      Tmat <- sys_mat$Tmat$level
+      R <- object$system_matrices$R$level
+      Q <- BlockMatrix(
+        object$system_matrices$Q$level,
+        object$system_matrices$Q$level_addvar
+      )
+      dim(Z) <- c(dim(Z), 1)
+      dim(R) <- c(dim(R), 1)
+      dim(Q) <- c(dim(Q), 1)
+      
+      # Indices of eta and a components
+      eta_num <- dim(R)[[2]]
+      a_num <- dim(Z)[[2]]
+      eta_indices <- eta_index + 1:eta_num
+      a_indices <- a_index + 1:a_num
+      eta_index <- eta_index + eta_num
+      a_index <- a_index + a_num
+      
+      # Forecasted state and uncertainty
+      a1 <- object$predicted$a_fc[a_indices]
+      P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+      
+      # Obtain random samples of component
+      sim <- SimulateC(
+        nsim = nsim,
+        repeat_Q = 1,
+        N = forecast_period,
+        a = a1,
+        Z = Z,
+        T = Tmat,
+        R = R,
+        Q = Q,
+        P_star = P1,
+        draw_initial = TRUE,
+        eta_only = FALSE,
+        transposed_state = FALSE
+      )
+      sim_list$level <- sim$y
+      y_sim <- y_sim + sim$y
+      eta_sim[ , eta_indices, ] <- sim$eta
+      a_sim[ , a_indices, ] <- sim$a
+    }
   }
 
   # slope_addvar
@@ -285,6 +534,55 @@ predict.statespacer <- function(object,
     tempZ_t <- t(tempZ)
     result$level <- a_fc %*% tempZ_t
     Z_padded$level <- tempZ
+    
+    # Generate simulations
+    if (nsim > 0) {
+      
+      # Model components
+      Z <- object$system_matrices$Z$level
+      Tmat <- sys_mat$Tmat$level
+      R <- object$system_matrices$R$level
+      Q <- BlockMatrix(
+        object$system_matrices$Q$level,
+        object$system_matrices$Q$slope,
+        object$system_matrices$Q$level_addvar
+      )
+      dim(Z) <- c(dim(Z), 1)
+      dim(R) <- c(dim(R), 1)
+      dim(Q) <- c(dim(Q), 1)
+      
+      # Indices of eta and a components
+      eta_num <- dim(R)[[2]]
+      a_num <- dim(Z)[[2]]
+      eta_indices <- eta_index + 1:eta_num
+      a_indices <- a_index + 1:a_num
+      eta_index <- eta_index + eta_num
+      a_index <- a_index + a_num
+      
+      # Forecasted state and uncertainty
+      a1 <- object$predicted$a_fc[a_indices]
+      P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+      
+      # Obtain random samples of component
+      sim <- SimulateC(
+        nsim = nsim,
+        repeat_Q = 1,
+        N = forecast_period,
+        a = a1,
+        Z = Z,
+        T = Tmat,
+        R = R,
+        Q = Q,
+        P_star = P1,
+        draw_initial = TRUE,
+        eta_only = FALSE,
+        transposed_state = FALSE
+      )
+      sim_list$level <- sim$y
+      y_sim <- y_sim + sim$y
+      eta_sim[ , eta_indices, ] <- sim$eta
+      a_sim[ , a_indices, ] <- sim$a
+    }
   }
 
   # Cycle
@@ -295,6 +593,52 @@ predict.statespacer <- function(object,
       tempZ_t <- t(tempZ)
       result[[paste0("Cycle", j)]] <- a_fc %*% tempZ_t
       Z_padded[[paste0("Cycle", j)]] <- tempZ
+      
+      # Generate simulations
+      if (nsim > 0) {
+        
+        # Model components
+        Z <- object$system_matrices$Z[[paste0("Cycle", i)]]
+        Tmat <- object$system_matrices$T[[paste0("Cycle", i)]]
+        R <- object$system_matrices$R[[paste0("Cycle", i)]]
+        Q <- object$system_matrices$Q[[paste0("Cycle", i)]]
+        dim(Z) <- c(dim(Z), 1)
+        dim(Tmat) <- c(dim(Tmat), 1)
+        dim(R) <- c(dim(R), 1)
+        dim(Q) <- c(dim(Q), 1)
+
+        # Indices of eta and a components
+        eta_num <- dim(R)[[2]]
+        a_num <- dim(Z)[[2]]
+        eta_indices <- eta_index + 1:eta_num
+        a_indices <- a_index + 1:a_num
+        eta_index <- eta_index + eta_num
+        a_index <- a_index + a_num
+        
+        # Forecasted state and uncertainty
+        a1 <- object$predicted$a_fc[a_indices]
+        P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+
+        # Obtain random samples of component
+        sim <- SimulateC(
+          nsim = nsim,
+          repeat_Q = 2,
+          N = forecast_period,
+          a = a1,
+          Z = Z,
+          T = Tmat,
+          R = R,
+          Q = Q,
+          P_star = P1,
+          draw_initial = TRUE,
+          eta_only = FALSE,
+          transposed_state = FALSE
+        )
+        sim_list[[paste0("Cycle", i)]] <- sim$y
+        y_sim <- y_sim + sim$y
+        eta_sim[ , eta_indices, ] <- sim$eta
+        a_sim[ , a_indices, ] <- sim$a
+      }
     }
   }
 
@@ -306,6 +650,52 @@ predict.statespacer <- function(object,
       tempZ_t <- t(tempZ)
       result[[paste0("ARIMA", j)]] <- a_fc %*% tempZ_t
       Z_padded[[paste0("ARIMA", j)]] <- tempZ
+      
+      # Generate simulations
+      if (nsim > 0) {
+        
+        # Model components
+        Z <- object$system_matrices$Z[[paste0("ARIMA", i)]]
+        Tmat <- object$system_matrices$T[[paste0("ARIMA", i)]]
+        R <- object$system_matrices$R[[paste0("ARIMA", i)]]
+        Q <- object$system_matrices$Q[[paste0("ARIMA", i)]]
+        dim(Z) <- c(dim(Z), 1)
+        dim(Tmat) <- c(dim(Tmat), 1)
+        dim(R) <- c(dim(R), 1)
+        dim(Q) <- c(dim(Q), 1)
+        
+        # Indices of eta and a components
+        eta_num <- dim(R)[[2]]
+        a_num <- dim(Z)[[2]]
+        eta_indices <- eta_index + 1:eta_num
+        a_indices <- a_index + 1:a_num
+        eta_index <- eta_index + eta_num
+        a_index <- a_index + a_num
+        
+        # Forecasted state and uncertainty
+        a1 <- object$predicted$a_fc[a_indices]
+        P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+        
+        # Obtain random samples of component
+        sim <- SimulateC(
+          nsim = nsim,
+          repeat_Q = 1,
+          N = forecast_period,
+          a = a1,
+          Z = Z,
+          T = Tmat,
+          R = R,
+          Q = Q,
+          P_star = P1,
+          draw_initial = TRUE,
+          eta_only = FALSE,
+          transposed_state = FALSE
+        )
+        sim_list[[paste0("ARIMA", j)]] <- sim$y
+        y_sim <- y_sim + sim$y
+        eta_sim[ , eta_indices, ] <- sim$eta
+        a_sim[ , a_indices, ] <- sim$a
+      }
     }
   }
 
@@ -317,6 +707,52 @@ predict.statespacer <- function(object,
       tempZ_t <- t(tempZ)
       result[[paste0("SARIMA", j)]] <- a_fc %*% tempZ_t
       Z_padded[[paste0("SARIMA", j)]] <- tempZ
+      
+      # Generate simulations
+      if (nsim > 0) {
+        
+        # Model components
+        Z <- object$system_matrices$Z[[paste0("SARIMA", i)]]
+        Tmat <- object$system_matrices$T[[paste0("SARIMA", i)]]
+        R <- object$system_matrices$R[[paste0("SARIMA", i)]]
+        Q <- object$system_matrices$Q[[paste0("SARIMA", i)]]
+        dim(Z) <- c(dim(Z), 1)
+        dim(Tmat) <- c(dim(Tmat), 1)
+        dim(R) <- c(dim(R), 1)
+        dim(Q) <- c(dim(Q), 1)
+        
+        # Indices of eta and a components
+        eta_num <- dim(R)[[2]]
+        a_num <- dim(Z)[[2]]
+        eta_indices <- eta_index + 1:eta_num
+        a_indices <- a_index + 1:a_num
+        eta_index <- eta_index + eta_num
+        a_index <- a_index + a_num
+        
+        # Forecasted state and uncertainty
+        a1 <- object$predicted$a_fc[a_indices]
+        P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+        
+        # Obtain random samples of component
+        sim <- SimulateC(
+          nsim = nsim,
+          repeat_Q = 1,
+          N = forecast_period,
+          a = a1,
+          Z = Z,
+          T = Tmat,
+          R = R,
+          Q = Q,
+          P_star = P1,
+          draw_initial = TRUE,
+          eta_only = FALSE,
+          transposed_state = FALSE
+        )
+        sim_list[[paste0("SARIMA", i)]] <- sim$y
+        y_sim <- y_sim + sim$y
+        eta_sim[ , eta_indices, ] <- sim$eta
+        a_sim[ , a_indices, ] <- sim$a
+      }
     }
   }
 
@@ -336,11 +772,102 @@ predict.statespacer <- function(object,
       }
     }
     Z_padded$self_spec <- tempZ
+    
+    # Generate simulations
+    if (nsim > 0) {
+      
+      # Model components
+      Z <- sys_mat$Z$self_spec
+      Tmat <- sys_mat$Tmat$self_spec
+      R <- sys_mat$R$self_spec
+      Q <- sys_mat$Q$self_spec
+      if (is.matrix(Z)) {
+        dim(Z) <- c(dim(Z), 1)
+      }
+      if (is.matrix(Tmat)) {
+        dim(Tmat) <- c(dim(Tmat), 1)
+      }
+      if (is.matrix(R)) {
+        dim(R) <- c(dim(R), 1)
+      }
+      if (is.matrix(Q)) {
+        dim(Q) <- c(dim(Q), 1)
+      }
+      
+      # Indices of eta and a components
+      eta_num <- dim(R)[[2]]
+      a_num <- dim(Z)[[2]]
+      eta_indices <- eta_index + 1:eta_num
+      a_indices <- a_index + 1:a_num
+      eta_index <- eta_index + eta_num
+      a_index <- a_index + a_num
+      
+      # Forecasted state and uncertainty
+      a1 <- object$predicted$a_fc[a_indices]
+      P1 <- object$predicted$P_fc[a_indices, a_indices, drop = FALSE]
+      
+      # Obtain random samples of component
+      sim <- SimulateC(
+        nsim = nsim,
+        repeat_Q = 1,
+        N = forecast_period,
+        a = a1,
+        Z = Z,
+        T = Tmat,
+        R = R,
+        Q = Q,
+        P_star = P1,
+        draw_initial = TRUE,
+        eta_only = FALSE,
+        transposed_state = FALSE
+      )
+      sim_list$self_spec <- sim$y
+      y_sim <- y_sim + sim$y
+      eta_sim[ , eta_indices, ] <- sim$eta
+      a_sim[ , a_indices, ] <- sim$a
+    }
   }
 
+  if (nsim > 0) {
+    ### Generate Simulated Residuals ###
+    
+    # Model components
+    Q <- sys_mat$H$H
+    if (is.matrix(Q)) {
+      dim(Q) <- c(dim(Q), 1)
+    }
+    
+    # Obtain random samples of component
+    sim <- SimulateC(
+      nsim = nsim,
+      repeat_Q = 1,
+      N = forecast_period,
+      a = matrix(0),
+      Z = array(0, dim = c(1, 1, 1)),
+      T = array(0, dim = c(1, 1, 1)),
+      R = array(0, dim = c(1, 1, 1)),
+      Q = Q,
+      P_star = matrix(0),
+      draw_initial = FALSE,
+      eta_only = TRUE,
+      transposed_state = FALSE
+    )
+    sim_list$epsilon <- sim$eta
+    y_sim <- y_sim + sim$eta
+  }
+  
   result <- c(
     list(y_fc = y_fc, a_fc = a_fc, Fmat_fc = Fmat_fc, P_fc = P_fc),
     result, list(Z_padded = Z_padded)
   )
+  
+  # Store simulated objects
+  if (nsim > 0) {
+    sim_list$y <- y_sim
+    sim_list$a <- a_sim
+    sim_list$eta <- eta_sim
+    result$sim <- sim_list
+  }
+
   return(result)
 }
