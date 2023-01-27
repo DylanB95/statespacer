@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // ExtractComponentC
 arma::cube ExtractComponentC(const arma::cube& a, const arma::cube& Z);
 RcppExport SEXP _statespacer_ExtractComponentC(SEXP aSEXP, SEXP ZSEXP) {
