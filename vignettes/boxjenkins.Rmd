@@ -44,7 +44,8 @@ fit <- statespacer(y = Data,
                    arima_list = list(c(3, 0, 0)),
                    format_level = matrix(0),
                    initial = c(0.5*log(var(Data)), 0, 0, 0),
-                   verbose = TRUE)
+                   verbose = TRUE,
+                   standard_errors = TRUE)
 ```
 
 Note that we eliminate the observation error by setting its variance to 0, although it's perfectly fine to include observation errors along with ARIMA models, as long as you watch out for identification issues of course. For details about specifying proper initial values, please see `vignette("dictionary", "statespacer")`.
